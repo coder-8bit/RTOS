@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//Volumes/AGL/SystemUI/**)",
+      "Bash(ssh *)",
+      "Bash(tee *)",
+      "Bash(cp *)",
+      "Bash(scp *)",
+      "Bash(grep *)"
+    ]
+  },
+  "$version": 3
+}

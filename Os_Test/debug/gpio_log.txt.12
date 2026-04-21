@@ -1,0 +1,25 @@
+21:04:06.4923 [INFO] sysbus: Loading block of 12312 bytes length at 0x8000000.
+21:04:06.5017 [INFO] sysbus: Loading block of 10860 bytes length at 0x8003018.
+21:04:06.5262 [INFO] stm32: CPUs: ["stm32.cpu"] were added to a new GDB server created on port :3333
+21:04:06.5263 [INFO] stm32: GDB server with all CPUs started on port :3333
+21:04:07.2226 [INFO] cpu: Guessing VectorTableOffset value to be 0x8000000.
+21:04:07.2290 [INFO] cpu: Setting initial values: PC = 0x80015AD, SP = 0x20005000.
+21:04:07.2303 [INFO] stm32: Machine started.
+21:04:15.1396 [WARNING] gpioPortC: Unhandled write to offset 0x4. Unhandled bits: [22] when writing value 0x44244444. Tags: CNF13 (0x0).
+21:04:15.1399 [WARNING] gpioPortA: Unhandled write to offset 0x4. Unhandled bits: [6-7] when writing value 0x444444B4. Tags: CNF9 (0x2).
+21:04:15.1445 [INFO] usart1: [host: 8,68s (+8,68s)|virt: 0,51ms (+0,51ms)] [T=0] [BOOT] PROFILE=DEMO MODE=FULL_PREEMPTIVE
+21:04:15.1446 [INFO] usart1: [host: 8,67s (+8,67s)|virt: 0,51ms (+0,51ms)] [T=0] [BOOT] PROFILE=DEMO MODE=FULL_PREEMPTIVE
+21:04:15.1450 [INFO] usart1: [host: 8,68s (+0,61ms)|virt:     0,51ms (+0s)] [T=0] [BOOT] Peripherals initialized
+21:04:15.1450 [INFO] usart1: [host: 8,67s (+0,5ms)|virt:     0,51ms (+0s)] [T=0] [BOOT] Peripherals initialized
+21:04:15.1786 [INFO] usart1: [host: 8,71s (+33,56ms)|virt:     0,2s (+0,2s)] [T=200] [DEMO] Task_DemoLed
+21:04:15.1786 [INFO] usart1: [host: 8,71s (+33,57ms)|virt:     0,2s (+0,2s)] [T=200] [DEMO] Task_DemoLed
+21:04:15.2205 [INFO] usart1: [host: 8,75s (+41,87ms)|virt:     0,5s (+0,3s)] [T=500] [DEMO] Task_DemoUart
+21:04:15.2243 [INFO] usart1: [host: 8,75s (+41,87ms)|virt:     0,5s (+0,3s)] [T=500] [DEMO] Task_DemoUart
+21:04:15.3020 [INFO] usart1: [host: 8,84s (+81,59ms)|virt:     1,2s (+0,7s)] [T=1200] [DEMO] Task_DemoLed
+21:04:15.3021 [INFO] usart1: [host: 8,83s (+81,58ms)|virt:     1,2s (+0,7s)] [T=1200] [DEMO] Task_DemoLed
+21:04:15.3995 [INFO] usart1: [host: 8,93s (+97,44ms)|virt:       2s (+0,8s)] [T=2000] [DEMO] Task_DemoUart
+21:04:15.4294 [INFO] usart1: [host: 8,93s (+97,44ms)|virt:       2s (+0,8s)] [T=2000] [DEMO] Task_DemoUart
+21:04:15.4295 [INFO] usart1: [host: 8,96s (+30,02ms)|virt:     2,2s (+0,2s)] [T=2200] [DEMO] Task_DemoLed
+21:04:15.5565 [INFO] usart1: [host: 8,96s (+30,02ms)|virt:     2,2s (+0,2s)] [T=2200] [DEMO] Task_DemoLed
+21:04:15.5565 [INFO] stm32: Machine paused.
+21:04:15.5688 [INFO] stm32: Disposed.

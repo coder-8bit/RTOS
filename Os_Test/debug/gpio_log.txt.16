@@ -1,0 +1,21 @@
+21:15:53.9430 [INFO] sysbus: Loading block of 10408 bytes length at 0x8000000.
+21:15:53.9531 [INFO] sysbus: Loading block of 3472 bytes length at 0x80028A8.
+21:15:53.9810 [INFO] stm32: CPUs: ["stm32.cpu"] were added to a new GDB server created on port :3333
+21:15:53.9810 [INFO] stm32: GDB server with all CPUs started on port :3333
+21:15:54.5974 [INFO] cpu: Guessing VectorTableOffset value to be 0x8000000.
+21:15:54.6034 [INFO] cpu: Setting initial values: PC = 0x80011B9, SP = 0x20005000.
+21:15:54.6043 [INFO] stm32: Machine started.
+21:23:34.8108 [WARNING] gpioPortC: Unhandled write to offset 0x4. Unhandled bits: [22] when writing value 0x44244444. Tags: CNF13 (0x0).
+21:23:34.8111 [WARNING] gpioPortA: Unhandled write to offset 0x4. Unhandled bits: [6-7] when writing value 0x444444B4. Tags: CNF9 (0x2).
+21:23:34.8157 [INFO] usart1: [host: 0,46ks (+0,46ks)|virt: 0,41ms (+0,41ms)] [T=0] [BOOT] OS_SCHED_MODE_DEFAULT=FULL_PREEMPTIVE
+21:23:34.8162 [INFO] usart1: [host: 0,46ks (+0,46ks)|virt: 0,41ms (+0,41ms)] [T=0] [BOOT] OS_SCHED_MODE_DEFAULT=FULL_PREEMPTIVE
+21:23:34.8162 [INFO] usart1: [host: 0,46ks (+1,57ms)|virt:     0,41ms (+0s)] [T=0] [BOOT] Khoi tao phan cung thanh cong.
+21:23:34.8162 [INFO] usart1: [host: 0,46ks (+1,49ms)|virt:     0,41ms (+0s)] [T=0] [BOOT] Khoi tao phan cung thanh cong.
+21:23:35.9652 [INFO] usart1: [host:  0,46ks (+1,15s)|virt: 20,4ms (+19,99ms)] [T=20] [FP_LOW] Task Low Bat Dau (Dang chiem dung CPU)
+21:23:36.3180 [INFO] usart1: [host:  0,46ks (+1,15s)|virt: 20,4ms (+19,99ms)] [T=20] [FP_LOW] Task Low Bat Dau (Dang chiem dung CPU)
+21:23:40.3899 [INFO] usart1: [host:  0,47ks (+4,42s)|virt:    40,4ms (+20ms)] [T=40] [FP_HIGH] => Task High Nhay Vao Cat Ngang Thanh Cong!
+21:23:40.4342 [INFO] usart1: [host:  0,47ks (+4,42s)|virt:    40,4ms (+20ms)] [T=40] [FP_HIGH] => Task High Nhay Vao Cat Ngang Thanh Cong!
+21:23:40.4342 [INFO] usart1: [host: 0,47ks (+44,29ms)|virt:    80,4ms (+40ms)] [T=80] [FP_LOW] Task Low Tiep Tuc va Ket Thuc (Sau khi Task High xong)
+21:23:40.4342 [INFO] usart1: [host: 0,47ks (+44,27ms)|virt:    80,4ms (+40ms)] [T=80] [FP_LOW] Task Low Tiep Tuc va Ket Thuc (Sau khi Task High xong)
+21:23:47.6483 [INFO] stm32: Machine paused.
+21:23:47.6633 [INFO] stm32: Disposed.

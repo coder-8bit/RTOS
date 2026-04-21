@@ -1,0 +1,4 @@
+21:57:51.1824 [INFO] sysbus: Loading block of 10408 bytes length at 0x8000000.
+21:57:51.1926 [INFO] sysbus: Loading block of 3472 bytes length at 0x80028A8.
+21:57:51.2237 [INFO] stm32: CPUs: ["stm32.cpu"] were added to a new GDB server created on port :3333
+21:57:51.2237 [INFO] stm32: GDB server with all CPUs started on port :3333

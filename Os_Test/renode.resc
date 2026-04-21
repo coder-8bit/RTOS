@@ -1,0 +1,48 @@
+:name: STM32F103 OSEK Debug
+:description: Script chạy OSEK-RTOS trên STM32F103 với debug support
+
+# ------------------------------------------------------------
+# Các biến mặc định:
+# - test_os.py có thể sinh một bản .resc tạm và override các biến này.
+# - vì vậy file gốc vẫn dùng được cho chạy tay, còn script vẫn tái sử dụng được.
+# ------------------------------------------------------------
+$elf_path ?= @./build/os_test/os_test.elf
+$gpio_log_path ?= @./debug/gpio_log.txt
+$gdb_port ?= 3333
+
+# 1. Tạo máy ảo Renode tên "stm32".
+mach create "stm32"
+
+# 2. Nạp mô tả phần cứng của board/MCU.
+machine LoadPlatformDescription @debug/stm32f103_full.repl
+
+# 3. Ghi log analyzer/GPIO ra file để có thể xem lại sau khi test.
+logFile $gpio_log_path
+
+# 4. Hiển thị analyzer cho USART1 để xem dữ liệu TX.
+showAnalyzer sysbus.usart1
+
+# 5. Mô hình hóa nút nhấn user button trên PA0.
+machine LoadPlatformDescriptionFromString "userButtonPA0: Miscellaneous.Button @ gpioPortA 0 { invert: true; -> gpioPortA@0 }"
+
+# 6. Mô hình hóa LED trên PC13.
+machine LoadPlatformDescriptionFromString "ledPC13: Miscellaneous.LED @ gpioPortC 13 { invert: true }; gpioPortC: { 13 -> ledPC13@0 }"
+
+# 7. Mở lại analyzer USART1 sau khi nạp các phần tử platform động.
+showAnalyzer sysbus.usart1
+
+# 8. Nạp firmware ELF đã build.
+sysbus LoadELF $elf_path
+
+# 9. Tạo alias để thao tác nhanh trong monitor.
+alias btn_down "sysbus.gpioPortA.userButtonPA0 Press"
+alias btn_up   "sysbus.gpioPortA.userButtonPA0 Release"
+alias led_check "sysbus.gpioPortC.ledPC13 State"
+
+# 10. Mở GDB server để script/GDB client attach vào.
+machine StartGdbServer $gdb_port
+mach set "stm32"
+
+# 11. Giảm log nhiễu và in thông báo hướng dẫn.
+logLevel 3 sysbus
+echo "Renode ready for GDB connection on configured port. Use 'start' to begin simulation."

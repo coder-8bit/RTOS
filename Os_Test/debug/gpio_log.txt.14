@@ -1,0 +1,21 @@
+21:10:31.8323 [INFO] sysbus: Loading block of 12276 bytes length at 0x8000000.
+21:10:31.8426 [INFO] sysbus: Loading block of 10860 bytes length at 0x8002FF4.
+21:10:31.8786 [INFO] stm32: CPUs: ["stm32.cpu"] were added to a new GDB server created on port :3333
+21:10:31.8786 [INFO] stm32: GDB server with all CPUs started on port :3333
+21:10:32.4916 [INFO] cpu: Guessing VectorTableOffset value to be 0x8000000.
+21:10:32.4975 [INFO] cpu: Setting initial values: PC = 0x8001591, SP = 0x20005000.
+21:10:32.4986 [INFO] stm32: Machine started.
+21:28:07.7538 [WARNING] gpioPortC: Unhandled write to offset 0x4. Unhandled bits: [22] when writing value 0x44244444. Tags: CNF13 (0x0).
+21:28:08.2405 [WARNING] gpioPortA: Unhandled write to offset 0x4. Unhandled bits: [6-7] when writing value 0x444444B4. Tags: CNF9 (0x2).
+21:28:38.6200 [INFO] usart1: [host: 1,09ks (+1,09ks)|virt: 0,53ms (+0,53ms)] [T=0] [BOOT] PROFILE=PRIORITY_FIFO MODE=PRIORITY_FIFO
+21:28:39.0663 [INFO] usart1: [host: 1,09ks (+1,09ks)|virt: 0,53ms (+0,53ms)] [T=0] [BOOT] PROFILE=PRIORITY_FIFO MODE=PRIORITY_FIFO
+21:28:41.8603 [INFO] usart1: [host:  1,09ks (+3,24s)|virt:  0,53ms (+0,1µs)] [T=0] [BOOT] Peripherals initialized
+21:28:42.0673 [INFO] usart1: [host:  1,09ks (+3,24s)|virt:  0,53ms (+0,1µs)] [T=0] [BOOT] Peripherals initialized
+22:08:07.4110 [INFO] usart1: [host: 3,46ks (+2,37ks)|virt: 20,5ms (+19,97ms)] [T=20] [FIFO] Task_Fifo1 START
+22:08:07.4276 [INFO] usart1: [host: 3,46ks (+2,37ks)|virt: 20,5ms (+19,97ms)] [T=20] [FIFO] Task_Fifo1 START
+22:08:07.4277 [INFO] usart1: [host: 3,46ks (+17,09ms)|virt:    40,5ms (+20ms)] [T=40] [FIFO] Task_Fifo1 END
+22:08:07.4277 [INFO] usart1: [host: 3,46ks (+16,93ms)|virt:    40,5ms (+20ms)] [T=40] [FIFO] Task_Fifo1 END
+22:08:07.4279 [INFO] usart1: [host:  3,46ks (+0,36ms)|virt: 40,51ms (+9,29µs)] [T=40] [FIFO] Task_Fifo2 RUN
+22:08:07.4279 [INFO] usart1: [host:  3,46ks (+0,29ms)|virt: 40,51ms (+9,29µs)] [T=40] [FIFO] Task_Fifo2 RUN
+22:08:07.8731 [INFO] stm32: Machine paused.
+22:08:07.8903 [INFO] stm32: Disposed.

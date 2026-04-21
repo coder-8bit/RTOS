@@ -1,0 +1,127 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Make build (Renode Full Preemptive)",
+      "type": "shell",
+      "command": "make",
+      "args": ["clean", "all", "TARGET_ENV=renode"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "group": "build",
+      "problemMatcher": ["$gcc"],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "Make build (Hardware Full Preemptive)",
+      "type": "shell",
+      "command": "make",
+      "args": ["clean", "all"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": ["$gcc"],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "Renode cleanup",
+      "type": "shell",
+      "command": "pkill -f 'Renode' 2>/dev/null; lsof -ti:3333 | xargs kill -9 2>/dev/null; sleep 0.5; echo '✅ Port 3333 đã được dọn sạch'",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Renode start",
+      "type": "shell",
+      "command": "/Applications/Renode.app/Contents/MacOS/renode",
+      "args": [
+        "--console",
+        "--disable-gui",
+        "-e",
+        "i @renode.resc"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "isBackground": true,
+      "problemMatcher": {
+        "pattern": {
+          "regexp": ".*"
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".*Renode, version.*",
+          "endsPattern": ".*Renode ready for GDB connection.*"
+        }
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Renode prepare os_test Full Preemptive",
+      "dependsOn": [
+        "Renode cleanup",
+        "Make build (Renode Full Preemptive)",
+        "Renode start"
+      ],
+      "dependsOrder": "sequence"
+    },
+    {
+      "label": "Make build (Renode Non Preemptive)",
+      "type": "shell",
+      "command": "make",
+      "args": ["clean", "all", "TARGET_ENV=renode"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "group": "build",
+      "problemMatcher": ["$gcc"],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "Make build (Hardware Non Preemptive)",
+      "type": "shell",
+      "command": "make",
+      "args": ["clean", "all"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "group": "build",
+      "problemMatcher": ["$gcc"],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "Renode prepare os_test Non Preemptive",
+      "dependsOn": [
+        "Renode cleanup",
+        "Make build (Renode Non Preemptive)",
+        "Renode start"
+      ],
+      "dependsOrder": "sequence"
+    }
+  ]
+}

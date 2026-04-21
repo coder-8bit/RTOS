@@ -1,0 +1,5 @@
+/Users/phamvanvu/HALAAcademy/AUTOSAR-Classic-ECU-Development/Os_Test/build/CMakeFiles/IVIQuickTest.dir
+/Users/phamvanvu/HALAAcademy/AUTOSAR-Classic-ECU-Development/Os_Test/build/CMakeFiles/edit_cache.dir
+/Users/phamvanvu/HALAAcademy/AUTOSAR-Classic-ECU-Development/Os_Test/build/CMakeFiles/rebuild_cache.dir
+/Users/phamvanvu/HALAAcademy/AUTOSAR-Classic-ECU-Development/Os_Test/build/CMakeFiles/IVIQuickTest_autogen_timestamp_deps.dir
+/Users/phamvanvu/HALAAcademy/AUTOSAR-Classic-ECU-Development/Os_Test/build/CMakeFiles/IVIQuickTest_autogen.dir

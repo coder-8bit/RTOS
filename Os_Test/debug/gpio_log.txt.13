@@ -1,0 +1,22 @@
+21:07:51.4028 [INFO] Old file /Users/phamvanvu/Projects/AUTOSAR/OSEK-RTOS/Os_Test/debug/gpio_log.txt moved to /Users/phamvanvu/Projects/AUTOSAR/OSEK-RTOS/Os_Test/debug/gpio_log.txt.12
+21:07:51.4313 [INFO] sysbus: Loading block of 12276 bytes length at 0x8000000.
+21:07:51.4407 [INFO] sysbus: Loading block of 10860 bytes length at 0x8002FF4.
+21:07:51.4685 [INFO] stm32: CPUs: ["stm32.cpu"] were added to a new GDB server created on port :3333
+21:07:51.4685 [INFO] stm32: GDB server with all CPUs started on port :3333
+21:07:52.2140 [INFO] cpu: Guessing VectorTableOffset value to be 0x8000000.
+21:07:52.2209 [INFO] cpu: Setting initial values: PC = 0x8001591, SP = 0x20005000.
+21:07:52.2221 [INFO] stm32: Machine started.
+21:09:20.3827 [WARNING] gpioPortC: Unhandled write to offset 0x4. Unhandled bits: [22] when writing value 0x44244444. Tags: CNF13 (0x0).
+21:09:20.3828 [WARNING] gpioPortA: Unhandled write to offset 0x4. Unhandled bits: [6-7] when writing value 0x444444B4. Tags: CNF9 (0x2).
+21:09:20.3854 [INFO] usart1: [host: 88,98s (+88,98s)|virt: 0,51ms (+0,51ms)] [T=0] [BOOT] PROFILE=PRIORITY_FIFO MODE=PRIORITY_FIFO
+21:09:20.3855 [INFO] usart1: [host: 88,97s (+88,97s)|virt: 0,51ms (+0,51ms)] [T=0] [BOOT] PROFILE=PRIORITY_FIFO MODE=PRIORITY_FIFO
+21:09:20.3856 [INFO] usart1: [host: 88,98s (+0,29ms)|virt:     0,51ms (+0s)] [T=0] [BOOT] Peripherals initialized
+21:09:20.3857 [INFO] usart1: [host: 88,97s (+0,21ms)|virt:     0,51ms (+0s)] [T=0] [BOOT] Peripherals initialized
+21:09:20.3908 [INFO] usart1: [host: 88,98s (+5,06ms)|virt: 20,5ms (+19,99ms)] [T=20] [FIFO] Task_Fifo1 START
+21:09:20.3909 [INFO] usart1: [host: 88,97s (+5,08ms)|virt: 20,5ms (+19,99ms)] [T=20] [FIFO] Task_Fifo1 START
+21:09:20.4070 [INFO] usart1: [host:   89s (+16,19ms)|virt:    40,5ms (+20ms)] [T=40] [FIFO] Task_Fifo1 END
+21:09:20.4071 [INFO] usart1: [host: 88,99s (+16,21ms)|virt:    40,5ms (+20ms)] [T=40] [FIFO] Task_Fifo1 END
+21:09:20.4072 [INFO] usart1: [host:    89s (+0,28ms)|virt: 40,51ms (+9,28µs)] [T=40] [FIFO] Task_Fifo2 RUN
+21:09:20.4072 [INFO] usart1: [host:  88,99s (+0,24ms)|virt: 40,51ms (+9,28µs)] [T=40] [FIFO] Task_Fifo2 RUN
+21:09:20.8032 [INFO] stm32: Machine paused.
+21:09:20.8192 [INFO] stm32: Disposed.

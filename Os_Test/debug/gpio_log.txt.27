@@ -1,0 +1,21 @@
+20:49:23.8008 [INFO] sysbus: Loading block of 10436 bytes length at 0x8000000.
+20:49:23.8118 [INFO] sysbus: Loading block of 3472 bytes length at 0x80028C4.
+20:49:23.8355 [INFO] stm32: CPUs: ["stm32.cpu"] were added to a new GDB server created on port :3333
+20:49:23.8355 [INFO] stm32: GDB server with all CPUs started on port :3333
+20:49:55.3037 [INFO] cpu: Guessing VectorTableOffset value to be 0x8000000.
+20:49:55.3129 [INFO] cpu: Setting initial values: PC = 0x800119D, SP = 0x20005000.
+20:49:55.3141 [INFO] stm32: Machine started.
+20:49:55.5894 [WARNING] gpioPortC: Unhandled write to offset 0x4. Unhandled bits: [22] when writing value 0x44244444. Tags: CNF13 (0x0).
+20:49:55.5897 [WARNING] gpioPortA: Unhandled write to offset 0x4. Unhandled bits: [6-7] when writing value 0x444444B4. Tags: CNF9 (0x2).
+20:49:55.5925 [INFO] usart1: [host: 31,81s (+31,81s)|virt: 0,41ms (+0,41ms)] [T=0] [BOOT] OS_SCHED_MODE_DEFAULT=NON_PREEMPTIVE
+20:49:55.5926 [INFO] usart1: [host: 31,8s (+31,8s)|virt: 0,41ms (+0,41ms)] [T=0] [BOOT] OS_SCHED_MODE_DEFAULT=NON_PREEMPTIVE
+20:49:55.5929 [INFO] usart1: [host: 31,81s (+0,39ms)|virt:     0,41ms (+0s)] [T=0] [BOOT] Khoi tao phan cung thanh cong.
+20:49:55.5929 [INFO] usart1: [host: 31,8s (+0,33ms)|virt:     0,41ms (+0s)] [T=0] [BOOT] Khoi tao phan cung thanh cong.
+20:49:55.5993 [INFO] usart1: [host: 31,82s (+6,42ms)|virt: 20,4ms (+19,99ms)] [T=20] [NP_LOW] Task Low Bat Dau (Dang chiem dung CPU)
+20:49:55.5993 [INFO] usart1: [host: 31,81s (+6,44ms)|virt: 20,4ms (+19,99ms)] [T=20] [NP_LOW] Task Low Bat Dau (Dang chiem dung CPU)
+20:49:55.6459 [INFO] usart1: [host: 31,86s (+46,57ms)|virt:    80,4ms (+60ms)] [T=80] [NP_LOW] Task Low Tiep Tuc va Ket Thuc (Sau khi Alarm High no, nhung van KHONG bi cat ngang)
+20:49:55.6460 [INFO] usart1: [host: 31,86s (+46,58ms)|virt:    80,4ms (+60ms)] [T=80] [NP_LOW] Task Low Tiep Tuc va Ket Thuc (Sau khi Alarm High no, nhung van KHONG bi cat ngang)
+20:49:55.6467 [INFO] usart1: [host:  31,86s (+0,82ms)|virt: 80,42ms (+21,86µs)] [T=80] [NP_HIGH] => Task High Nhay Vao (Chi duoc chay sau khi Task Low ket thuc!)
+20:49:55.6467 [INFO] usart1: [host:   31,86s (+0,8ms)|virt: 80,42ms (+21,86µs)] [T=80] [NP_HIGH] => Task High Nhay Vao (Chi duoc chay sau khi Task Low ket thuc!)
+20:53:10.3274 [INFO] stm32: Machine paused.
+20:53:10.3395 [INFO] stm32: Disposed.

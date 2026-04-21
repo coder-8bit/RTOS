@@ -1,0 +1,13 @@
+20:54:01.0438 [INFO] sysbus: Loading block of 10436 bytes length at 0x8000000.
+20:54:01.0512 [INFO] sysbus: Loading block of 3472 bytes length at 0x80028C4.
+20:54:01.0794 [INFO] stm32: CPUs: ["stm32.cpu"] were added to a new GDB server created on port :3333
+20:54:01.0794 [INFO] stm32: GDB server with all CPUs started on port :3333
+20:54:01.6211 [INFO] cpu: Guessing VectorTableOffset value to be 0x8000000.
+20:54:01.6288 [INFO] cpu: Setting initial values: PC = 0x800119D, SP = 0x20005000.
+20:54:01.6299 [INFO] stm32: Machine started.
+20:54:01.7929 [INFO] stm32: Machine paused.
+20:54:01.7953 [WARNING] No action for reset - macro stm32.reset is not registered.
+20:54:01.7969 [ERROR] cpu: PC does not lay in memory or PC and SP are equal to zero. CPU was halted.
+20:54:01.7971 [INFO] stm32: Machine resumed.
+20:54:01.7993 [INFO] stm32: Machine paused.
+20:54:38.1293 [INFO] stm32: Disposed.
