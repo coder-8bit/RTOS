@@ -1,17 +1,347 @@
-21:12:45.6574 [INFO] sysbus: Loading block of 10436 bytes length at 0x8000000.
-21:12:45.6670 [INFO] sysbus: Loading block of 3472 bytes length at 0x80028C4.
-21:12:45.7000 [INFO] stm32: CPUs: ["stm32.cpu"] were added to a new GDB server created on port :3333
-21:12:45.7000 [INFO] stm32: GDB server with all CPUs started on port :3333
-21:12:46.2726 [INFO] cpu: Guessing VectorTableOffset value to be 0x8000000.
-21:12:46.2791 [INFO] cpu: Setting initial values: PC = 0x800119D, SP = 0x20005000.
-21:12:46.2801 [INFO] stm32: Machine started.
-21:12:48.9632 [WARNING] gpioPortC: Unhandled write to offset 0x4. Unhandled bits: [22] when writing value 0x44244444. Tags: CNF13 (0x0).
-21:12:48.9635 [WARNING] gpioPortA: Unhandled write to offset 0x4. Unhandled bits: [6-7] when writing value 0x444444B4. Tags: CNF9 (0x2).
-21:12:48.9668 [INFO] usart1: [host: 3,33s (+3,33s)|virt: 0,41ms (+0,41ms)] [T=0] [BOOT] OS_SCHED_MODE_DEFAULT=NON_PREEMPTIVE
-21:12:48.9669 [INFO] usart1: [host: 3,32s (+3,32s)|virt: 0,41ms (+0,41ms)] [T=0] [BOOT] OS_SCHED_MODE_DEFAULT=NON_PREEMPTIVE
-21:12:48.9672 [INFO] usart1: [host: 3,33s (+0,44ms)|virt:     0,41ms (+0s)] [T=0] [BOOT] Khoi tao phan cung thanh cong.
-21:12:48.9672 [INFO] usart1: [host: 3,32s (+0,37ms)|virt:     0,41ms (+0s)] [T=0] [BOOT] Khoi tao phan cung thanh cong.
-21:15:54.7585 [INFO] usart1: [host: 0,19ks (+0,19ks)|virt:  20,41ms (+20ms)] [T=20] [NP_LOW] Task Low Bat Dau (Dang chiem dung CPU)
-21:15:54.7900 [INFO] usart1: [host: 0,19ks (+0,19ks)|virt:  20,41ms (+20ms)] [T=20] [NP_LOW] Task Low Bat Dau (Dang chiem dung CPU)
-21:18:16.4743 [INFO] usart1: [host: 0,33ks (+0,14ks)|virt: 80,42ms (+60,01ms)] [T=80] [NP_LOW] Task Low Tiep Tuc va Ket Thuc (Sau khi Alarm High no, nhung van KHONG bi cat ngang)
-21:18:16.7912 [INFO] usart1: [host: 0,33ks (+0,14ks)|virt: 80,42ms (+60,01ms)] [T=80] [NP_LOW] Task Low Tiep Tuc va Ket Thuc (Sau khi Alarm High no, nhung van KHONG bi cat ngang)
+21:39:15.3829 [INFO] sysbus: Loading block of 11840 bytes length at 0x8000000.
+21:39:15.4028 [INFO] sysbus: Loading block of 5936 bytes length at 0x8002E40.
+21:39:15.4280 [INFO] stm32: CPUs: ["stm32.cpu"] were added to a new GDB server created on port :3333
+21:39:15.4280 [INFO] stm32: GDB server with all CPUs started on port :3333
+21:39:16.0848 [INFO] cpu: Guessing VectorTableOffset value to be 0x8000000.
+21:39:16.0910 [INFO] cpu: Setting initial values: PC = 0x800153D, SP = 0x20005000.
+21:39:16.0919 [INFO] stm32: Machine started.
+21:39:18.7625 [WARNING] gpioPortC: Unhandled write to offset 0x4. Unhandled bits: [22] when writing value 0x44244444. Tags: CNF13 (0x0).
+21:39:18.7629 [WARNING] gpioPortA: Unhandled write to offset 0x4. Unhandled bits: [6-7] when writing value 0x444444B4. Tags: CNF9 (0x2).
+21:39:18.7656 [INFO] usart1: [host: 3,4s (+3,4s)|virt: 0,45ms (+0,45ms)] [T=0] [BOOT] PROFILE=MIXED_SCHEDULE_TABLE MODE=MIXED
+21:39:18.7657 [INFO] usart1: [host: 3,39s (+3,39s)|virt: 0,45ms (+0,45ms)] [T=0] [BOOT] PROFILE=MIXED_SCHEDULE_TABLE MODE=MIXED
+21:39:18.7658 [INFO] usart1: [host: 3,4s (+0,32ms)|virt:     0,45ms (+0s)] [T=0] [BOOT] Khoi tao phan cung thanh cong.
+21:39:18.7659 [INFO] usart1: [host: 3,39s (+0,24ms)|virt:     0,45ms (+0s)] [T=0] [BOOT] Khoi tao phan cung thanh cong.
+21:42:12.1346 [INFO] usart1: [host: 0,18ks (+0,17ks)|virt: 20,41ms (+19,96ms)] [T=20] [MIXED_PRE_LOW] START preemptible window
+21:42:12.4258 [INFO] usart1: [host: 0,18ks (+0,17ks)|virt: 20,41ms (+19,96ms)] [T=20] [MIXED_PRE_LOW] START preemptible window
+21:50:00.7278 [INFO] usart1: [host: 0,65ks (+0,47ks)|virt:  40,4ms (+19,99ms)] [T=40] [MIXED_HIGH] RUN while preemptible low is paused
+21:50:00.7577 [INFO] usart1: [host: 0,65ks (+0,47ks)|virt:  40,4ms (+19,99ms)] [T=40] [MIXED_HIGH] RUN while preemptible low is paused
+21:50:00.7578 [INFO] usart1: [host: 0,65ks (+29,91ms)|virt:     80,4ms (+40ms)] [T=80] [MIXED_PRE_LOW] END after high preempted it
+21:50:00.7644 [INFO] usart1: [host: 0,65ks (+29,91ms)|virt:     80,4ms (+40ms)] [T=80] [MIXED_PRE_LOW] END after high preempted it
+21:50:00.7644 [INFO] usart1: [host:   0,65ks (+6,6ms)|virt:      0,12s (+40ms)] [T=120] [MIXED_NONPRE_LOW] START nonpreemptible window
+21:50:00.8062 [INFO] usart1: [host:   0,65ks (+6,6ms)|virt:      0,12s (+40ms)] [T=120] [MIXED_NONPRE_LOW] START nonpreemptible window
+21:50:00.8062 [INFO] usart1: [host: 0,65ks (+41,87ms)|virt:      0,18s (+60ms)] [T=180] [MIXED_NONPRE_LOW] END before queued high
+21:50:00.8065 [INFO] usart1: [host: 0,65ks (+41,87ms)|virt:      0,18s (+60ms)] [T=180] [MIXED_NONPRE_LOW] END before queued high
+21:50:00.8065 [INFO] usart1: [host:  0,65ks (+0,33ms)|virt:   0,18s (+11,01µs)] [T=180] [MIXED_HIGH] RUN after nonpreemptible low finished
+21:50:00.8066 [INFO] usart1: [host:  0,65ks (+0,31ms)|virt:   0,18s (+11,01µs)] [T=180] [MIXED_HIGH] RUN after nonpreemptible low finished
+21:50:00.8116 [INFO] usart1: [host:  0,65ks (+5,04ms)|virt:   0,22s (+39,99ms)] [T=220] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.8116 [INFO] usart1: [host:  0,65ks (+5,05ms)|virt:   0,22s (+39,99ms)] [T=220] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.8129 [INFO] usart1: [host:  0,65ks (+1,42ms)|virt:      0,23s (+10ms)] [T=230] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.8129 [INFO] usart1: [host:   0,65ks (+1,4ms)|virt:      0,23s (+10ms)] [T=230] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.8165 [INFO] usart1: [host:  0,65ks (+3,59ms)|virt:      0,26s (+30ms)] [T=260] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.8166 [INFO] usart1: [host:  0,65ks (+3,61ms)|virt:      0,26s (+30ms)] [T=260] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.8178 [INFO] usart1: [host:  0,65ks (+1,27ms)|virt:      0,27s (+10ms)] [T=270] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.8178 [INFO] usart1: [host:  0,65ks (+1,25ms)|virt:      0,27s (+10ms)] [T=270] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.8217 [INFO] usart1: [host:  0,65ks (+3,85ms)|virt:       0,3s (+30ms)] [T=300] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.8217 [INFO] usart1: [host:  0,65ks (+3,88ms)|virt:       0,3s (+30ms)] [T=300] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.8228 [INFO] usart1: [host:  0,65ks (+1,14ms)|virt:      0,31s (+10ms)] [T=310] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.8228 [INFO] usart1: [host:  0,65ks (+1,11ms)|virt:      0,31s (+10ms)] [T=310] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.8265 [INFO] usart1: [host:  0,65ks (+3,68ms)|virt:      0,34s (+30ms)] [T=340] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.8265 [INFO] usart1: [host:  0,65ks (+3,69ms)|virt:      0,34s (+30ms)] [T=340] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.8285 [INFO] usart1: [host:  0,65ks (+2,04ms)|virt:      0,35s (+10ms)] [T=350] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.8329 [INFO] usart1: [host:  0,65ks (+2,04ms)|virt:      0,35s (+10ms)] [T=350] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.8329 [INFO] usart1: [host:   0,65ks (+4,3ms)|virt:      0,38s (+30ms)] [T=380] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.8330 [INFO] usart1: [host:  0,65ks (+4,31ms)|virt:      0,38s (+30ms)] [T=380] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.8412 [INFO] usart1: [host:  0,65ks (+8,35ms)|virt:      0,39s (+10ms)] [T=390] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.8455 [INFO] usart1: [host:  0,65ks (+8,35ms)|virt:      0,39s (+10ms)] [T=390] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.8456 [INFO] usart1: [host:  0,65ks (+4,32ms)|virt:      0,42s (+30ms)] [T=420] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.8469 [INFO] usart1: [host:  0,65ks (+4,32ms)|virt:      0,42s (+30ms)] [T=420] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.8479 [INFO] usart1: [host:  0,65ks (+1,47ms)|virt:      0,43s (+10ms)] [T=430] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.8479 [INFO] usart1: [host:  0,65ks (+1,45ms)|virt:      0,43s (+10ms)] [T=430] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.8507 [INFO] usart1: [host:   0,65ks (+3,8ms)|virt:      0,46s (+30ms)] [T=460] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.8531 [INFO] usart1: [host:   0,65ks (+3,8ms)|virt:      0,46s (+30ms)] [T=460] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.8531 [INFO] usart1: [host:   0,65ks (+2,3ms)|virt:      0,47s (+10ms)] [T=470] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.8531 [INFO] usart1: [host:  0,65ks (+2,32ms)|virt:      0,47s (+10ms)] [T=470] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.8574 [INFO] usart1: [host:  0,65ks (+4,33ms)|virt:       0,5s (+30ms)] [T=500] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.8574 [INFO] usart1: [host:  0,65ks (+4,32ms)|virt:       0,5s (+30ms)] [T=500] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.8584 [INFO] usart1: [host:  0,65ks (+1,09ms)|virt:      0,51s (+10ms)] [T=510] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.8584 [INFO] usart1: [host:  0,65ks (+1,06ms)|virt:      0,51s (+10ms)] [T=510] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.8626 [INFO] usart1: [host:   0,65ks (+4,1ms)|virt:      0,54s (+30ms)] [T=540] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.8626 [INFO] usart1: [host:  0,65ks (+4,13ms)|virt:      0,54s (+30ms)] [T=540] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.8640 [INFO] usart1: [host:   0,65ks (+1,3ms)|virt:      0,55s (+10ms)] [T=550] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.8640 [INFO] usart1: [host:  0,65ks (+1,28ms)|virt:      0,55s (+10ms)] [T=550] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.8697 [INFO] usart1: [host:  0,65ks (+5,84ms)|virt:      0,58s (+30ms)] [T=580] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.8698 [INFO] usart1: [host:  0,65ks (+5,86ms)|virt:      0,58s (+30ms)] [T=580] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.8712 [INFO] usart1: [host:  0,65ks (+1,45ms)|virt:      0,59s (+10ms)] [T=590] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.8746 [INFO] usart1: [host:  0,65ks (+1,45ms)|virt:      0,59s (+10ms)] [T=590] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.8746 [INFO] usart1: [host:  0,65ks (+3,42ms)|virt:      0,62s (+30ms)] [T=620] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.8747 [INFO] usart1: [host:  0,65ks (+3,41ms)|virt:      0,62s (+30ms)] [T=620] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.8759 [INFO] usart1: [host:  0,65ks (+1,31ms)|virt:      0,63s (+10ms)] [T=630] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.8759 [INFO] usart1: [host:  0,65ks (+1,29ms)|virt:      0,63s (+10ms)] [T=630] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.8794 [INFO] usart1: [host:  0,65ks (+3,46ms)|virt:      0,66s (+30ms)] [T=660] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.8794 [INFO] usart1: [host:  0,65ks (+3,48ms)|virt:      0,66s (+30ms)] [T=660] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.8808 [INFO] usart1: [host:  0,65ks (+1,43ms)|virt:      0,67s (+10ms)] [T=670] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.8808 [INFO] usart1: [host:  0,65ks (+1,41ms)|virt:      0,67s (+10ms)] [T=670] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.8843 [INFO] usart1: [host:  0,65ks (+3,53ms)|virt:       0,7s (+30ms)] [T=700] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.8844 [INFO] usart1: [host:  0,65ks (+3,56ms)|virt:       0,7s (+30ms)] [T=700] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.8856 [INFO] usart1: [host:  0,65ks (+1,34ms)|virt:      0,71s (+10ms)] [T=710] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.8856 [INFO] usart1: [host:  0,65ks (+1,32ms)|virt:      0,71s (+10ms)] [T=710] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.8906 [INFO] usart1: [host:   0,65ks (+4,9ms)|virt:      0,74s (+30ms)] [T=740] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.8906 [INFO] usart1: [host:  0,65ks (+4,93ms)|virt:      0,74s (+30ms)] [T=740] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.8917 [INFO] usart1: [host:   0,65ks (+1,2ms)|virt:      0,75s (+10ms)] [T=750] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.8918 [INFO] usart1: [host:  0,65ks (+1,17ms)|virt:      0,75s (+10ms)] [T=750] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.8956 [INFO] usart1: [host:  0,65ks (+3,78ms)|virt:      0,78s (+30ms)] [T=780] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.8956 [INFO] usart1: [host:  0,65ks (+3,81ms)|virt:      0,78s (+30ms)] [T=780] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.8967 [INFO] usart1: [host:  0,65ks (+1,22ms)|virt:      0,79s (+10ms)] [T=790] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.8967 [INFO] usart1: [host:  0,65ks (+1,19ms)|virt:      0,79s (+10ms)] [T=790] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.9008 [INFO] usart1: [host:  0,65ks (+3,93ms)|virt:      0,82s (+30ms)] [T=820] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.9008 [INFO] usart1: [host:  0,65ks (+3,96ms)|virt:      0,82s (+30ms)] [T=820] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.9039 [INFO] usart1: [host:  0,65ks (+3,16ms)|virt:      0,83s (+10ms)] [T=830] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.9076 [INFO] usart1: [host:  0,65ks (+3,16ms)|virt:      0,83s (+10ms)] [T=830] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.9076 [INFO] usart1: [host:  0,65ks (+3,72ms)|virt:      0,86s (+30ms)] [T=860] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.9076 [INFO] usart1: [host:  0,65ks (+3,71ms)|virt:      0,86s (+30ms)] [T=860] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.9089 [INFO] usart1: [host:  0,65ks (+1,39ms)|virt:      0,87s (+10ms)] [T=870] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.9090 [INFO] usart1: [host:  0,65ks (+1,37ms)|virt:      0,87s (+10ms)] [T=870] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.9124 [INFO] usart1: [host:  0,65ks (+3,46ms)|virt:       0,9s (+30ms)] [T=900] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.9125 [INFO] usart1: [host:  0,65ks (+3,47ms)|virt:       0,9s (+30ms)] [T=900] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.9138 [INFO] usart1: [host:  0,65ks (+1,38ms)|virt:      0,91s (+10ms)] [T=910] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.9138 [INFO] usart1: [host:  0,65ks (+1,36ms)|virt:      0,91s (+10ms)] [T=910] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.9170 [INFO] usart1: [host:  0,65ks (+3,17ms)|virt:      0,94s (+30ms)] [T=940] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.9179 [INFO] usart1: [host:  0,65ks (+3,17ms)|virt:      0,94s (+30ms)] [T=940] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.9181 [INFO] usart1: [host:  0,65ks (+1,04ms)|virt:      0,95s (+10ms)] [T=950] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.9181 [INFO] usart1: [host:  0,65ks (+1,03ms)|virt:      0,95s (+10ms)] [T=950] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.9225 [INFO] usart1: [host:  0,65ks (+4,46ms)|virt:      0,98s (+30ms)] [T=980] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.9225 [INFO] usart1: [host:   0,65ks (+4,5ms)|virt:      0,98s (+30ms)] [T=980] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.9238 [INFO] usart1: [host:  0,65ks (+1,33ms)|virt:      0,99s (+10ms)] [T=990] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.9238 [INFO] usart1: [host:   0,65ks (+1,3ms)|virt:      0,99s (+10ms)] [T=990] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.9280 [INFO] usart1: [host:  0,65ks (+4,17ms)|virt:      1,02s (+30ms)] [T=1020] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.9280 [INFO] usart1: [host:   0,65ks (+4,2ms)|virt:      1,02s (+30ms)] [T=1020] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.9291 [INFO] usart1: [host:  0,65ks (+1,19ms)|virt:      1,03s (+10ms)] [T=1030] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.9291 [INFO] usart1: [host:  0,65ks (+1,16ms)|virt:      1,03s (+10ms)] [T=1030] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.9329 [INFO] usart1: [host:   0,65ks (+3,7ms)|virt:      1,06s (+30ms)] [T=1060] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.9329 [INFO] usart1: [host:  0,65ks (+3,73ms)|virt:      1,06s (+30ms)] [T=1060] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.9343 [INFO] usart1: [host:  0,65ks (+1,43ms)|virt:      1,07s (+10ms)] [T=1070] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.9343 [INFO] usart1: [host:  0,65ks (+1,42ms)|virt:      1,07s (+10ms)] [T=1070] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.9395 [INFO] usart1: [host:  0,65ks (+5,25ms)|virt:       1,1s (+30ms)] [T=1100] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.9411 [INFO] usart1: [host:  0,65ks (+5,25ms)|virt:       1,1s (+30ms)] [T=1100] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.9411 [INFO] usart1: [host:  0,65ks (+1,61ms)|virt:      1,11s (+10ms)] [T=1110] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.9411 [INFO] usart1: [host:  0,65ks (+1,59ms)|virt:      1,11s (+10ms)] [T=1110] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.9447 [INFO] usart1: [host:  0,65ks (+3,57ms)|virt:      1,14s (+30ms)] [T=1140] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.9447 [INFO] usart1: [host:  0,65ks (+3,59ms)|virt:      1,14s (+30ms)] [T=1140] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.9459 [INFO] usart1: [host:  0,65ks (+1,21ms)|virt:      1,15s (+10ms)] [T=1150] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.9459 [INFO] usart1: [host:  0,65ks (+1,19ms)|virt:      1,15s (+10ms)] [T=1150] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.9493 [INFO] usart1: [host:  0,65ks (+3,38ms)|virt:   1,18s (+29,99ms)] [T=1180] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.9494 [INFO] usart1: [host:   0,65ks (+3,4ms)|virt:   1,18s (+29,99ms)] [T=1180] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.9505 [INFO] usart1: [host:  0,65ks (+1,25ms)|virt:      1,19s (+10ms)] [T=1190] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.9505 [INFO] usart1: [host:  0,65ks (+1,23ms)|virt:      1,19s (+10ms)] [T=1190] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.9543 [INFO] usart1: [host:  0,65ks (+3,72ms)|virt:      1,22s (+30ms)] [T=1220] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.9543 [INFO] usart1: [host:  0,65ks (+3,73ms)|virt:      1,22s (+30ms)] [T=1220] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.9560 [INFO] usart1: [host:  0,65ks (+1,69ms)|virt:      1,23s (+10ms)] [T=1230] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.9594 [INFO] usart1: [host:  0,65ks (+1,69ms)|virt:      1,23s (+10ms)] [T=1230] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.9594 [INFO] usart1: [host:  0,65ks (+3,44ms)|virt:      1,26s (+30ms)] [T=1260] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.9617 [INFO] usart1: [host:  0,65ks (+3,44ms)|virt:      1,26s (+30ms)] [T=1260] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.9617 [INFO] usart1: [host:  0,65ks (+2,27ms)|virt:      1,27s (+10ms)] [T=1270] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.9618 [INFO] usart1: [host:  0,65ks (+2,28ms)|virt:      1,27s (+10ms)] [T=1270] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.9657 [INFO] usart1: [host:  0,65ks (+3,99ms)|virt:       1,3s (+30ms)] [T=1300] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.9657 [INFO] usart1: [host:  0,65ks (+4,02ms)|virt:       1,3s (+30ms)] [T=1300] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.9667 [INFO] usart1: [host:   0,65ks (+1,1ms)|virt:      1,31s (+10ms)] [T=1310] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.9667 [INFO] usart1: [host:  0,65ks (+1,04ms)|virt:      1,31s (+10ms)] [T=1310] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.9725 [INFO] usart1: [host:   0,65ks (+5,7ms)|virt:      1,34s (+30ms)] [T=1340] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.9725 [INFO] usart1: [host:  0,65ks (+5,73ms)|virt:      1,34s (+30ms)] [T=1340] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.9738 [INFO] usart1: [host:  0,65ks (+1,42ms)|virt:      1,35s (+10ms)] [T=1350] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.9739 [INFO] usart1: [host:   0,65ks (+1,4ms)|virt:      1,35s (+10ms)] [T=1350] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.9773 [INFO] usart1: [host:  0,65ks (+3,44ms)|virt:      1,38s (+30ms)] [T=1380] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.9774 [INFO] usart1: [host:  0,65ks (+3,47ms)|virt:      1,38s (+30ms)] [T=1380] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.9787 [INFO] usart1: [host:  0,65ks (+1,37ms)|virt:      1,39s (+10ms)] [T=1390] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.9825 [INFO] usart1: [host:  0,65ks (+1,37ms)|virt:      1,39s (+10ms)] [T=1390] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.9825 [INFO] usart1: [host:  0,65ks (+3,75ms)|virt:      1,42s (+30ms)] [T=1420] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.9834 [INFO] usart1: [host:  0,65ks (+3,75ms)|virt:      1,42s (+30ms)] [T=1420] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.9835 [INFO] usart1: [host:  0,65ks (+1,05ms)|virt:      1,43s (+10ms)] [T=1430] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.9835 [INFO] usart1: [host:  0,65ks (+1,02ms)|virt:      1,43s (+10ms)] [T=1430] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.9879 [INFO] usart1: [host:  0,65ks (+4,44ms)|virt:      1,46s (+30ms)] [T=1460] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.9879 [INFO] usart1: [host:  0,65ks (+4,46ms)|virt:      1,46s (+30ms)] [T=1460] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.9893 [INFO] usart1: [host:  0,65ks (+1,36ms)|virt:      1,47s (+10ms)] [T=1470] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.9923 [INFO] usart1: [host:  0,65ks (+1,36ms)|virt:      1,47s (+10ms)] [T=1470] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.9923 [INFO] usart1: [host:  0,65ks (+2,97ms)|virt:       1,5s (+30ms)] [T=1500] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.9923 [INFO] usart1: [host:  0,65ks (+2,96ms)|virt:       1,5s (+30ms)] [T=1500] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.9936 [INFO] usart1: [host:  0,65ks (+1,33ms)|virt:      1,51s (+10ms)] [T=1510] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.9969 [INFO] usart1: [host:  0,65ks (+1,33ms)|virt:      1,51s (+10ms)] [T=1510] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.9969 [INFO] usart1: [host:  0,65ks (+3,26ms)|virt:      1,54s (+30ms)] [T=1540] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.9986 [INFO] usart1: [host:  0,65ks (+3,26ms)|virt:      1,54s (+30ms)] [T=1540] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:00.9986 [INFO] usart1: [host:  0,65ks (+1,73ms)|virt:      1,55s (+10ms)] [T=1550] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:00.9986 [INFO] usart1: [host:  0,65ks (+1,72ms)|virt:      1,55s (+10ms)] [T=1550] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.0012 [INFO] usart1: [host:   0,65ks (+2,7ms)|virt:      1,58s (+30ms)] [T=1580] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.0012 [INFO] usart1: [host:  0,65ks (+2,69ms)|virt:      1,58s (+30ms)] [T=1580] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.0023 [INFO] usart1: [host:  0,65ks (+1,12ms)|virt:      1,59s (+10ms)] [T=1590] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.0094 [INFO] usart1: [host:  0,65ks (+1,12ms)|virt:      1,59s (+10ms)] [T=1590] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.0094 [INFO] usart1: [host:  0,65ks (+6,88ms)|virt:      1,62s (+30ms)] [T=1620] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.0095 [INFO] usart1: [host:   0,65ks (+6,9ms)|virt:      1,62s (+30ms)] [T=1620] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.0117 [INFO] usart1: [host:   0,65ks (+2,4ms)|virt:      1,63s (+10ms)] [T=1630] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.0153 [INFO] usart1: [host:   0,65ks (+2,4ms)|virt:      1,63s (+10ms)] [T=1630] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.0153 [INFO] usart1: [host:  0,65ks (+3,59ms)|virt:      1,66s (+30ms)] [T=1660] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.0163 [INFO] usart1: [host:  0,65ks (+3,59ms)|virt:      1,66s (+30ms)] [T=1660] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.0163 [INFO] usart1: [host:  0,65ks (+1,08ms)|virt:      1,67s (+10ms)] [T=1670] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.0164 [INFO] usart1: [host:  0,65ks (+1,07ms)|virt:      1,67s (+10ms)] [T=1670] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.0191 [INFO] usart1: [host:  0,65ks (+2,78ms)|virt:       1,7s (+30ms)] [T=1700] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.0202 [INFO] usart1: [host:  0,65ks (+2,78ms)|virt:       1,7s (+30ms)] [T=1700] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.0202 [INFO] usart1: [host:  0,65ks (+1,13ms)|virt:      1,71s (+10ms)] [T=1710] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.0238 [INFO] usart1: [host:  0,65ks (+1,13ms)|virt:      1,71s (+10ms)] [T=1710] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.0238 [INFO] usart1: [host:  0,65ks (+3,48ms)|virt:      1,74s (+30ms)] [T=1740] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.0238 [INFO] usart1: [host:   0,65ks (+3,5ms)|virt:      1,74s (+30ms)] [T=1740] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.0249 [INFO] usart1: [host:  0,65ks (+1,14ms)|virt:      1,75s (+10ms)] [T=1750] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.0249 [INFO] usart1: [host:  0,65ks (+1,13ms)|virt:      1,75s (+10ms)] [T=1750] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.0286 [INFO] usart1: [host:   0,65ks (+3,7ms)|virt:      1,78s (+30ms)] [T=1780] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.0286 [INFO] usart1: [host:  0,65ks (+3,71ms)|virt:      1,78s (+30ms)] [T=1780] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.0296 [INFO] usart1: [host:  0,65ks (+1,04ms)|virt:      1,79s (+10ms)] [T=1790] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.0296 [INFO] usart1: [host:  0,65ks (+1,03ms)|virt:      1,79s (+10ms)] [T=1790] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.0339 [INFO] usart1: [host:  0,65ks (+4,26ms)|virt:      1,82s (+30ms)] [T=1820] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.0339 [INFO] usart1: [host:  0,65ks (+4,27ms)|virt:      1,82s (+30ms)] [T=1820] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.0354 [INFO] usart1: [host:   0,65ks (+1,5ms)|virt:      1,83s (+10ms)] [T=1830] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.0354 [INFO] usart1: [host:  0,65ks (+1,49ms)|virt:      1,83s (+10ms)] [T=1830] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.0390 [INFO] usart1: [host:  0,65ks (+3,66ms)|virt:      1,86s (+30ms)] [T=1860] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.0403 [INFO] usart1: [host:  0,65ks (+3,66ms)|virt:      1,86s (+30ms)] [T=1860] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.0403 [INFO] usart1: [host:  0,65ks (+1,31ms)|virt:      1,87s (+10ms)] [T=1870] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.0485 [INFO] usart1: [host:  0,65ks (+1,31ms)|virt:      1,87s (+10ms)] [T=1870] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.0485 [INFO] usart1: [host:  0,65ks (+8,11ms)|virt:       1,9s (+30ms)] [T=1900] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.0485 [INFO] usart1: [host:  0,65ks (+8,12ms)|virt:       1,9s (+30ms)] [T=1900] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.0496 [INFO] usart1: [host:  0,65ks (+1,19ms)|virt:      1,91s (+10ms)] [T=1910] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.0496 [INFO] usart1: [host:  0,65ks (+1,17ms)|virt:      1,91s (+10ms)] [T=1910] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.0543 [INFO] usart1: [host:  0,65ks (+4,57ms)|virt:      1,94s (+30ms)] [T=1940] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.0543 [INFO] usart1: [host:  0,65ks (+4,58ms)|virt:      1,94s (+30ms)] [T=1940] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.0560 [INFO] usart1: [host:  0,65ks (+1,81ms)|virt:      1,95s (+10ms)] [T=1950] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.0587 [INFO] usart1: [host:  0,65ks (+1,81ms)|virt:      1,95s (+10ms)] [T=1950] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.0587 [INFO] usart1: [host:  0,65ks (+2,66ms)|virt:      1,98s (+30ms)] [T=1980] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.0602 [INFO] usart1: [host:  0,65ks (+2,66ms)|virt:      1,98s (+30ms)] [T=1980] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.0602 [INFO] usart1: [host:  0,65ks (+1,44ms)|virt:      1,99s (+10ms)] [T=1990] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.0646 [INFO] usart1: [host:  0,65ks (+1,44ms)|virt:      1,99s (+10ms)] [T=1990] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.0646 [INFO] usart1: [host:  0,65ks (+4,51ms)|virt:      2,02s (+30ms)] [T=2020] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.0685 [INFO] usart1: [host:  0,65ks (+4,51ms)|virt:      2,02s (+30ms)] [T=2020] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.0685 [INFO] usart1: [host:   0,65ks (+1,2ms)|virt:      2,03s (+10ms)] [T=2030] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.0685 [INFO] usart1: [host:  0,65ks (+1,19ms)|virt:      2,03s (+10ms)] [T=2030] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.0691 [INFO] usart1: [host:  0,65ks (+3,28ms)|virt:      2,06s (+30ms)] [T=2060] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.0712 [INFO] usart1: [host:  0,65ks (+3,28ms)|virt:      2,06s (+30ms)] [T=2060] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.0713 [INFO] usart1: [host:  0,65ks (+2,06ms)|virt:      2,07s (+10ms)] [T=2070] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.0762 [INFO] usart1: [host:  0,65ks (+2,06ms)|virt:      2,07s (+10ms)] [T=2070] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.0763 [INFO] usart1: [host:  0,65ks (+5,04ms)|virt:       2,1s (+30ms)] [T=2100] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.0781 [INFO] usart1: [host:  0,65ks (+5,04ms)|virt:       2,1s (+30ms)] [T=2100] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.0781 [INFO] usart1: [host:  0,65ks (+1,85ms)|virt:      2,11s (+10ms)] [T=2110] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.0813 [INFO] usart1: [host:  0,65ks (+1,85ms)|virt:      2,11s (+10ms)] [T=2110] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.0813 [INFO] usart1: [host:  0,65ks (+3,24ms)|virt:      2,14s (+30ms)] [T=2140] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.0828 [INFO] usart1: [host:  0,65ks (+3,24ms)|virt:      2,14s (+30ms)] [T=2140] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.0828 [INFO] usart1: [host:  0,65ks (+1,48ms)|virt:      2,15s (+10ms)] [T=2150] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.0857 [INFO] usart1: [host:  0,65ks (+1,48ms)|virt:      2,15s (+10ms)] [T=2150] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.0857 [INFO] usart1: [host:  0,65ks (+2,97ms)|virt:      2,18s (+30ms)] [T=2180] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.0857 [INFO] usart1: [host:  0,65ks (+2,96ms)|virt:      2,18s (+30ms)] [T=2180] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.0867 [INFO] usart1: [host:  0,65ks (+0,98ms)|virt:      2,19s (+10ms)] [T=2190] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.0867 [INFO] usart1: [host:  0,65ks (+0,97ms)|virt:      2,19s (+10ms)] [T=2190] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.0897 [INFO] usart1: [host:  0,65ks (+3,02ms)|virt:      2,22s (+30ms)] [T=2220] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.0907 [INFO] usart1: [host:  0,65ks (+3,02ms)|virt:      2,22s (+30ms)] [T=2220] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.0907 [INFO] usart1: [host:  0,65ks (+1,03ms)|virt:      2,23s (+10ms)] [T=2230] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.0941 [INFO] usart1: [host:  0,65ks (+1,03ms)|virt:      2,23s (+10ms)] [T=2230] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.0941 [INFO] usart1: [host:  0,65ks (+3,31ms)|virt:      2,26s (+30ms)] [T=2260] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.0941 [INFO] usart1: [host:  0,65ks (+3,32ms)|virt:      2,26s (+30ms)] [T=2260] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.0951 [INFO] usart1: [host:  0,65ks (+1,06ms)|virt:      2,27s (+10ms)] [T=2270] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.0952 [INFO] usart1: [host:  0,65ks (+1,05ms)|virt:      2,27s (+10ms)] [T=2270] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.0979 [INFO] usart1: [host:  0,65ks (+2,77ms)|virt:       2,3s (+30ms)] [T=2300] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.0988 [INFO] usart1: [host:  0,65ks (+2,77ms)|virt:       2,3s (+30ms)] [T=2300] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.0989 [INFO] usart1: [host:  0,65ks (+0,96ms)|virt:      2,31s (+10ms)] [T=2310] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.1020 [INFO] usart1: [host:  0,65ks (+0,96ms)|virt:      2,31s (+10ms)] [T=2310] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.1021 [INFO] usart1: [host:  0,65ks (+3,14ms)|virt:      2,34s (+30ms)] [T=2340] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.1034 [INFO] usart1: [host:  0,65ks (+3,14ms)|virt:      2,34s (+30ms)] [T=2340] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.1034 [INFO] usart1: [host:  0,65ks (+1,37ms)|virt:      2,35s (+10ms)] [T=2350] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.1060 [INFO] usart1: [host:  0,65ks (+1,37ms)|virt:      2,35s (+10ms)] [T=2350] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.1060 [INFO] usart1: [host:  0,65ks (+2,67ms)|virt:      2,38s (+30ms)] [T=2380] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.1060 [INFO] usart1: [host:  0,65ks (+2,66ms)|virt:      2,38s (+30ms)] [T=2380] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.1070 [INFO] usart1: [host:     0,65ks (+1ms)|virt:      2,39s (+10ms)] [T=2390] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.1114 [INFO] usart1: [host:     0,65ks (+1ms)|virt:      2,39s (+10ms)] [T=2390] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.1114 [INFO] usart1: [host:  0,65ks (+4,27ms)|virt:      2,42s (+30ms)] [T=2420] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.1114 [INFO] usart1: [host:  0,65ks (+4,29ms)|virt:      2,42s (+30ms)] [T=2420] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.1123 [INFO] usart1: [host:     0,65ks (+1ms)|virt:      2,43s (+10ms)] [T=2430] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.1123 [INFO] usart1: [host:  0,65ks (+0,98ms)|virt:      2,43s (+10ms)] [T=2430] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.1150 [INFO] usart1: [host:  0,65ks (+2,72ms)|virt:      2,46s (+30ms)] [T=2460] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.1160 [INFO] usart1: [host:  0,65ks (+2,72ms)|virt:      2,46s (+30ms)] [T=2460] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.1160 [INFO] usart1: [host:  0,65ks (+1,02ms)|virt:      2,47s (+10ms)] [T=2470] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.1199 [INFO] usart1: [host:  0,65ks (+1,02ms)|virt:      2,47s (+10ms)] [T=2470] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.1199 [INFO] usart1: [host:  0,65ks (+3,85ms)|virt:       2,5s (+30ms)] [T=2500] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.1200 [INFO] usart1: [host:  0,65ks (+3,87ms)|virt:       2,5s (+30ms)] [T=2500] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.1211 [INFO] usart1: [host:  0,65ks (+1,18ms)|virt:      2,51s (+10ms)] [T=2510] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.1211 [INFO] usart1: [host:  0,65ks (+1,17ms)|virt:      2,51s (+10ms)] [T=2510] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.1247 [INFO] usart1: [host:  0,65ks (+3,58ms)|virt:      2,54s (+30ms)] [T=2540] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.1265 [INFO] usart1: [host:  0,65ks (+3,58ms)|virt:      2,54s (+30ms)] [T=2540] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.1265 [INFO] usart1: [host:  0,65ks (+1,75ms)|virt:      2,55s (+10ms)] [T=2550] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.1265 [INFO] usart1: [host:  0,65ks (+1,74ms)|virt:      2,55s (+10ms)] [T=2550] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.1295 [INFO] usart1: [host:  0,65ks (+3,05ms)|virt:      2,58s (+30ms)] [T=2580] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.1295 [INFO] usart1: [host:  0,65ks (+3,04ms)|virt:      2,58s (+30ms)] [T=2580] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.1307 [INFO] usart1: [host:  0,65ks (+1,24ms)|virt:      2,59s (+10ms)] [T=2590] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.1349 [INFO] usart1: [host:  0,65ks (+1,24ms)|virt:      2,59s (+10ms)] [T=2590] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.1350 [INFO] usart1: [host:  0,65ks (+4,21ms)|virt:      2,62s (+30ms)] [T=2620] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.1350 [INFO] usart1: [host:  0,65ks (+4,22ms)|virt:      2,62s (+30ms)] [T=2620] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.1364 [INFO] usart1: [host:  0,65ks (+1,44ms)|virt:      2,63s (+10ms)] [T=2630] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.1364 [INFO] usart1: [host:  0,65ks (+1,43ms)|virt:      2,63s (+10ms)] [T=2630] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.1427 [INFO] usart1: [host:  0,65ks (+6,34ms)|virt:      2,66s (+30ms)] [T=2660] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.1428 [INFO] usart1: [host:  0,65ks (+6,35ms)|virt:      2,66s (+30ms)] [T=2660] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.1445 [INFO] usart1: [host:  0,65ks (+1,79ms)|virt:      2,67s (+10ms)] [T=2670] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.1445 [INFO] usart1: [host:  0,65ks (+1,78ms)|virt:      2,67s (+10ms)] [T=2670] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.1479 [INFO] usart1: [host:  0,65ks (+3,42ms)|virt:       2,7s (+30ms)] [T=2700] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.1491 [INFO] usart1: [host:  0,65ks (+3,42ms)|virt:       2,7s (+30ms)] [T=2700] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.1491 [INFO] usart1: [host:  0,65ks (+1,22ms)|virt:      2,71s (+10ms)] [T=2710] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.1491 [INFO] usart1: [host:  0,65ks (+1,21ms)|virt:      2,71s (+10ms)] [T=2710] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.1527 [INFO] usart1: [host:  0,65ks (+3,57ms)|virt:      2,74s (+30ms)] [T=2740] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.1545 [INFO] usart1: [host:  0,65ks (+3,57ms)|virt:      2,74s (+30ms)] [T=2740] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.1545 [INFO] usart1: [host:  0,65ks (+1,78ms)|virt:      2,75s (+10ms)] [T=2750] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.1587 [INFO] usart1: [host:  0,65ks (+1,78ms)|virt:      2,75s (+10ms)] [T=2750] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.1587 [INFO] usart1: [host:  0,65ks (+4,19ms)|virt:      2,78s (+30ms)] [T=2780] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.1603 [INFO] usart1: [host:  0,65ks (+4,19ms)|virt:      2,78s (+30ms)] [T=2780] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.1603 [INFO] usart1: [host:  0,65ks (+1,64ms)|virt:      2,79s (+10ms)] [T=2790] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.1648 [INFO] usart1: [host:  0,65ks (+1,64ms)|virt:      2,79s (+10ms)] [T=2790] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.1648 [INFO] usart1: [host:   0,65ks (+4,5ms)|virt:      2,82s (+30ms)] [T=2820] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.1648 [INFO] usart1: [host:  0,65ks (+4,51ms)|virt:      2,82s (+30ms)] [T=2820] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.1665 [INFO] usart1: [host:  0,65ks (+1,65ms)|virt:      2,83s (+10ms)] [T=2830] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.1665 [INFO] usart1: [host:  0,65ks (+1,66ms)|virt:      2,83s (+10ms)] [T=2830] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.1710 [INFO] usart1: [host:  0,65ks (+4,57ms)|virt:      2,86s (+30ms)] [T=2860] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.1738 [INFO] usart1: [host:  0,65ks (+4,57ms)|virt:      2,86s (+30ms)] [T=2860] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.1738 [INFO] usart1: [host:  0,65ks (+2,71ms)|virt:      2,87s (+10ms)] [T=2870] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.1798 [INFO] usart1: [host:  0,65ks (+2,71ms)|virt:      2,87s (+10ms)] [T=2870] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.1798 [INFO] usart1: [host:  0,65ks (+6,01ms)|virt:       2,9s (+30ms)] [T=2900] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.1798 [INFO] usart1: [host:  0,65ks (+6,02ms)|virt:       2,9s (+30ms)] [T=2900] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.1816 [INFO] usart1: [host:  0,65ks (+1,84ms)|virt:      2,91s (+10ms)] [T=2910] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.1816 [INFO] usart1: [host:  0,65ks (+1,82ms)|virt:      2,91s (+10ms)] [T=2910] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.1859 [INFO] usart1: [host:  0,65ks (+4,27ms)|virt:      2,94s (+30ms)] [T=2940] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.1859 [INFO] usart1: [host:  0,65ks (+4,28ms)|virt:      2,94s (+30ms)] [T=2940] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.1873 [INFO] usart1: [host:  0,65ks (+1,48ms)|virt:      2,95s (+10ms)] [T=2950] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.1874 [INFO] usart1: [host:  0,65ks (+1,46ms)|virt:      2,95s (+10ms)] [T=2950] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.1916 [INFO] usart1: [host:  0,65ks (+4,32ms)|virt:      2,98s (+30ms)] [T=2980] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.1916 [INFO] usart1: [host:  0,65ks (+4,33ms)|virt:      2,98s (+30ms)] [T=2980] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.1930 [INFO] usart1: [host:  0,65ks (+1,42ms)|virt:      2,99s (+10ms)] [T=2990] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.1969 [INFO] usart1: [host:  0,65ks (+1,42ms)|virt:      2,99s (+10ms)] [T=2990] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.1969 [INFO] usart1: [host:  0,65ks (+3,84ms)|virt:      3,02s (+30ms)] [T=3020] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.1969 [INFO] usart1: [host:  0,65ks (+3,85ms)|virt:      3,02s (+30ms)] [T=3020] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.1983 [INFO] usart1: [host:  0,65ks (+1,36ms)|virt:      3,03s (+10ms)] [T=3030] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.2021 [INFO] usart1: [host:  0,65ks (+1,36ms)|virt:      3,03s (+10ms)] [T=3030] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.2022 [INFO] usart1: [host:  0,65ks (+3,86ms)|virt:      3,06s (+30ms)] [T=3060] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.2034 [INFO] usart1: [host:  0,65ks (+3,86ms)|virt:      3,06s (+30ms)] [T=3060] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.2034 [INFO] usart1: [host:  0,65ks (+1,32ms)|virt:      3,07s (+10ms)] [T=3070] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.2034 [INFO] usart1: [host:  0,65ks (+1,31ms)|virt:      3,07s (+10ms)] [T=3070] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.2090 [INFO] usart1: [host:  0,65ks (+5,58ms)|virt:       3,1s (+30ms)] [T=3100] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.2091 [INFO] usart1: [host:  0,65ks (+5,59ms)|virt:       3,1s (+30ms)] [T=3100] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.2109 [INFO] usart1: [host:   0,65ks (+1,9ms)|virt:      3,11s (+10ms)] [T=3110] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.2109 [INFO] usart1: [host:  0,65ks (+1,89ms)|virt:      3,11s (+10ms)] [T=3110] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.2151 [INFO] usart1: [host:  0,65ks (+4,19ms)|virt:      3,14s (+30ms)] [T=3140] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.2152 [INFO] usart1: [host:   0,65ks (+4,2ms)|virt:      3,14s (+30ms)] [T=3140] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.2166 [INFO] usart1: [host:  0,65ks (+1,46ms)|virt:      3,15s (+10ms)] [T=3150] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.2206 [INFO] usart1: [host:  0,65ks (+1,46ms)|virt:      3,15s (+10ms)] [T=3150] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.2206 [INFO] usart1: [host:  0,65ks (+4,02ms)|virt:      3,18s (+30ms)] [T=3180] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.2227 [INFO] usart1: [host:  0,65ks (+4,02ms)|virt:      3,18s (+30ms)] [T=3180] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.2227 [INFO] usart1: [host:  0,65ks (+2,06ms)|virt:      3,19s (+10ms)] [T=3190] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.2260 [INFO] usart1: [host:  0,65ks (+2,06ms)|virt:      3,19s (+10ms)] [T=3190] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.2261 [INFO] usart1: [host:  0,65ks (+3,39ms)|virt:      3,22s (+30ms)] [T=3220] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.2279 [INFO] usart1: [host:  0,65ks (+3,39ms)|virt:      3,22s (+30ms)] [T=3220] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.2279 [INFO] usart1: [host:  0,65ks (+1,91ms)|virt:      3,23s (+10ms)] [T=3230] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.2279 [INFO] usart1: [host:   0,65ks (+1,9ms)|virt:      3,23s (+10ms)] [T=3230] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.2315 [INFO] usart1: [host:  0,65ks (+3,53ms)|virt:      3,26s (+30ms)] [T=3260] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.2328 [INFO] usart1: [host:  0,65ks (+3,53ms)|virt:      3,26s (+30ms)] [T=3260] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.2329 [INFO] usart1: [host:  0,65ks (+1,29ms)|virt:      3,27s (+10ms)] [T=3270] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.2370 [INFO] usart1: [host:  0,65ks (+1,29ms)|virt:      3,27s (+10ms)] [T=3270] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.2370 [INFO] usart1: [host:  0,65ks (+4,19ms)|virt:       3,3s (+30ms)] [T=3300] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.2385 [INFO] usart1: [host:  0,65ks (+4,19ms)|virt:       3,3s (+30ms)] [T=3300] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.2385 [INFO] usart1: [host:  0,65ks (+1,43ms)|virt:      3,31s (+10ms)] [T=3310] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.2385 [INFO] usart1: [host:  0,65ks (+1,42ms)|virt:      3,31s (+10ms)] [T=3310] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.2422 [INFO] usart1: [host:  0,65ks (+3,81ms)|virt:      3,34s (+30ms)] [T=3340] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.2422 [INFO] usart1: [host:  0,65ks (+3,82ms)|virt:      3,34s (+30ms)] [T=3340] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.2484 [INFO] usart1: [host:  0,65ks (+6,17ms)|virt:      3,35s (+10ms)] [T=3350] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.2525 [INFO] usart1: [host:  0,65ks (+6,17ms)|virt:      3,35s (+10ms)] [T=3350] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.2525 [INFO] usart1: [host:  0,65ks (+4,12ms)|virt:      3,38s (+30ms)] [T=3380] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.2525 [INFO] usart1: [host:  0,65ks (+4,11ms)|virt:      3,38s (+30ms)] [T=3380] [SCHTBL_LOW] RUN offset=0 priority=LOW
+21:50:01.2542 [INFO] usart1: [host:  0,65ks (+1,72ms)|virt:      3,39s (+10ms)] [T=3390] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.2564 [INFO] usart1: [host:  0,65ks (+1,72ms)|virt:      3,39s (+10ms)] [T=3390] [SCHTBL_HIGH] RUN offset=10 priority=HIGH
+21:50:01.2564 [INFO] stm32: Machine paused.
+21:50:01.2728 [INFO] stm32: Disposed.

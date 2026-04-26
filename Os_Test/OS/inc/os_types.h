@@ -23,6 +23,8 @@ typedef enum {
     OS_WAITING = 3  /* Dành chỗ cho hướng event/blocking về sau */
 } OsTaskState_e;
 
+typedef uint32_t EventMaskType;
+
 /* ------------------------------------------------------------
  * Chế độ scheduler của toàn hệ thống.
  *

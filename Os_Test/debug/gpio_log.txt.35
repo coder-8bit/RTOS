@@ -1,0 +1,9 @@
+19:20:49.9936 [INFO] sysbus: Loading block of 11840 bytes length at 0x8000000.
+19:20:50.0136 [INFO] sysbus: Loading block of 5936 bytes length at 0x8002E40.
+19:20:50.0419 [INFO] stm32: CPUs: ["stm32.cpu"] were added to a new GDB server created on port :3333
+19:20:50.0420 [INFO] stm32: GDB server with all CPUs started on port :3333
+19:20:50.0592 [INFO] cpu: Guessing VectorTableOffset value to be 0x8000000.
+19:20:50.0660 [INFO] cpu: Setting initial values: PC = 0x800153D, SP = 0x20005000.
+19:20:50.0671 [INFO] stm32: Machine started.
+19:20:50.0689 [INFO] stm32: Machine paused.
+19:20:50.2408 [INFO] stm32: Disposed.

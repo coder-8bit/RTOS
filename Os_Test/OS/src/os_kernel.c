@@ -290,6 +290,8 @@ static void os_task_setup_from_cfg(uint8_t tid)
     task->activation_count = 0u;
     task->context_needs_init = 1u;
     task->state = OS_DORMANT;
+    task->event_set = 0u;
+    task->wait_mask = 0u;
 
     if (cfg->is_idle_task != 0u)
     {
@@ -592,6 +594,108 @@ void TerminateTask(void)
     {
         __NOP();
     }
+}
+
+void WaitEvent(EventMaskType mask)
+{
+    if (mask == 0u)
+    {
+        return;
+    }
+
+    uint32_t primask = os_irq_save();
+    TCB_t *current = (TCB_t *)g_current;
+
+    if ((current == NULL) || os_is_idle_task(current))
+    {
+        os_irq_restore(primask);
+        return;
+    }
+
+    if ((current->event_set & mask) != 0u)
+    {
+        os_irq_restore(primask);
+        return;
+    }
+
+    current->wait_mask = mask;
+    current->state = OS_WAITING;
+
+    os_irq_restore(primask);
+    os_schedule();
+}
+
+void SetEvent(uint8_t tid, EventMaskType mask)
+{
+    bool run_scheduler = false;
+
+    if ((mask == 0u) || (tid >= OS_MAX_TASKS) || (tid == g_idle_task_id))
+    {
+        return;
+    }
+
+    uint32_t primask = os_irq_save();
+    TCB_t *task = &tcb[tid];
+
+    task->event_set |= mask;
+
+    if ((task->state == OS_WAITING) && ((task->event_set & task->wait_mask) != 0u))
+    {
+        task->wait_mask = 0u;
+        task->state = OS_READY;
+        os_ready_add(task->id, task->current_priority);
+
+        if (g_interrupt_nesting == 0u)
+        {
+            run_scheduler = true;
+        }
+    }
+
+    os_irq_restore(primask);
+
+    if (run_scheduler)
+    {
+        os_schedule();
+    }
+}
+
+void ClearEvent(EventMaskType mask)
+{
+    if (mask == 0u)
+    {
+        return;
+    }
+
+    uint32_t primask = os_irq_save();
+    TCB_t *current = (TCB_t *)g_current;
+
+    if ((current != NULL) && !os_is_idle_task(current))
+    {
+        current->event_set &= ~mask;
+    }
+
+    os_irq_restore(primask);
+}
+
+void GetEvent(uint8_t tid, EventMaskType *mask)
+{
+    if (mask == NULL)
+    {
+        return;
+    }
+
+    uint32_t primask = os_irq_save();
+
+    if (tid < OS_MAX_TASKS)
+    {
+        *mask = tcb[tid].event_set;
+    }
+    else
+    {
+        *mask = 0u;
+    }
+
+    os_irq_restore(primask);
 }
 
 void SetRelAlarm(uint8_t aid, uint32_t delay_ms, uint32_t cycle_ms, uint8_t target_tid)

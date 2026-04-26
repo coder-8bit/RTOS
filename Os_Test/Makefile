@@ -31,7 +31,9 @@ SIZE          := $(CROSS)size
 CPUFLAGS      := -mcpu=cortex-m3 -mthumb -mfloat-abi=soft
 DEFINES       := -DSTM32F10X_MD -DUSE_STDPERIPH_DRIVER
 EXTRA_DEFINES ?=
-INCLUDES      := -ICMSIS -ISPL/inc -IOS/inc -IConfig -Iapp
+INCLUDES      := -ICMSIS -ISPL/inc -IOS/inc -IConfig -Iconfig -Iapp \
+                 -Iautosar/include -Iautosar/can -Iautosar/canif \
+                 -Iautosar/cantp -Iautosar/com -Iautosar/dcm -Iautosar/pdur
 
 # ===========================
 # C/ASM/LD flags
@@ -67,6 +69,21 @@ SRCS_C := \
   main.c \
   Config/os_app_cfg.c \
   app/App_Task.c \
+  app/Evcu_App.c \
+  app/Evcu_Com.c \
+  app/Evcu_Dcm.c \
+  app/Evcu_Log.c \
+  app/Evcu_Test.c \
+  autosar/can/Can.c \
+  autosar/canif/CanIf.c \
+  autosar/cantp/CanTp.c \
+  autosar/com/Com.c \
+  autosar/dcm/Dcm.c \
+  autosar/pdur/PduR.c \
+  config/CanIf_Cfg.c \
+  config/CanTp_Cfg.c \
+  config/Com_Cfg.c \
+  config/PduR_Cfg.c \
   OS/src/os_kernel.c \
   OS/src/os_sched_table.c \
   OS/src/os_port.c \

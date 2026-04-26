@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>GIÁO TRÌNH CHUYÊN SÂU Event API trong mini RTOS</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({startOnLoad:true, theme:'base', themeVariables:{primaryColor:'#e8f0fe',primaryBorderColor:'#0066cc',primaryTextColor:'#000',lineColor:'#004499',secondaryColor:'#fff8e8',tertiaryColor:'#f0f7ff'}});</script>
+    <style>
+        @page { size: A4; margin: 2cm 1.8cm 2cm 1.8cm; }
+        @media print { body { padding: 0; margin: 0; } }
+        body { font-family: 'Times New Roman', Georgia, serif; font-size: 11pt; line-height: 1.7; color: #000; background: #fff; max-width: 210mm; margin: 0 auto; padding: 1cm 2cm; }
+        p { orphans: 3; widows: 3; }
+        .cover { page-break-after: always; text-align: center; padding-top: 6cm; }
+        .cover .course-name { font-size: 14pt; color: #0066cc; letter-spacing: 2px; }
+        .cover .lesson-title { font-size: 22pt; font-weight: bold; color: #000; margin: 1cm 0; padding: 0.5cm 0; border-top: 2px solid #0066cc; border-bottom: 2px solid #0066cc; }
+        .cover .author { font-size: 11pt; margin-top: 4cm; color: #333; }
+        .cover .institution { font-size: 12pt; color: #0066cc; font-weight: bold; margin-top: 0.5cm; }
+        h1 { font-size: 16pt; color: #0066cc; border-bottom: 1px solid #0066cc; padding-bottom: 5px; margin-top: 1.5cm; page-break-after: avoid; }
+        h2 { font-size: 13pt; color: #004499; margin-top: 0.8cm; page-break-before: always; page-break-after: avoid; }
+        h2:first-of-type { page-break-before: avoid; }
+        h3 { font-size: 12pt; color: #003366; page-break-after: avoid; }
+        table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 10pt; border: 2px solid #004499; page-break-inside: avoid; break-inside: avoid; }
+        th, td { border: 1px solid #999; padding: 8px 10px; text-align: left; vertical-align: top; }
+        th { background-color: #0066cc; color: #fff; font-weight: bold; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        tr:nth-child(even) { background-color: #f5f5f5; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        pre { background-color: #fff; border: 1px solid #0066cc; border-left: 4px solid #0066cc; padding: 12px 15px; margin: 12px 0; font-family: 'Consolas', monospace; font-size: 9pt; color: #333; overflow-x: auto; page-break-inside: avoid; break-inside: avoid; }
+        code { font-family: 'Consolas', monospace; font-size: 9pt; background-color: #f0f7ff; padding: 1px 4px; }
+        pre code { background: none; padding: 0; }
+        .note { background-color: #f0f7ff; border-left: 3px solid #0066cc; padding: 10px 15px; margin: 12px 0; font-size: 10pt; page-break-inside: avoid; break-inside: avoid; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        .callout { background-color: #f8fbff; border: 1px solid #bcd8ff; padding: 12px 15px; margin: 12px 0; page-break-inside: avoid; break-inside: avoid; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        .warning { background-color: #fff8e8; border-left: 4px solid #d28b00; padding: 10px 15px; margin: 12px 0; page-break-inside: avoid; break-inside: avoid; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        .formula { background-color: #fcfcfc; border: 1px dashed #0066cc; padding: 10px 15px; margin: 12px 0; font-family: 'Consolas', monospace; font-size: 9pt; page-break-inside: avoid; break-inside: avoid; }
+        .small { font-size: 9.5pt; color: #444; }
+        .tight th, .tight td { padding: 6px 8px; }
+        .diagram-box { text-align: center; margin: 20px 0; padding: 15px; border: 1px solid #aebed3; background: #fff; page-break-inside: avoid; break-inside: avoid; }
+        .diagram-box .caption { font-size: 10pt; color: #666; font-style: italic; margin-top: 8px; }
+        .diagram-box .sheet-head { font-size: 12pt; font-weight: bold; color: #004499; margin-bottom: 8px; }
+        .mermaid { font-size: 12px; }
+        .footer { margin-top: 2cm; text-align: center; font-size: 9pt; color: #666; border-top: 1px solid #ddd; padding-top: 10px; }
+        blockquote, ul, ol { page-break-inside: avoid; break-inside: avoid; }
+        hr { page-break-after: avoid; }
+    </style>
+</head>
+<body>
+
+<div class="cover">
+    <div class="course-name">SYSTEM ARCHITECT AUTOMOTIVE</div>
+    <div class="lesson-title">GIÁO TRÌNH CHUYÊN SÂU EVENT API<br/><span style="font-size: 16pt;">WaitEvent, SetEvent, ClearEvent, GetEvent trong mini RTOS</span></div>
+    <div class="author">Biên soạn: <strong>Phạm Văn Vũ</strong></div>
+    <div class="institution">HALA Academy</div>
+</div>
+
+<h1>GIÁO TRÌNH CHUYÊN SÂU EVENT API TRONG MINI RTOS</h1>
+<h2>Từ event bit trong TCB đến task block/unblock qua scheduler</h2>
+<blockquote>
+<p>Tài liệu này bám sát đúng code trong repository <strong>Os_Test</strong> sau khi thêm 4 API nền: <code>WaitEvent()</code>, <code>SetEvent()</code>, <code>ClearEvent()</code>, <code>GetEvent()</code>. Đây là phần học nền RTOS, chưa đi vào đầy đủ <code>StatusType</code> hoặc error semantics của OSEK.</p>
+</blockquote>
+<div class="callout">
+    <strong>Một câu chốt bản chất của Event:</strong> Event là các bit tín hiệu gắn trực tiếp với từng task. Task có thể ngủ bằng <code>WaitEvent(mask)</code>; task khác hoặc ISR có thể báo bằng <code>SetEvent(task, mask)</code>; khi bit khớp mask đang chờ, task được đưa từ <code>WAITING</code> về <code>READY</code>.
+</div>
+<hr />
+
+<h2>Mục lục</h2>
+<ol>
+    <li><a href="#1-muc-tieu">Mục tiêu và bức tranh tổng thể</a></li>
+    <li><a href="#2-ban-chat">Bản chất của event bitmask</a></li>
+    <li><a href="#3-kien-truc">Kiến trúc code trong Os_Test</a></li>
+    <li><a href="#4-api">Phân tích 4 API</a></li>
+    <li><a href="#5-demo">Demo task và bảng cấu hình mới</a></li>
+    <li><a href="#6-runtime">Luồng runtime đầy đủ</a></li>
+    <li><a href="#7-race">Race safety và critical section</a></li>
+    <li><a href="#8-log">Kiểm chứng bằng Renode/GDB</a></li>
+    <li><a href="#9-lab-step">Lab step-by-step cho học viên</a></li>
+    <li><a href="#10-ung-dung">Ứng dụng thực tế trong hệ automotive</a></li>
+    <li><a href="#11-debug">Debug chuyên sâu bằng GDB</a></li>
+    <li><a href="#12-mo-rong">Hướng mở rộng lên OSEK/AUTOSAR</a></li>
+    <li><a href="#13-cau-hoi">Câu hỏi kiểm tra hiểu bản chất</a></li>
+    <li><a href="#14-ket-luan">Điểm dễ nhầm và kết luận</a></li>
+</ol>
+<hr />
+
+<h2 id="1-muc-tieu">1. Mục tiêu và bức tranh tổng thể</h2>
+<p>Sau bài này, người học cần hiểu được vì sao event là bước tiếp theo tự nhiên sau scheduler. Trước đó task chỉ chạy theo autostart, alarm hoặc schedule table. Với event, task có thể chủ động <strong>ngủ</strong> khi chưa có việc, và chỉ quay lại ready queue khi có tín hiệu phù hợp.</p>
+<div class="note">
+    <strong>Chuỗi runtime cần nắm:</strong><br />
+    <code>Task Consumer chạy → WaitEvent(mask) → chưa có event → state = WAITING → scheduler chạy Producer → Producer SetEvent(Consumer, mask) → Consumer state = READY → scheduler preempt Producer nếu Consumer ưu tiên cao hơn → Consumer GetEvent/ClearEvent → Consumer xử lý xong</code>
+</div>
+<table class="tight">
+<thead><tr><th>API</th><th>Vai trò</th><th>Có block?</th><th>Có thể gây schedule?</th></tr></thead>
+<tbody>
+<tr><td><code>WaitEvent(mask)</code></td><td>Task hiện tại chờ một hoặc nhiều bit event.</td><td>Có, nếu chưa có bit khớp.</td><td>Có, khi task chuyển sang <code>WAITING</code>.</td></tr>
+<tr><td><code>SetEvent(tid, mask)</code></td><td>Báo event cho task đích.</td><td>Không.</td><td>Có, nếu task đích đang chờ và được unblock.</td></tr>
+<tr><td><code>ClearEvent(mask)</code></td><td>Xóa các bit event đã xử lý của task hiện tại.</td><td>Không.</td><td>Không.</td></tr>
+<tr><td><code>GetEvent(tid, *mask)</code></td><td>Đọc event_set hiện tại của task đích.</td><td>Không.</td><td>Không.</td></tr>
+</tbody>
+</table>
+
+<h3>1.1 Năng lực đầu ra sau bài học</h3>
+<p>Bài này không chỉ yêu cầu học viên nhớ tên 4 API. Sau khi học xong, học viên phải đọc được code kernel và tự giải thích chính xác CPU đang chạy ở đâu, task nào còn nằm trong ready queue, task nào đang ngủ, event bit nào đang pending, và vì sao PendSV có hoặc không xảy ra.</p>
+<table>
+<thead><tr><th>Năng lực</th><th>Học viên phải làm được</th><th>Cách kiểm tra</th></tr></thead>
+<tbody>
+<tr><td>Đọc data model</td><td>Giải thích được <code>event_set</code>, <code>wait_mask</code>, <code>state</code>, <code>current_priority</code> trong TCB.</td><td>Dừng GDB ở <code>WaitEvent</code>/<code>SetEvent</code> và in TCB.</td></tr>
+<tr><td>Đọc flow runtime</td><td>Vẽ lại luồng Consumer block, Producer set event, Consumer được unblock.</td><td>So sánh với UART log và sequence diagram.</td></tr>
+<tr><td>Hiểu scheduler</td><td>Biết vì sao Consumer priority cao hơn Producer thì Consumer có thể preempt Producer sau <code>SetEvent</code>.</td><td>Breakpoint tại <code>os_schedule</code> và quan sát <code>g_next</code>.</td></tr>
+<tr><td>Hiểu race safety</td><td>Chỉ ra race giữa <code>WaitEvent</code> và <code>SetEvent</code> nếu không có critical section.</td><td>Giải thích đoạn <code>os_irq_save()</code>/<code>os_irq_restore()</code>.</td></tr>
+<tr><td>Ứng dụng thiết kế</td><td>Biết chọn event cho UART RX, CAN RX, timeout, button, diagnostic request.</td><td>Tự đề xuất task/event table cho một module cụ thể.</td></tr>
+</tbody>
+</table>
+
+<h3>1.2 Kiến thức cần có trước khi học</h3>
+<ul>
+    <li>Đã hiểu task state cơ bản: <code>DORMANT</code>, <code>READY</code>, <code>RUNNING</code>, <code>WAITING</code>.</li>
+    <li>Đã hiểu ready queue theo priority và FIFO trong cùng priority.</li>
+    <li>Đã hiểu PendSV là exception thực hiện context switch, còn C scheduler chỉ chọn <code>g_next</code>.</li>
+    <li>Đã hiểu critical section tối thiểu bằng <code>PRIMASK</code>.</li>
+    <li>Đã biết đọc log Renode từ USART1.</li>
+</ul>
+
+<h3>1.3 Câu hỏi trung tâm của bài</h3>
+<div class="formula">
+Nếu task đang chạy không có việc để làm, nó nên bận chờ bằng vòng lặp polling, hay nên tự chuyển sang WAITING để CPU chạy task khác?
+</div>
+<p>Event API trả lời câu hỏi này. Nó biến một task từ kiểu "luôn chạy để kiểm tra cờ" thành kiểu "ngủ đến khi có tín hiệu". Đây là một bước rất quan trọng trong RTOS vì nó giảm lãng phí CPU, giảm jitter cho task khác, và làm flow phần mềm rõ ràng hơn.</p>
+
+<h2 id="2-ban-chat">2. Bản chất của event bitmask</h2>
+<h3>2.1 Event không phải queue</h3>
+<p>Event trong bài này là một <strong>bitmask</strong>. Mỗi bit đại diện cho một điều kiện đã xảy ra. Nếu cùng một bit được set nhiều lần trước khi task clear, trạng thái vẫn chỉ là 1. Vì vậy event phù hợp cho tín hiệu trạng thái như "RX done", "timeout", "button pressed"; không phù hợp nếu cần đếm số lần xảy ra.</p>
+<pre><code>enum {
+    EVENT_RX_DONE = (1u &lt;&lt; 0),
+    EVENT_TIMEOUT = (1u &lt;&lt; 1)
+};</code></pre>
+<table class="tight">
+<thead><tr><th>Giá trị</th><th>Ý nghĩa</th><th>Diễn giải</th></tr></thead>
+<tbody>
+<tr><td><code>0x00000000</code></td><td>Không có event pending</td><td>Task gọi <code>WaitEvent()</code> sẽ block nếu mask cần chờ chưa khớp.</td></tr>
+<tr><td><code>0x00000001</code></td><td><code>EVENT_RX_DONE</code></td><td>Consumer có dữ liệu RX cần xử lý.</td></tr>
+<tr><td><code>0x00000002</code></td><td><code>EVENT_TIMEOUT</code></td><td>Consumer có timeout cần xử lý.</td></tr>
+<tr><td><code>0x00000003</code></td><td>Cả hai bit cùng pending</td><td>Task có thể xử lý từng bit rồi clear từng phần.</td></tr>
+</tbody>
+</table>
+<div class="warning">
+    <strong>Event không tự mất.</strong> <code>SetEvent()</code> chỉ bật bit. Sau khi xử lý, task phải gọi <code>ClearEvent()</code>. Nếu không clear, lần <code>WaitEvent()</code> tiếp theo sẽ return ngay vì bit vẫn còn pending.
+</div>
+
+<h3>2.2 Event khác polling, semaphore, queue như thế nào?</h3>
+<table>
+<thead><tr><th>Cơ chế</th><th>Bản chất</th><th>Có đếm số lần?</th><th>Dùng khi nào?</th><th>Ví dụ</th></tr></thead>
+<tbody>
+<tr><td>Polling flag</td><td>Task tự đọc cờ liên tục.</td><td>Không.</td><td>Demo rất nhỏ, hoặc vòng lặp idle đơn giản.</td><td><code>while (!rx_done) {}</code></td></tr>
+<tr><td>Event bit</td><td>Bit pending gắn với một task.</td><td>Không, mỗi bit chỉ 0/1.</td><td>Báo "điều kiện đã xảy ra".</td><td>RX done, timeout, wakeup, new diagnostic request.</td></tr>
+<tr><td>Semaphore</td><td>Token/counter đồng bộ tài nguyên hoặc số lần xảy ra.</td><td>Có, nếu là counting semaphore.</td><td>Đếm số buffer, số packet, số resource.</td><td>3 buffer RX đang chờ xử lý.</td></tr>
+<tr><td>Queue</td><td>Danh sách message/data có thứ tự.</td><td>Có, từng phần tử.</td><td>Truyền dữ liệu, không chỉ báo trạng thái.</td><td>Queue CAN frame hoặc UART byte stream.</td></tr>
+</tbody>
+</table>
+
+<div class="callout">
+    <strong>Cách chọn đúng:</strong> Nếu chỉ cần đánh thức task vì "có việc mới", dùng event. Nếu cần truyền payload, event chỉ nên đóng vai trò wakeup; payload nên nằm trong ring buffer hoặc queue riêng. Nếu cần đếm từng lần xảy ra, không dùng event bit đơn thuần.
+</div>
+
+<h3>2.3 Auto-clear hay manual-clear?</h3>
+<p>Bản hiện tại dùng <strong>manual-clear</strong>: <code>WaitEvent()</code> không xóa bit, task phải tự gọi <code>ClearEvent()</code> sau khi xử lý. Đây là cách giúp task kiểm tra được nhiều bit cùng lúc và quyết định clear bit nào.</p>
+<table class="tight">
+<thead><tr><th>Kiểu</th><th>Cách hoạt động</th><th>Ưu điểm</th><th>Rủi ro</th></tr></thead>
+<tbody>
+<tr><td>Manual-clear</td><td><code>SetEvent</code> bật bit, task xử lý xong gọi <code>ClearEvent</code>.</td><td>Rõ ràng, task kiểm soát thời điểm xóa.</td><td>Quên clear thì <code>WaitEvent</code> sau return ngay.</td></tr>
+<tr><td>Auto-clear</td><td>Kernel tự xóa bit khi <code>WaitEvent</code> return.</td><td>Code task ngắn hơn.</td><td>Dễ mất thông tin nếu task cần đọc nhiều bit hoặc xử lý theo thứ tự riêng.</td></tr>
+</tbody>
+</table>
+
+<h3>2.4 Công thức bitmask cần nhớ</h3>
+<pre><code>/* Set một hoặc nhiều bit */
+event_set |= mask;
+
+/* Kiểm tra có ít nhất một bit khớp */
+if ((event_set &amp; wait_mask) != 0u) { ... }
+
+/* Clear một hoặc nhiều bit */
+event_set &amp;= ~mask;
+
+/* Chờ một trong hai event */
+WaitEvent(EVENT_RX_DONE | EVENT_TIMEOUT);</code></pre>
+
+<h2 id="3-kien-truc">3. Kiến trúc code trong Os_Test</h2>
+<h3>3.1 Thay đổi trong TCB</h3>
+<p>Event được gắn vào từng task qua hai field mới trong <code>TCB_t</code> tại <code>OS/inc/os_kernel.h</code>:</p>
+<pre><code>typedef struct TCB {
+    uint32_t *sp;                 /* field đầu tiên cho PendSV/SVC */
+    ...
+    volatile uint8_t state;
+    volatile EventMaskType event_set; /* Các event bit đã được báo */
+    volatile EventMaskType wait_mask; /* Các event bit task đang chờ */
+} TCB_t;</code></pre>
+<table>
+<thead><tr><th>Field</th><th>Ai ghi?</th><th>Ai đọc?</th><th>Ý nghĩa runtime</th></tr></thead>
+<tbody>
+<tr><td><code>event_set</code></td><td><code>SetEvent()</code>, <code>ClearEvent()</code></td><td><code>WaitEvent()</code>, <code>GetEvent()</code></td><td>Các bit event đang pending của task.</td></tr>
+<tr><td><code>wait_mask</code></td><td><code>WaitEvent()</code>, <code>SetEvent()</code></td><td><code>SetEvent()</code></td><td>Mask mà task đang block chờ.</td></tr>
+<tr><td><code>state</code></td><td>Scheduler và event API</td><td>Scheduler</td><td>Thêm luồng thực tế cho <code>OS_WAITING</code>.</td></tr>
+</tbody>
+</table>
+
+<h3>3.2 Mapping file</h3>
+<table>
+<thead><tr><th>File</th><th>Vai trò trong bài event</th></tr></thead>
+<tbody>
+<tr><td><code>OS/inc/os_types.h</code></td><td>Định nghĩa <code>EventMaskType</code>.</td></tr>
+<tr><td><code>OS/inc/os_kernel.h</code></td><td>Thêm field event vào TCB và prototype 4 API.</td></tr>
+<tr><td><code>OS/src/os_kernel.c</code></td><td>Hiện thực <code>WaitEvent</code>, <code>SetEvent</code>, <code>ClearEvent</code>, <code>GetEvent</code>.</td></tr>
+<tr><td><code>Config/os_app_cfg.h</code></td><td>Định nghĩa task ID và event mask demo.</td></tr>
+<tr><td><code>Config/os_app_cfg.c</code></td><td>Tạo lại bảng task tối giản: Boot, Consumer, Producer, Idle.</td></tr>
+<tr><td><code>app/App_Task.c</code></td><td>Demo dùng đủ 4 API và in UART log để test.</td></tr>
+<tr><td><code>test_os.py</code></td><td>Build, chạy Renode, validate log, GDB smoke.</td></tr>
+</tbody>
+</table>
+
+<h3>3.3 Data ownership: ai sở hữu event?</h3>
+<p>Trong thiết kế này, event không phải object độc lập. Event thuộc về task nhận. Vì vậy <code>Task_EventConsumer</code> sở hữu <code>event_set</code> của nó, còn <code>Task_EventProducer</code> chỉ có quyền bật bit thông qua <code>SetEvent(TASK_EVENT_CONSUMER, mask)</code>.</p>
+<div class="diagram-box">
+    <div class="sheet-head">Class/Data Model: TCB và Event Fields</div>
+    <div class="mermaid">
+classDiagram
+    class TCB_t {
+        uint32_t sp_ptr
+        uint8_t id
+        uint8_t state
+        uint8_t current_priority
+        EventMaskType event_set
+        EventMaskType wait_mask
+    }
+    class Task_EventConsumer {
+        WaitEvent
+        GetEvent
+        ClearEvent
+    }
+    class Task_EventProducer {
+        SetEvent
+    }
+    class ReadyQueue {
+        enqueue_tail
+        pop_highest
+        peek_highest
+    }
+    Task_EventConsumer --> TCB_t : owns runtime TCB
+    Task_EventProducer --> TCB_t : modifies consumer event_set via SetEvent
+    TCB_t --> ReadyQueue : READY tasks are queued
+    </div>
+    <div class="caption">Event bits sống trong TCB của task nhận, không sống trong Producer.</div>
+</div>
+
+<h3>3.4 State machine của task khi có event</h3>
+<div class="diagram-box">
+    <div class="sheet-head">Task State Machine với Event Blocking</div>
+    <div class="mermaid">
+stateDiagram-v2
+    [*] --> DORMANT
+    DORMANT --> READY: ActivateTask or autostart
+    READY --> RUNNING: scheduler dispatch
+    RUNNING --> WAITING: WaitEvent no matching bit
+    WAITING --> READY: SetEvent matching mask
+    RUNNING --> RUNNING: WaitEvent bit already pending
+    RUNNING --> DORMANT: TerminateTask and no pending activation
+    RUNNING --> READY: preempted by higher priority task
+    READY --> READY: SetEvent while already READY
+    RUNNING --> RUNNING: GetEvent or ClearEvent
+    </div>
+    <div class="caption">Điểm mới của bài này là cạnh RUNNING → WAITING và WAITING → READY.</div>
+</div>
+
+<h3>3.5 Invariant của kernel sau khi thêm event</h3>
+<table>
+<thead><tr><th>Invariant</th><th>Lý do cần giữ</th><th>Nếu vi phạm sẽ ra sao?</th></tr></thead>
+<tbody>
+<tr><td>Task <code>WAITING</code> không nằm trong ready queue.</td><td>Scheduler không được chọn task đang ngủ.</td><td>Task bị chạy dù event chưa đến.</td></tr>
+<tr><td>Khi task được unblock, phải enqueue đúng priority hiện tại.</td><td>Scheduler vẫn giữ luật priority.</td><td>Task bị đói CPU hoặc chạy sai thứ tự.</td></tr>
+<tr><td><code>event_set</code> chỉ bị xóa bởi task hiện tại qua <code>ClearEvent</code>.</td><td>Task nhận kiểm soát lifecycle của event.</td><td>Producer/ISR có thể làm mất event trước khi task xử lý.</td></tr>
+<tr><td><code>wait_mask</code> được reset khi task được unblock.</td><td>Task không còn đang ngủ vì mask cũ.</td><td>Debug state bị sai, unblock sau có thể bị hiểu nhầm.</td></tr>
+<tr><td>Không gọi scheduler khi đang trong ISR nesting.</td><td>Context switch thật phải defer qua PendSV/exit ISR.</td><td>Đổi context ở thời điểm không an toàn.</td></tr>
+</tbody>
+</table>
+
+<h2 id="4-api">4. Phân tích 4 API</h2>
+<h3>4.1 WaitEvent(mask)</h3>
+<p><code>WaitEvent()</code> chỉ tác động lên task hiện tại. Nếu event đã có sẵn, hàm return ngay. Nếu chưa có, task bị chuyển sang <code>OS_WAITING</code> và scheduler chọn task khác.</p>
+<pre><code>void WaitEvent(EventMaskType mask)
+{
+    if ((current-&gt;event_set &amp; mask) != 0u) {
+        return;
+    }
+
+    current-&gt;wait_mask = mask;
+    current-&gt;state = OS_WAITING;
+    os_schedule();
+}</code></pre>
+<div class="note">
+    <strong>Điểm quan trọng:</strong> task đang <code>WAITING</code> không nằm trong ready queue. Nó chỉ quay lại ready queue khi <code>SetEvent()</code> phát một bit khớp với <code>wait_mask</code>.
+</div>
+
+<h3>4.2 SetEvent(tid, mask)</h3>
+<p><code>SetEvent()</code> OR bit vào task đích. Nếu task đích đang chờ và có bit khớp, task được chuyển về <code>READY</code>, enqueue theo priority, rồi scheduler có thể dispatch.</p>
+<pre><code>task-&gt;event_set |= mask;
+
+if ((task-&gt;state == OS_WAITING) &amp;&amp;
+    ((task-&gt;event_set &amp; task-&gt;wait_mask) != 0u)) {
+    task-&gt;wait_mask = 0u;
+    task-&gt;state = OS_READY;
+    os_ready_add(task-&gt;id, task-&gt;current_priority);
+    os_schedule();
+}</code></pre>
+
+<h3>4.3 GetEvent(tid, *mask)</h3>
+<p><code>GetEvent()</code> chỉ copy <code>event_set</code> ra biến của caller. Nó không clear, không block, không gọi scheduler.</p>
+<pre><code>EventMaskType events;
+GetEvent(TASK_EVENT_CONSUMER, &amp;events);</code></pre>
+
+<h3>4.4 ClearEvent(mask)</h3>
+<p><code>ClearEvent()</code> xóa bit event của task hiện tại bằng phép AND với bit đảo.</p>
+<pre><code>current-&gt;event_set &amp;= ~mask;</code></pre>
+<div class="warning">
+    <strong>Trong bản nền này</strong>, API đang dùng kiểu <code>void</code> để đồng bộ với style kernel hiện tại. Các rule lỗi kiểu gọi từ ISR, task ID sai, access right, extended/basic task sẽ để sang cụm OSEK API sau.
+</div>
+
+<h3>4.5 Thuật toán đầy đủ của WaitEvent theo từng bước</h3>
+<table>
+<thead><tr><th>Bước</th><th>Code/logic</th><th>Ý nghĩa chuyên sâu</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><code>if (mask == 0u) return;</code></td><td>Mask rỗng không có điều kiện chờ. Bản nền bỏ qua thay vì báo lỗi.</td></tr>
+<tr><td>2</td><td><code>primask = os_irq_save();</code></td><td>Bảo vệ đoạn check event và chuyển state. Đây là vùng chống lost wakeup.</td></tr>
+<tr><td>3</td><td><code>current = g_current;</code></td><td><code>WaitEvent</code> luôn áp dụng cho task đang chạy, không nhận task ID.</td></tr>
+<tr><td>4</td><td><code>if ((event_set &amp; mask) != 0u) return;</code></td><td>Nếu event đã đến trước khi task chờ, task không được block.</td></tr>
+<tr><td>5</td><td><code>wait_mask = mask;</code></td><td>Ghi lại điều kiện đánh thức task.</td></tr>
+<tr><td>6</td><td><code>state = OS_WAITING;</code></td><td>Task rời khỏi nhóm task runnable.</td></tr>
+<tr><td>7</td><td><code>os_irq_restore(primask); os_schedule();</code></td><td>Mở interrupt đúng trạng thái cũ rồi gọi scheduler để chọn task khác.</td></tr>
+</tbody>
+</table>
+
+<div class="diagram-box">
+    <div class="sheet-head">Activity: WaitEvent()</div>
+    <div class="mermaid">
+flowchart TD
+    A["Task calls WaitEvent(mask)"] --> B{"mask is zero?"}
+    B -- "yes" --> Z["Return immediately"]
+    B -- "no" --> C["Enter critical section"]
+    C --> D{"current valid and not idle?"}
+    D -- "no" --> R["Restore interrupt and return"]
+    D -- "yes" --> E{"event bit already pending?"}
+    E -- "yes" --> R
+    E -- "no" --> F["wait_mask = mask"]
+    F --> G["state = OS_WAITING"]
+    G --> H["Restore interrupt"]
+    H --> I["os_schedule"]
+    I --> J["PendSV switches to another task"]
+    </div>
+</div>
+
+<h3>4.6 Thuật toán đầy đủ của SetEvent theo từng bước</h3>
+<table>
+<thead><tr><th>Bước</th><th>Code/logic</th><th>Ý nghĩa chuyên sâu</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Kiểm tra <code>mask</code>, <code>tid</code>, idle task.</td><td>Bỏ qua input vô nghĩa trong bản nền.</td></tr>
+<tr><td>2</td><td>Vào critical section.</td><td>Bảo vệ TCB và ready queue.</td></tr>
+<tr><td>3</td><td><code>task-&gt;event_set |= mask;</code></td><td>Event là sticky bit: set rồi giữ nguyên cho đến khi clear.</td></tr>
+<tr><td>4</td><td>Kiểm tra <code>state == OS_WAITING</code>.</td><td>Chỉ task đang ngủ mới cần unblock. Task READY/RUNNING chỉ nhận bit pending.</td></tr>
+<tr><td>5</td><td>Kiểm tra <code>event_set &amp; wait_mask</code>.</td><td>Chỉ unblock nếu bit mới hoặc bit đã pending khớp điều kiện chờ.</td></tr>
+<tr><td>6</td><td><code>state = OS_READY; os_ready_add(...)</code>.</td><td>Đưa task trở lại thế giới runnable.</td></tr>
+<tr><td>7</td><td>Nếu không ở ISR, gọi scheduler.</td><td>Task được đánh thức có thể priority cao hơn current.</td></tr>
+</tbody>
+</table>
+
+<div class="diagram-box">
+    <div class="sheet-head">Activity: SetEvent()</div>
+    <div class="mermaid">
+flowchart TD
+    A["Caller calls SetEvent(tid, mask)"] --> B{"valid tid and mask?"}
+    B -- "no" --> Z["Return"]
+    B -- "yes" --> C["Enter critical section"]
+    C --> D["event_set OR= mask"]
+    D --> E{"target state is WAITING?"}
+    E -- "no" --> H["Restore interrupt"]
+    E -- "yes" --> F{"event matches wait mask?"}
+    F -- "no" --> H
+    F -- "yes" --> G["wait_mask = 0; state = READY; enqueue target"]
+    G --> H
+    H --> I{"unblocked and not in ISR?"}
+    I -- "no" --> Z
+    I -- "yes" --> J["os_schedule"]
+    J --> K{"target priority higher?"}
+    K -- "yes" --> L["PendSV switches to target"]
+    K -- "no" --> Z
+    </div>
+</div>
+
+<h3>4.7 Thuật toán GetEvent và ClearEvent</h3>
+<table>
+<thead><tr><th>API</th><th>Luồng chi tiết</th><th>Điểm cần dạy kỹ</th></tr></thead>
+<tbody>
+<tr><td><code>GetEvent(tid, &amp;mask)</code></td><td>Vào critical section, nếu <code>tid</code> hợp lệ thì copy <code>tcb[tid].event_set</code>, nếu sai thì trả <code>0</code>.</td><td>Đọc không làm thay đổi trạng thái. Học viên hay nhầm GetEvent giống consume event.</td></tr>
+<tr><td><code>ClearEvent(mask)</code></td><td>Vào critical section, lấy <code>g_current</code>, clear bit bằng <code>event_set &amp;= ~mask</code>.</td><td>Clear chỉ áp dụng cho task hiện tại trong bản nền. Clear không gọi scheduler.</td></tr>
+</tbody>
+</table>
+
+<div class="diagram-box">
+    <div class="sheet-head">Activity: GetEvent() và ClearEvent()</div>
+    <div class="mermaid">
+flowchart LR
+    A["GetEvent(tid, ptr)"] --> B{"ptr valid?"}
+    B -- "no" --> C["Return"]
+    B -- "yes" --> D["Enter critical"]
+    D --> E{"tid valid?"}
+    E -- "yes" --> F["copy event_set to output pointer"]
+    E -- "no" --> G["write zero to output pointer"]
+    F --> H["Restore and return"]
+    G --> H
+
+    I["ClearEvent(mask)"] --> J{"mask is zero?"}
+    J -- "yes" --> K["Return"]
+    J -- "no" --> L["Enter critical"]
+    L --> M["clear selected bits in current event_set"]
+    M --> N["Restore and return"]
+    </div>
+</div>
+
+<h2 id="5-demo">5. Demo task và bảng cấu hình mới</h2>
+<h3>5.1 Task set</h3>
+<table class="tight">
+<thead><tr><th>Task</th><th>Priority</th><th>Autostart</th><th>Vai trò</th></tr></thead>
+<tbody>
+<tr><td><code>Task_EventBoot</code></td><td><code>OS_PRIO_CRITICAL</code></td><td>Có</td><td>Khởi tạo UART log và in profile.</td></tr>
+<tr><td><code>Task_EventConsumer</code></td><td><code>OS_PRIO_HIGH</code></td><td>Có</td><td>Chờ <code>EVENT_RX_DONE</code>, xử lý, clear, rồi chờ <code>EVENT_TIMEOUT</code>.</td></tr>
+<tr><td><code>Task_EventProducer</code></td><td><code>OS_PRIO_MEDIUM</code></td><td>Có</td><td>Set event cho Consumer hai lần.</td></tr>
+<tr><td><code>Task_Idle</code></td><td><code>OS_PRIO_IDLE</code></td><td>Có</td><td>Fallback khi không còn task ready.</td></tr>
+</tbody>
+</table>
+
+<h3>5.2 Vì sao Consumer ưu tiên cao hơn Producer?</h3>
+<p>Đây là cách demo rõ nhất cho unblock + preemption. Consumer chạy trước, gọi <code>WaitEvent()</code> rồi block. Producer bắt đầu chạy và gọi <code>SetEvent()</code>. Vì Consumer có priority cao hơn Producer, scheduler có quyền ngắt Producer để Consumer xử lý event ngay.</p>
+
+<h3>5.3 Step-by-step đọc bảng config</h3>
+<p>Học viên nên đọc cấu hình theo đúng thứ tự sau, vì đây là cách kernel cũng "nhìn" hệ thống lúc <code>OS_Init()</code>.</p>
+<table>
+<thead><tr><th>Bước</th><th>File/dòng cần đọc</th><th>Câu hỏi cần trả lời</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><code>Config/os_app_cfg.h</code></td><td>Có những task ID nào? Event mask nào được định nghĩa?</td></tr>
+<tr><td>2</td><td><code>Config/os_app_cfg.c</code> - <code>Task_EventBoot</code></td><td>Task nào chạy đầu tiên và vì sao? Priority của nó là gì?</td></tr>
+<tr><td>3</td><td><code>Config/os_app_cfg.c</code> - <code>Task_EventConsumer</code></td><td>Vì sao Consumer có priority cao hơn Producer?</td></tr>
+<tr><td>4</td><td><code>Config/os_app_cfg.c</code> - <code>Task_EventProducer</code></td><td>Producer có autostart không? Khi nào nó được chạy?</td></tr>
+<tr><td>5</td><td><code>Config/os_app_cfg.c</code> - <code>Task_Idle</code></td><td>Idle có vai trò gì nếu tất cả task còn lại đã terminate hoặc waiting?</td></tr>
+<tr><td>6</td><td><code>OS/src/os_kernel.c</code> - <code>OS_Init()</code></td><td>Task autostart được đưa vào ready queue như thế nào?</td></tr>
+</tbody>
+</table>
+
+<h3>5.4 Step-by-step đọc code task demo</h3>
+<table>
+<thead><tr><th>Thứ tự runtime</th><th>Task</th><th>Code chính</th><th>Điều xảy ra trong kernel</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Boot</td><td><code>Evcu_LogInit(); TerminateTask();</code></td><td>Boot kết thúc, scheduler chọn task READY priority cao nhất tiếp theo.</td></tr>
+<tr><td>2</td><td>Consumer</td><td><code>WaitEvent(EVENT_RX_DONE);</code></td><td>Chưa có bit RX, Consumer chuyển <code>RUNNING → WAITING</code>.</td></tr>
+<tr><td>3</td><td>Producer</td><td><code>SetEvent(CONSUMER, EVENT_RX_DONE);</code></td><td>Consumer chuyển <code>WAITING → READY</code>; vì priority cao hơn, Producer bị preempt.</td></tr>
+<tr><td>4</td><td>Consumer</td><td><code>GetEvent(...); ClearEvent(RX);</code></td><td>Đọc được <code>0x1</code>, rồi clear về <code>0x0</code>.</td></tr>
+<tr><td>5</td><td>Consumer</td><td><code>WaitEvent(EVENT_TIMEOUT);</code></td><td>Consumer ngủ lần hai.</td></tr>
+<tr><td>6</td><td>Producer</td><td><code>SetEvent(CONSUMER, EVENT_TIMEOUT);</code></td><td>Consumer được đánh thức lần hai.</td></tr>
+<tr><td>7</td><td>Consumer</td><td><code>GetEvent(...); ClearEvent(TIMEOUT);</code></td><td>Đọc được <code>0x2</code>, rồi clear về <code>0x0</code>.</td></tr>
+<tr><td>8</td><td>Consumer/Producer</td><td><code>TerminateTask();</code></td><td>Các task demo kết thúc, Idle giữ CPU.</td></tr>
+</tbody>
+</table>
+
+<h3>5.5 Timeline trạng thái TCB trong demo</h3>
+<table class="tight">
+<thead><tr><th>Mốc</th><th>Consumer state</th><th>Consumer event_set</th><th>Consumer wait_mask</th><th>Task đang chạy</th></tr></thead>
+<tbody>
+<tr><td>Sau OS_Init</td><td>READY</td><td><code>0x0</code></td><td><code>0x0</code></td><td>Boot</td></tr>
+<tr><td>Consumer gọi WaitEvent RX</td><td>WAITING</td><td><code>0x0</code></td><td><code>0x1</code></td><td>Producer sau khi schedule</td></tr>
+<tr><td>Producer SetEvent RX</td><td>READY rồi RUNNING</td><td><code>0x1</code></td><td><code>0x0</code></td><td>Consumer sau preempt</td></tr>
+<tr><td>Consumer ClearEvent RX</td><td>RUNNING</td><td><code>0x0</code></td><td><code>0x0</code></td><td>Consumer</td></tr>
+<tr><td>Consumer gọi WaitEvent TIMEOUT</td><td>WAITING</td><td><code>0x0</code></td><td><code>0x2</code></td><td>Producer</td></tr>
+<tr><td>Producer SetEvent TIMEOUT</td><td>READY rồi RUNNING</td><td><code>0x2</code></td><td><code>0x0</code></td><td>Consumer</td></tr>
+<tr><td>Consumer ClearEvent TIMEOUT</td><td>RUNNING</td><td><code>0x0</code></td><td><code>0x0</code></td><td>Consumer</td></tr>
+</tbody>
+</table>
+
+<h2 id="6-runtime">6. Luồng runtime đầy đủ</h2>
+<div class="diagram-box">
+    <div class="sheet-head">Sequence: WaitEvent - SetEvent - GetEvent - ClearEvent</div>
+    <div class="mermaid">
+sequenceDiagram
+    participant Boot as Task_EventBoot
+    participant Consumer as Task_EventConsumer
+    participant Kernel as Kernel Event API
+    participant Producer as Task_EventProducer
+    participant Sched as Scheduler PendSV
+
+    Boot->>Kernel: TerminateTask()
+    Sched-->>Consumer: dispatch priority HIGH
+    Consumer->>Kernel: WaitEvent(EVENT_RX_DONE)
+    Kernel->>Kernel: event bit is not pending
+    Kernel->>Kernel: state = WAITING, wait_mask = RX
+    Sched-->>Producer: dispatch priority MEDIUM
+    Producer->>Kernel: SetEvent(Consumer, EVENT_RX_DONE)
+    Kernel->>Kernel: set RX bit in event_set
+    Kernel->>Kernel: state WAITING -> READY
+    Sched-->>Consumer: preempt Producer
+    Consumer->>Kernel: GetEvent(Consumer, events pointer)
+    Kernel-->>Consumer: events = 0x00000001
+    Consumer->>Kernel: ClearEvent(EVENT_RX_DONE)
+    Consumer->>Kernel: WaitEvent(EVENT_TIMEOUT)
+    Sched-->>Producer: resume Producer
+    Producer->>Kernel: SetEvent(Consumer, EVENT_TIMEOUT)
+    Sched-->>Consumer: dispatch Consumer
+    Consumer->>Kernel: GetEvent/ClearEvent(TIMEOUT)
+    </div>
+    <div class="caption">Producer không cần biết Consumer đang chạy hay ngủ. Nó chỉ set bit; kernel quyết định unblock và schedule.</div>
+</div>
+
+<h3>6.1 Sequence đầy đủ có scheduler, g_current/g_next và PendSV</h3>
+<p>Sequence dưới đây chi tiết hơn: nó cho thấy API event không tự copy stack hay tự nhảy vào task khác. Event API chỉ đổi state và enqueue. Scheduler chọn <code>g_next</code>, sau đó <code>os_dispatch()</code> request PendSV. Context switch thật vẫn nằm trong assembly <code>PendSV_Handler</code>.</p>
+<div class="diagram-box">
+    <div class="sheet-head">Full Sequence: từ SetEvent đến PendSV context switch</div>
+    <div class="mermaid">
+sequenceDiagram
+    participant Producer as Task_EventProducer
+    participant EventAPI as SetEvent
+    participant RQ as Ready Queue
+    participant Scheduler as os_schedule
+    participant Dispatch as os_dispatch
+    participant PendSV as PendSV_Handler
+    participant Consumer as Task_EventConsumer
+
+    Producer->>EventAPI: SetEvent(TASK_EVENT_CONSUMER, EVENT_RX_DONE)
+    EventAPI->>EventAPI: os_irq_save()
+    EventAPI->>EventAPI: set RX bit in consumer event_set
+    EventAPI->>EventAPI: check consumer state is WAITING
+    EventAPI->>EventAPI: check event matches wait mask
+    EventAPI->>RQ: os_ready_add(consumer)
+    EventAPI->>EventAPI: consumer.state = READY
+    EventAPI->>EventAPI: os_irq_restore()
+    EventAPI->>Scheduler: os_schedule()
+    Scheduler->>Scheduler: current = Producer
+    Scheduler->>RQ: peek highest ready
+    RQ-->>Scheduler: Consumer
+    Scheduler->>Scheduler: os_should_preempt(Producer, Consumer) == true
+    Scheduler->>RQ: enqueue Producer at front
+    Scheduler->>Scheduler: g_next = Consumer
+    Scheduler->>Dispatch: os_dispatch()
+    Dispatch->>PendSV: set PENDSVSET
+    PendSV->>PendSV: save Producer R4-R11 to PSP
+    PendSV->>PendSV: restore Consumer R4-R11 from PSP
+    PendSV-->>Consumer: exception return to Consumer after WaitEvent()
+    </div>
+    <div class="caption">Điểm then chốt: Consumer chạy tiếp ngay sau dòng <code>WaitEvent(EVENT_RX_DONE)</code>, không chạy lại từ đầu task.</div>
+</div>
+
+<h3>6.2 Timeline log kỳ vọng</h3>
+<table class="tight">
+<thead><tr><th>Thứ tự</th><th>Log</th><th>Ý nghĩa</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><code>[CONSUMER] WaitEvent(EVENT_RX_DONE)</code></td><td>Consumer chưa có RX event nên block.</td></tr>
+<tr><td>2</td><td><code>[PRODUCER] SetEvent(EVENT_RX_DONE)</code></td><td>Producer phát bit RX cho Consumer.</td></tr>
+<tr><td>3</td><td><code>[CONSUMER] GetEvent after RX mask=0x00000001</code></td><td>Consumer được đánh thức và đọc đúng bit RX.</td></tr>
+<tr><td>4</td><td><code>[CONSUMER] GetEvent after ClearEvent(RX) mask=0x00000000</code></td><td>RX bit đã được clear.</td></tr>
+<tr><td>5</td><td><code>[CONSUMER] WaitEvent(EVENT_TIMEOUT)</code></td><td>Consumer ngủ lần hai.</td></tr>
+<tr><td>6</td><td><code>[PRODUCER] resumed after consumer blocked again</code></td><td>Producer tiếp tục sau khi Consumer block.</td></tr>
+<tr><td>7</td><td><code>[PRODUCER] SetEvent(EVENT_TIMEOUT)</code></td><td>Producer phát bit timeout.</td></tr>
+<tr><td>8</td><td><code>[CONSUMER] GetEvent after TIMEOUT mask=0x00000002</code></td><td>Consumer đọc đúng bit timeout.</td></tr>
+<tr><td>9</td><td><code>[CONSUMER] GetEvent after ClearEvent(TIMEOUT) mask=0x00000000</code></td><td>Timeout bit đã được clear.</td></tr>
+</tbody>
+</table>
+
+<h3>6.3 Activity toàn hệ thống</h3>
+<div class="diagram-box">
+    <div class="sheet-head">Activity: Demo Event API End-to-End</div>
+    <div class="mermaid">
+flowchart TD
+    A["Reset_Handler to main"] --> B["OS_Init builds TCB and ready queues"]
+    B --> C["OS_Start via SVC"]
+    C --> D["Boot task logs profile"]
+    D --> E["Boot TerminateTask"]
+    E --> F["Consumer runs because priority HIGH"]
+    F --> G{"EVENT_RX_DONE pending?"}
+    G -- "no" --> H["Consumer state = WAITING"]
+    H --> I["Producer runs"]
+    I --> J["Producer SetEvent RX"]
+    J --> K["Consumer READY"]
+    K --> L{"Consumer priority higher than Producer?"}
+    L -- "yes" --> M["PendSV switches to Consumer"]
+    L -- "no" --> N["Producer continues"]
+    M --> O["Consumer GetEvent RX"]
+    O --> P["Consumer ClearEvent RX"]
+    P --> Q["Consumer WaitEvent TIMEOUT"]
+    Q --> R["Producer resumes"]
+    R --> S["Producer SetEvent TIMEOUT"]
+    S --> T["Consumer GetEvent and ClearEvent TIMEOUT"]
+    T --> U["Consumer and Producer terminate"]
+    U --> V["Idle task"]
+    </div>
+</div>
+
+<h3>6.4 Điều gì xảy ra nếu event đã pending trước WaitEvent?</h3>
+<p>Trường hợp này rất quan trọng khi dạy học viên vì nó chứng minh event là sticky bit. Nếu Producer gọi <code>SetEvent()</code> trước khi Consumer gọi <code>WaitEvent()</code>, <code>event_set</code> đã có bit. Khi Consumer gọi <code>WaitEvent(EVENT_RX_DONE)</code>, điều kiện <code>(event_set &amp; mask) != 0</code> đúng, nên Consumer không block.</p>
+<pre><code>/* Flow khác nhưng vẫn đúng */
+SetEvent(TASK_EVENT_CONSUMER, EVENT_RX_DONE);
+
+/* Sau đó Consumer chạy */
+WaitEvent(EVENT_RX_DONE);  /* return ngay */
+GetEvent(TASK_EVENT_CONSUMER, &amp;events); /* events có bit RX */</code></pre>
+<div class="note">
+    Đây là cơ chế tránh "lost wakeup" ở mức semantic. Event đến trước vẫn được lưu lại trong <code>event_set</code> cho đến khi task nhận clear.
+</div>
+
+<h2 id="7-race">7. Race safety và critical section</h2>
+<p>Cả bốn API đều chạm vào state dùng chung của kernel: <code>event_set</code>, <code>wait_mask</code>, <code>state</code>, ready queue. Vì các field này có thể bị truy cập từ task context và sau này từ ISR, mỗi API đều dùng critical section nội bộ.</p>
+<pre><code>uint32_t primask = os_irq_save();
+/* đọc/sửa TCB và ready queue */
+os_irq_restore(primask);</code></pre>
+<table>
+<thead><tr><th>Race nếu không khóa</th><th>Hậu quả</th><th>Cách bản hiện tại tránh</th></tr></thead>
+<tbody>
+<tr><td><code>WaitEvent()</code> kiểm tra chưa có event, đúng lúc ISR/task khác <code>SetEvent()</code>.</td><td>Task có thể ngủ dù event đã đến.</td><td>Kiểm tra <code>event_set</code> và chuyển <code>WAITING</code> trong cùng critical section.</td></tr>
+<tr><td><code>SetEvent()</code> unblock task trong lúc scheduler đang đọc ready queue.</td><td>Ready queue sai count/head/tail.</td><td>Enqueue trong critical section.</td></tr>
+<tr><td><code>ClearEvent()</code> và <code>SetEvent()</code> cùng sửa một bitmask.</td><td>Mất event hoặc clear nhầm event mới.</td><td>Bitmask update được bảo vệ bởi <code>os_irq_save()</code>.</td></tr>
+</tbody>
+</table>
+
+<h2 id="8-log">8. Kiểm chứng bằng Renode/GDB</h2>
+<h3>8.1 Chạy test tự động</h3>
+<pre><code>cd /Users/phamvanvu/Projects/AUTOSAR/OSEK-RTOS/Os_Test
+python3 test_os.py</code></pre>
+<p>Kết quả pass cần có hai phần:</p>
+<pre><code>PASS: Event API OK: Consumer block bang WaitEvent, Producer SetEvent danh thuc,
+GetEvent doc dung mask 0x1/0x2, ClearEvent xoa ve 0.
+
+PASS: GDB attached vao Renode port ..., cai hardware breakpoint
+Task_EventConsumer/SetEvent va doc symbol g_current/g_next</code></pre>
+
+<h3>8.2 Ý nghĩa GDB smoke</h3>
+<p>GDB smoke không chỉ kiểm tra Renode chạy được. Nó chứng minh ELF còn đủ debug symbol và debugger có thể đặt hardware breakpoint vào <code>Task_EventConsumer</code> và <code>SetEvent</code>. Đây là hai điểm tốt nhất để debug bài event: một điểm ở task chờ, một điểm ở API đánh thức.</p>
+
+<h2 id="9-lab-step">9. Lab step-by-step cho học viên</h2>
+<h3>9.1 Lab 1 - Chạy và đọc log</h3>
+<p>Mục tiêu của lab này là học viên nhìn thấy thứ tự execution thực tế, không chỉ đọc code tĩnh.</p>
+<table>
+<thead><tr><th>Bước</th><th>Lệnh/thao tác</th><th>Kết quả cần thấy</th><th>Ý nghĩa</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><code>cd /Users/phamvanvu/Projects/AUTOSAR/OSEK-RTOS/Os_Test</code></td><td>Đứng đúng thư mục project.</td><td>Test script dùng path tương đối trong project.</td></tr>
+<tr><td>2</td><td><code>make clean &amp;&amp; make -j4 all</code></td><td>Sinh <code>build/os_test/os_test.elf</code>.</td><td>Xác nhận code event build được.</td></tr>
+<tr><td>3</td><td><code>python3 test_os.py</code></td><td>PASS Event API và PASS GDB smoke.</td><td>Xác nhận flow runtime đúng trên Renode.</td></tr>
+<tr><td>4</td><td>Mở log Renode trong <code>build/os_test/renode_mixed_schedule_table.log</code> nếu script đang dùng tên cũ.</td><td>Các dòng <code>[CONSUMER]</code>, <code>[PRODUCER]</code>.</td><td>Đọc thứ tự thực tế của task.</td></tr>
+</tbody>
+</table>
+
+<h3>9.2 Lab 2 - Đổi priority để quan sát khác biệt</h3>
+<p>Trong <code>Config/os_app_cfg.c</code>, thử đổi <code>Task_EventConsumer</code> từ <code>OS_PRIO_HIGH</code> xuống bằng hoặc thấp hơn Producer. Học viên cần dự đoán điều gì xảy ra trước khi chạy.</p>
+<table class="tight">
+<thead><tr><th>Thí nghiệm</th><th>Dự đoán</th><th>Giải thích</th></tr></thead>
+<tbody>
+<tr><td>Consumer HIGH, Producer MEDIUM</td><td>Consumer preempt Producer ngay sau <code>SetEvent</code>.</td><td>Task được unblock có priority cao hơn current.</td></tr>
+<tr><td>Consumer MEDIUM, Producer MEDIUM</td><td>Producer có thể tiếp tục đến điểm schedule tiếp theo tùy policy và FIFO.</td><td>Cùng priority không được xem là higher-priority preemption.</td></tr>
+<tr><td>Consumer LOW, Producer MEDIUM</td><td>Producer tiếp tục chạy, Consumer chờ đến khi Producer terminate/block.</td><td>Unblock không đồng nghĩa chạy ngay nếu priority thấp hơn.</td></tr>
+</tbody>
+</table>
+<div class="warning">
+    Khi làm thí nghiệm này, nhớ khôi phục priority demo ban đầu để test tự động quay lại pass.
+</div>
+
+<h3>9.3 Lab 3 - Quên ClearEvent để thấy lỗi logic</h3>
+<p>Thử comment dòng <code>ClearEvent(EVENT_RX_DONE)</code>. Lúc đó <code>event_set</code> vẫn giữ bit RX. Nếu Consumer sau này lại <code>WaitEvent(EVENT_RX_DONE)</code>, nó sẽ không ngủ nữa mà return ngay. Đây là lỗi rất thường gặp trong event kiểu manual-clear.</p>
+<pre><code>/* Sai có chủ đích để học */
+GetEvent(TASK_EVENT_CONSUMER, &amp;events);
+/* ClearEvent(EVENT_RX_DONE); bị bỏ quên */</code></pre>
+
+<h3>9.4 Lab 4 - Set hai event cùng lúc</h3>
+<p>Thay Producer thành:</p>
+<pre><code>SetEvent(TASK_EVENT_CONSUMER, EVENT_RX_DONE | EVENT_TIMEOUT);</code></pre>
+<p>Khi Consumer đọc <code>GetEvent()</code>, mask kỳ vọng là <code>0x00000003</code>. Học viên cần sửa Consumer để xử lý từng bit:</p>
+<pre><code>if ((events &amp; EVENT_RX_DONE) != 0u) {
+    ClearEvent(EVENT_RX_DONE);
+}
+if ((events &amp; EVENT_TIMEOUT) != 0u) {
+    ClearEvent(EVENT_TIMEOUT);
+}</code></pre>
+
+<h2 id="10-ung-dung">10. Ứng dụng thực tế trong hệ automotive</h2>
+<h3>10.1 UART RX: ISR đánh thức parser task</h3>
+<p>Ứng dụng kinh điển nhất là UART RX. ISR không nên parse frame dài. ISR chỉ ghi byte vào ring buffer và set event để task xử lý sau.</p>
+<div class="diagram-box">
+    <div class="sheet-head">Use Case: UART RX ISR → Parser Task</div>
+    <div class="mermaid">
+sequenceDiagram
+    participant UART as USART1_IRQHandler
+    participant RB as Ring Buffer
+    participant OS as SetEvent()
+    participant Parser as Task_UartParser
+
+    UART->>RB: push received byte
+    UART->>OS: SetEvent(Task_UartParser, EV_UART_RX)
+    OS->>Parser: unblock when waiting
+    Parser->>Parser: WaitEvent(EV_UART_RX) returns
+    Parser->>RB: pop bytes and parse frame
+    Parser->>OS: ClearEvent(EV_UART_RX)
+    </div>
+</div>
+<p>Thiết kế đúng là event chỉ báo "có dữ liệu", còn dữ liệu nằm trong ring buffer. Nếu ISR nhận 10 byte liên tiếp, event bit vẫn chỉ là 1, nhưng ring buffer giữ đủ 10 byte.</p>
+
+<h3>10.2 CAN RX: CanIf báo event cho application task</h3>
+<p>Trong gateway automotive, CAN driver hoặc CanIf nhận PDU rồi đánh thức task xử lý application. Event giúp tách phần thời gian gấp trong ISR khỏi phần xử lý nghiệp vụ.</p>
+<table>
+<thead><tr><th>Thành phần</th><th>Việc nên làm</th><th>Việc không nên làm</th></tr></thead>
+<tbody>
+<tr><td>CAN RX ISR</td><td>Đọc mailbox, copy PDU vào buffer, gọi <code>SetEvent(Task_Com, EV_CAN_RX)</code>.</td><td>Không chạy toàn bộ diagnostic/application logic trong ISR.</td></tr>
+<tr><td>Task_Com</td><td><code>WaitEvent(EV_CAN_RX | EV_COM_TIMEOUT)</code>, xử lý PDU, clear event.</td><td>Không polling mailbox liên tục nếu không có dữ liệu.</td></tr>
+<tr><td>Task_Dcm</td><td>Được báo event khi có diagnostic request hoàn chỉnh.</td><td>Không phụ thuộc trực tiếp vào interrupt timing.</td></tr>
+</tbody>
+</table>
+
+<h3>10.3 Timeout và watchdog supervision</h3>
+<p>Alarm hoặc ScheduleTable có thể gọi <code>SetEvent(Task_X, EV_TIMEOUT)</code>. Task chờ cả data và timeout trong một API:</p>
+<pre><code>WaitEvent(EV_DATA_READY | EV_TIMEOUT);
+GetEvent(TASK_X, &amp;events);
+
+if ((events &amp; EV_DATA_READY) != 0u) {
+    ClearEvent(EV_DATA_READY);
+    ProcessData();
+}
+
+if ((events &amp; EV_TIMEOUT) != 0u) {
+    ClearEvent(EV_TIMEOUT);
+    HandleTimeout();
+}</code></pre>
+<p>Đây là pattern rất quan trọng: một task có thể chờ nhiều nguyên nhân đánh thức, rồi phân nhánh xử lý theo bit.</p>
+
+<h3>10.4 Diagnostic session</h3>
+<p>Trong diagnostic, event có thể báo các trạng thái như request mới, timeout P2/P2*, security seed ready, hoặc response transmit done. Nhờ event, DCM task không cần chạy liên tục ở mỗi tick.</p>
+<table class="tight">
+<thead><tr><th>Event</th><th>Nguồn phát</th><th>Task nhận</th><th>Hành động</th></tr></thead>
+<tbody>
+<tr><td><code>EV_DIAG_REQ</code></td><td>CanTp indication</td><td>Task_Dcm</td><td>Parse UDS request.</td></tr>
+<tr><td><code>EV_DIAG_TIMEOUT</code></td><td>Alarm/counter</td><td>Task_Dcm</td><td>Abort pending request hoặc gửi negative response.</td></tr>
+<tr><td><code>EV_TX_CONFIRM</code></td><td>CanIf TxConfirmation</td><td>Task_Dcm</td><td>Chuyển state machine sang idle hoặc next block.</td></tr>
+</tbody>
+</table>
+
+<h2 id="11-debug">11. Debug chuyên sâu bằng GDB</h2>
+<h3>11.1 Breakpoint nên đặt</h3>
+<table>
+<thead><tr><th>Breakpoint</th><th>Mục tiêu quan sát</th><th>Lệnh gợi ý</th></tr></thead>
+<tbody>
+<tr><td><code>Task_EventConsumer</code></td><td>Task bắt đầu, chuẩn bị gọi <code>WaitEvent</code>.</td><td><code>hbreak Task_EventConsumer</code></td></tr>
+<tr><td><code>WaitEvent</code></td><td>Xem <code>g_current</code>, <code>event_set</code>, <code>wait_mask</code> trước khi block.</td><td><code>hbreak WaitEvent</code></td></tr>
+<tr><td><code>SetEvent</code></td><td>Xem target task được unblock.</td><td><code>hbreak SetEvent</code></td></tr>
+<tr><td><code>os_schedule</code></td><td>Xem scheduler chọn <code>g_next</code>.</td><td><code>hbreak os_schedule</code></td></tr>
+<tr><td><code>PendSV_Handler</code></td><td>Xem context switch thật.</td><td><code>hbreak PendSV_Handler</code></td></tr>
+</tbody>
+</table>
+
+<h3>11.2 Lệnh GDB nên dùng khi dạy</h3>
+<pre><code>p/x g_current
+p/x g_next
+p ((TCB_t*)g_current)-&gt;id
+p ((TCB_t*)g_current)-&gt;state
+p/x ((TCB_t*)g_current)-&gt;event_set
+p/x ((TCB_t*)g_current)-&gt;wait_mask
+info registers psp msp lr pc
+bt</code></pre>
+<p>Khi dừng ở <code>SetEvent</code>, không chỉ nhìn biến local. Hãy in TCB của Consumer để thấy event bit thay đổi:</p>
+<pre><code>p/x tcb[TASK_EVENT_CONSUMER].event_set
+p/x tcb[TASK_EVENT_CONSUMER].wait_mask
+p tcb[TASK_EVENT_CONSUMER].state</code></pre>
+<div class="note">
+    Nếu <code>tcb</code> là static trong <code>os_kernel.c</code>, GDB vẫn có thể thấy symbol khi build có debug info. Nếu không thấy, có thể dùng breakpoint trong cùng file hoặc tạo helper debug public sau này.
+</div>
+
+<h3>11.3 Checklist debug khi flow sai</h3>
+<table>
+<thead><tr><th>Triệu chứng</th><th>Khả năng lỗi</th><th>Cách kiểm tra</th></tr></thead>
+<tbody>
+<tr><td>Consumer không chạy lại sau <code>SetEvent</code>.</td><td>Không enqueue khi unblock, hoặc priority không đủ để preempt.</td><td>Dừng ở <code>SetEvent</code>, kiểm tra <code>state</code>, ready queue, <code>g_next</code>.</td></tr>
+<tr><td><code>WaitEvent</code> không block.</td><td>Event bit đã pending do chưa clear.</td><td>In <code>event_set</code> trước <code>WaitEvent</code>.</td></tr>
+<tr><td>Task chạy lại từ đầu thay vì sau <code>WaitEvent</code>.</td><td>Stack/context bị init lại sai.</td><td>Kiểm tra <code>context_needs_init</code> và PendSV save/restore.</td></tr>
+<tr><td>Log thứ tự bị đảo.</td><td>Priority hoặc scheduler mode thay đổi.</td><td>Kiểm tra <code>OS_SCHED_MODE_DEFAULT</code> và <code>base_priority</code>.</td></tr>
+<tr><td>HardFault sau unblock.</td><td>Stack frame hoặc PSP hỏng.</td><td>Breakpoint <code>PendSV_Handler</code>, kiểm tra PSP và TCB <code>sp</code>.</td></tr>
+</tbody>
+</table>
+
+<h2 id="12-mo-rong">12. Hướng mở rộng lên OSEK/AUTOSAR</h2>
+<p>Bài này cố ý là primitive nền, chưa phải OSEK chuẩn đầy đủ. Khi học OSEK sau, các khái niệm sẽ được siết chặt thêm.</p>
+<table>
+<thead><tr><th>Bản nền hiện tại</th><th>OSEK/AUTOSAR sau này</th><th>Ý nghĩa mở rộng</th></tr></thead>
+<tbody>
+<tr><td>API trả <code>void</code>.</td><td>API trả <code>StatusType</code>.</td><td>Cần báo <code>E_OS_ID</code>, <code>E_OS_ACCESS</code>, <code>E_OS_CALLEVEL</code>, v.v.</td></tr>
+<tr><td>Mọi task có thể dùng event field.</td><td>Phân biệt basic task và extended task.</td><td>Chỉ extended task mới wait event.</td></tr>
+<tr><td>Không kiểm tra calling context đầy đủ.</td><td>Quy định task context, ISR context rõ ràng.</td><td><code>WaitEvent</code> không được gọi từ ISR.</td></tr>
+<tr><td>Không có service ID/error hook.</td><td>Có ErrorHook, service ID, parameter capture.</td><td>Debug lỗi API chuẩn hơn.</td></tr>
+<tr><td>ScheduleTable chỉ ActivateTask.</td><td>ScheduleTable có thể SetEvent.</td><td>Time-triggered event wakeup cho task.</td></tr>
+</tbody>
+</table>
+
+<h3>12.1 Khi nào nên refactor tiếp?</h3>
+<ul>
+    <li>Khi cần negative test cho task ID sai, mask sai, caller sai context.</li>
+    <li>Khi cần mô phỏng OSEK extended task đúng nghĩa.</li>
+    <li>Khi ScheduleTable cần action <code>SetEvent</code> thay vì chỉ <code>ActivateTask</code>.</li>
+    <li>Khi ISR category 2 cần gọi service OS có kiểm soát.</li>
+    <li>Khi cần ErrorHook để dạy lỗi runtime.</li>
+</ul>
+
+<h2 id="13-cau-hoi">13. Câu hỏi kiểm tra hiểu bản chất</h2>
+<ol>
+    <li>Vì sao <code>WaitEvent()</code> phải check <code>event_set</code> trước khi chuyển task sang <code>WAITING</code>?</li>
+    <li>Vì sao <code>SetEvent()</code> không luôn gọi scheduler, đặc biệt khi đang trong ISR?</li>
+    <li>Nếu Producer set event cho Consumer khi Consumer đang READY, chuyện gì xảy ra?</li>
+    <li>Nếu Consumer quên <code>ClearEvent()</code>, lần <code>WaitEvent()</code> sau có block không?</li>
+    <li>Event bit có dùng để đếm 5 CAN frame nhận liên tiếp được không? Nếu không, cần thêm cấu trúc gì?</li>
+    <li>Vì sao task được unblock không đồng nghĩa chắc chắn chạy ngay?</li>
+    <li>Sau <code>SetEvent()</code>, context switch thật xảy ra trong function C hay trong <code>PendSV_Handler</code>?</li>
+    <li>Vì sao <code>GetEvent()</code> không được tự clear bit?</li>
+    <li>Race "lost wakeup" là gì trong cặp <code>WaitEvent</code>/<code>SetEvent</code>?</li>
+    <li>Nếu muốn ScheduleTable đánh thức task bằng event, cần thêm gì vào cấu trúc expiry point?</li>
+</ol>
+
+<h2 id="14-ket-luan">14. Điểm dễ nhầm và kết luận</h2>
+<ul>
+    <li><code>SetEvent()</code> không trực tiếp gọi function của task đích. Nó chỉ set bit và có thể đưa task về ready queue.</li>
+    <li><code>WaitEvent()</code> không clear event. Nếu event đã pending, hàm return ngay.</li>
+    <li><code>GetEvent()</code> chỉ đọc, không thay đổi state.</li>
+    <li><code>ClearEvent()</code> nên được gọi sau khi task đã xử lý bit tương ứng.</li>
+    <li>Event bitmask không đếm số lần xảy ra. Set cùng một bit nhiều lần vẫn chỉ là bit 1.</li>
+    <li>Task đang <code>WAITING</code> không được scheduler chọn cho đến khi có event khớp.</li>
+</ul>
+<div class="callout">
+    <strong>Kết luận kỹ thuật:</strong> Sau bài này, kernel không còn chỉ là scheduler chạy task theo ready queue. Nó đã có primitive blocking đầu tiên: task có thể tự rời CPU khi chưa có việc và quay lại khi được báo event. Đây là nền quan trọng trước khi học OSEK event service đầy đủ.
+</div>
+
+<div class="footer">
+    Os_Test Event API Execution Flow - HALA Academy
+</div>
+
+</body>
+</html>

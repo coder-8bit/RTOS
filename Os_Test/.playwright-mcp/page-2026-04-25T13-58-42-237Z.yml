@@ -1,0 +1,1687 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]: SYSTEM ARCHITECT AUTOMOTIVE
+    - generic [ref=e4]:
+      - text: GIÁO TRÌNH CHUYÊN SÂU EVENT API
+      - text: WaitEvent, SetEvent, ClearEvent, GetEvent trong mini RTOS
+    - generic [ref=e5]:
+      - text: "Biên soạn:"
+      - strong [ref=e6]: Phạm Văn Vũ
+    - generic [ref=e7]: HALA Academy
+  - heading "GIÁO TRÌNH CHUYÊN SÂU EVENT API TRONG MINI RTOS" [level=1] [ref=e8]
+  - heading "Từ event bit trong TCB đến task block/unblock qua scheduler" [level=2] [ref=e9]
+  - blockquote [ref=e10]:
+    - paragraph [ref=e11]:
+      - text: Tài liệu này bám sát đúng code trong repository
+      - strong [ref=e12]: Os_Test
+      - text: "sau khi thêm 4 API nền:"
+      - code [ref=e13]: WaitEvent()
+      - text: ","
+      - code [ref=e14]: SetEvent()
+      - text: ","
+      - code [ref=e15]: ClearEvent()
+      - text: ","
+      - code [ref=e16]: GetEvent()
+      - text: . Đây là phần học nền RTOS, chưa đi vào đầy đủ
+      - code [ref=e17]: StatusType
+      - text: hoặc error semantics của OSEK.
+  - generic [ref=e18]:
+    - strong [ref=e19]: "Một câu chốt bản chất của Event:"
+    - text: Event là các bit tín hiệu gắn trực tiếp với từng task. Task có thể ngủ bằng
+    - code [ref=e20]: WaitEvent(mask)
+    - text: ; task khác hoặc ISR có thể báo bằng
+    - code [ref=e21]: SetEvent(task, mask)
+    - text: ; khi bit khớp mask đang chờ, task được đưa từ
+    - code [ref=e22]: WAITING
+    - text: về
+    - code [ref=e23]: READY
+    - text: .
+  - separator [ref=e24]
+  - heading "Mục lục" [level=2] [ref=e25]
+  - list [ref=e26]:
+    - listitem [ref=e27]:
+      - link "Mục tiêu và bức tranh tổng thể" [ref=e28] [cursor=pointer]:
+        - /url: "#1-muc-tieu"
+    - listitem [ref=e29]:
+      - link "Bản chất của event bitmask" [ref=e30] [cursor=pointer]:
+        - /url: "#2-ban-chat"
+    - listitem [ref=e31]:
+      - link "Kiến trúc code trong Os_Test" [ref=e32] [cursor=pointer]:
+        - /url: "#3-kien-truc"
+    - listitem [ref=e33]:
+      - link "Phân tích 4 API" [ref=e34] [cursor=pointer]:
+        - /url: "#4-api"
+    - listitem [ref=e35]:
+      - link "Demo task và bảng cấu hình mới" [ref=e36] [cursor=pointer]:
+        - /url: "#5-demo"
+    - listitem [ref=e37]:
+      - link "Luồng runtime đầy đủ" [ref=e38] [cursor=pointer]:
+        - /url: "#6-runtime"
+    - listitem [ref=e39]:
+      - link "Race safety và critical section" [ref=e40] [cursor=pointer]:
+        - /url: "#7-race"
+    - listitem [ref=e41]:
+      - link "Kiểm chứng bằng Renode/GDB" [ref=e42] [cursor=pointer]:
+        - /url: "#8-log"
+    - listitem [ref=e43]:
+      - link "Lab step-by-step cho học viên" [ref=e44] [cursor=pointer]:
+        - /url: "#9-lab-step"
+    - listitem [ref=e45]:
+      - link "Ứng dụng thực tế trong hệ automotive" [ref=e46] [cursor=pointer]:
+        - /url: "#10-ung-dung"
+    - listitem [ref=e47]:
+      - link "Debug chuyên sâu bằng GDB" [ref=e48] [cursor=pointer]:
+        - /url: "#11-debug"
+    - listitem [ref=e49]:
+      - link "Hướng mở rộng lên OSEK/AUTOSAR" [ref=e50] [cursor=pointer]:
+        - /url: "#12-mo-rong"
+    - listitem [ref=e51]:
+      - link "Câu hỏi kiểm tra hiểu bản chất" [ref=e52] [cursor=pointer]:
+        - /url: "#13-cau-hoi"
+    - listitem [ref=e53]:
+      - link "Điểm dễ nhầm và kết luận" [ref=e54] [cursor=pointer]:
+        - /url: "#14-ket-luan"
+  - separator [ref=e55]
+  - heading "1. Mục tiêu và bức tranh tổng thể" [level=2] [ref=e56]
+  - paragraph [ref=e57]:
+    - text: Sau bài này, người học cần hiểu được vì sao event là bước tiếp theo tự nhiên sau scheduler. Trước đó task chỉ chạy theo autostart, alarm hoặc schedule table. Với event, task có thể chủ động
+    - strong [ref=e58]: ngủ
+    - text: khi chưa có việc, và chỉ quay lại ready queue khi có tín hiệu phù hợp.
+  - generic [ref=e59]:
+    - strong [ref=e60]: "Chuỗi runtime cần nắm:"
+    - code [ref=e61]: Task Consumer chạy → WaitEvent(mask) → chưa có event → state = WAITING → scheduler chạy Producer → Producer SetEvent(Consumer, mask) → Consumer state = READY → scheduler preempt Producer nếu Consumer ưu tiên cao hơn → Consumer GetEvent/ClearEvent → Consumer xử lý xong
+  - table [ref=e62]:
+    - rowgroup [ref=e63]:
+      - row "API Vai trò Có block? Có thể gây schedule?" [ref=e64]:
+        - columnheader "API" [ref=e65]
+        - columnheader "Vai trò" [ref=e66]
+        - columnheader "Có block?" [ref=e67]
+        - columnheader "Có thể gây schedule?" [ref=e68]
+    - rowgroup [ref=e69]:
+      - row "WaitEvent(mask) Task hiện tại chờ một hoặc nhiều bit event. Có, nếu chưa có bit khớp. Có, khi task chuyển sang WAITING." [ref=e70]:
+        - cell "WaitEvent(mask)" [ref=e71]:
+          - code [ref=e72]: WaitEvent(mask)
+        - cell "Task hiện tại chờ một hoặc nhiều bit event." [ref=e73]
+        - cell "Có, nếu chưa có bit khớp." [ref=e74]
+        - cell "Có, khi task chuyển sang WAITING." [ref=e75]:
+          - text: Có, khi task chuyển sang
+          - code [ref=e76]: WAITING
+          - text: .
+      - row "SetEvent(tid, mask) Báo event cho task đích. Không. Có, nếu task đích đang chờ và được unblock." [ref=e77]:
+        - cell "SetEvent(tid, mask)" [ref=e78]:
+          - code [ref=e79]: SetEvent(tid, mask)
+        - cell "Báo event cho task đích." [ref=e80]
+        - cell "Không." [ref=e81]
+        - cell "Có, nếu task đích đang chờ và được unblock." [ref=e82]
+      - row "ClearEvent(mask) Xóa các bit event đã xử lý của task hiện tại. Không. Không." [ref=e83]:
+        - cell "ClearEvent(mask)" [ref=e84]:
+          - code [ref=e85]: ClearEvent(mask)
+        - cell "Xóa các bit event đã xử lý của task hiện tại." [ref=e86]
+        - cell "Không." [ref=e87]
+        - cell "Không." [ref=e88]
+      - row "GetEvent(tid, *mask) Đọc event_set hiện tại của task đích. Không. Không." [ref=e89]:
+        - cell "GetEvent(tid, *mask)" [ref=e90]:
+          - code [ref=e91]: GetEvent(tid, *mask)
+        - cell "Đọc event_set hiện tại của task đích." [ref=e92]
+        - cell "Không." [ref=e93]
+        - cell "Không." [ref=e94]
+  - heading "1.1 Năng lực đầu ra sau bài học" [level=3] [ref=e95]
+  - paragraph [ref=e96]: Bài này không chỉ yêu cầu học viên nhớ tên 4 API. Sau khi học xong, học viên phải đọc được code kernel và tự giải thích chính xác CPU đang chạy ở đâu, task nào còn nằm trong ready queue, task nào đang ngủ, event bit nào đang pending, và vì sao PendSV có hoặc không xảy ra.
+  - table [ref=e97]:
+    - rowgroup [ref=e98]:
+      - row "Năng lực Học viên phải làm được Cách kiểm tra" [ref=e99]:
+        - columnheader "Năng lực" [ref=e100]
+        - columnheader "Học viên phải làm được" [ref=e101]
+        - columnheader "Cách kiểm tra" [ref=e102]
+    - rowgroup [ref=e103]:
+      - row "Đọc data model Giải thích được event_set, wait_mask, state, current_priority trong TCB. Dừng GDB ở WaitEvent/SetEvent và in TCB." [ref=e104]:
+        - cell "Đọc data model" [ref=e105]
+        - cell "Giải thích được event_set, wait_mask, state, current_priority trong TCB." [ref=e106]:
+          - text: Giải thích được
+          - code [ref=e107]: event_set
+          - text: ","
+          - code [ref=e108]: wait_mask
+          - text: ","
+          - code [ref=e109]: state
+          - text: ","
+          - code [ref=e110]: current_priority
+          - text: trong TCB.
+        - cell "Dừng GDB ở WaitEvent/SetEvent và in TCB." [ref=e111]:
+          - text: Dừng GDB ở
+          - code [ref=e112]: WaitEvent
+          - text: /
+          - code [ref=e113]: SetEvent
+          - text: và in TCB.
+      - row "Đọc flow runtime Vẽ lại luồng Consumer block, Producer set event, Consumer được unblock. So sánh với UART log và sequence diagram." [ref=e114]:
+        - cell "Đọc flow runtime" [ref=e115]
+        - cell "Vẽ lại luồng Consumer block, Producer set event, Consumer được unblock." [ref=e116]
+        - cell "So sánh với UART log và sequence diagram." [ref=e117]
+      - row "Hiểu scheduler Biết vì sao Consumer priority cao hơn Producer thì Consumer có thể preempt Producer sau SetEvent. Breakpoint tại os_schedule và quan sát g_next." [ref=e118]:
+        - cell "Hiểu scheduler" [ref=e119]
+        - cell "Biết vì sao Consumer priority cao hơn Producer thì Consumer có thể preempt Producer sau SetEvent." [ref=e120]:
+          - text: Biết vì sao Consumer priority cao hơn Producer thì Consumer có thể preempt Producer sau
+          - code [ref=e121]: SetEvent
+          - text: .
+        - cell "Breakpoint tại os_schedule và quan sát g_next." [ref=e122]:
+          - text: Breakpoint tại
+          - code [ref=e123]: os_schedule
+          - text: và quan sát
+          - code [ref=e124]: g_next
+          - text: .
+      - row "Hiểu race safety Chỉ ra race giữa WaitEvent và SetEvent nếu không có critical section. Giải thích đoạn os_irq_save()/os_irq_restore()." [ref=e125]:
+        - cell "Hiểu race safety" [ref=e126]
+        - cell "Chỉ ra race giữa WaitEvent và SetEvent nếu không có critical section." [ref=e127]:
+          - text: Chỉ ra race giữa
+          - code [ref=e128]: WaitEvent
+          - text: và
+          - code [ref=e129]: SetEvent
+          - text: nếu không có critical section.
+        - cell "Giải thích đoạn os_irq_save()/os_irq_restore()." [ref=e130]:
+          - text: Giải thích đoạn
+          - code [ref=e131]: os_irq_save()
+          - text: /
+          - code [ref=e132]: os_irq_restore()
+          - text: .
+      - row "Ứng dụng thiết kế Biết chọn event cho UART RX, CAN RX, timeout, button, diagnostic request. Tự đề xuất task/event table cho một module cụ thể." [ref=e133]:
+        - cell "Ứng dụng thiết kế" [ref=e134]
+        - cell "Biết chọn event cho UART RX, CAN RX, timeout, button, diagnostic request." [ref=e135]
+        - cell "Tự đề xuất task/event table cho một module cụ thể." [ref=e136]
+  - heading "1.2 Kiến thức cần có trước khi học" [level=3] [ref=e137]
+  - list [ref=e138]:
+    - listitem [ref=e139]:
+      - text: "Đã hiểu task state cơ bản:"
+      - code [ref=e140]: DORMANT
+      - text: ","
+      - code [ref=e141]: READY
+      - text: ","
+      - code [ref=e142]: RUNNING
+      - text: ","
+      - code [ref=e143]: WAITING
+      - text: .
+    - listitem [ref=e144]: Đã hiểu ready queue theo priority và FIFO trong cùng priority.
+    - listitem [ref=e145]:
+      - text: Đã hiểu PendSV là exception thực hiện context switch, còn C scheduler chỉ chọn
+      - code [ref=e146]: g_next
+      - text: .
+    - listitem [ref=e147]:
+      - text: Đã hiểu critical section tối thiểu bằng
+      - code [ref=e148]: PRIMASK
+      - text: .
+    - listitem [ref=e149]: Đã biết đọc log Renode từ USART1.
+  - heading "1.3 Câu hỏi trung tâm của bài" [level=3] [ref=e150]
+  - generic [ref=e151]: Nếu task đang chạy không có việc để làm, nó nên bận chờ bằng vòng lặp polling, hay nên tự chuyển sang WAITING để CPU chạy task khác?
+  - paragraph [ref=e152]: Event API trả lời câu hỏi này. Nó biến một task từ kiểu "luôn chạy để kiểm tra cờ" thành kiểu "ngủ đến khi có tín hiệu". Đây là một bước rất quan trọng trong RTOS vì nó giảm lãng phí CPU, giảm jitter cho task khác, và làm flow phần mềm rõ ràng hơn.
+  - heading "2. Bản chất của event bitmask" [level=2] [ref=e153]
+  - heading "2.1 Event không phải queue" [level=3] [ref=e154]
+  - paragraph [ref=e155]:
+    - text: Event trong bài này là một
+    - strong [ref=e156]: bitmask
+    - text: . Mỗi bit đại diện cho một điều kiện đã xảy ra. Nếu cùng một bit được set nhiều lần trước khi task clear, trạng thái vẫn chỉ là 1. Vì vậy event phù hợp cho tín hiệu trạng thái như "RX done", "timeout", "button pressed"; không phù hợp nếu cần đếm số lần xảy ra.
+  - code [ref=e158]: "enum { EVENT_RX_DONE = (1u << 0), EVENT_TIMEOUT = (1u << 1) };"
+  - table [ref=e159]:
+    - rowgroup [ref=e160]:
+      - row "Giá trị Ý nghĩa Diễn giải" [ref=e161]:
+        - columnheader "Giá trị" [ref=e162]
+        - columnheader "Ý nghĩa" [ref=e163]
+        - columnheader "Diễn giải" [ref=e164]
+    - rowgroup [ref=e165]:
+      - row "0x00000000 Không có event pending Task gọi WaitEvent() sẽ block nếu mask cần chờ chưa khớp." [ref=e166]:
+        - cell "0x00000000" [ref=e167]:
+          - code [ref=e168]: "0x00000000"
+        - cell "Không có event pending" [ref=e169]
+        - cell "Task gọi WaitEvent() sẽ block nếu mask cần chờ chưa khớp." [ref=e170]:
+          - text: Task gọi
+          - code [ref=e171]: WaitEvent()
+          - text: sẽ block nếu mask cần chờ chưa khớp.
+      - row "0x00000001 EVENT_RX_DONE Consumer có dữ liệu RX cần xử lý." [ref=e172]:
+        - cell "0x00000001" [ref=e173]:
+          - code [ref=e174]: "0x00000001"
+        - cell "EVENT_RX_DONE" [ref=e175]:
+          - code [ref=e176]: EVENT_RX_DONE
+        - cell "Consumer có dữ liệu RX cần xử lý." [ref=e177]
+      - row "0x00000002 EVENT_TIMEOUT Consumer có timeout cần xử lý." [ref=e178]:
+        - cell "0x00000002" [ref=e179]:
+          - code [ref=e180]: "0x00000002"
+        - cell "EVENT_TIMEOUT" [ref=e181]:
+          - code [ref=e182]: EVENT_TIMEOUT
+        - cell "Consumer có timeout cần xử lý." [ref=e183]
+      - row "0x00000003 Cả hai bit cùng pending Task có thể xử lý từng bit rồi clear từng phần." [ref=e184]:
+        - cell "0x00000003" [ref=e185]:
+          - code [ref=e186]: "0x00000003"
+        - cell "Cả hai bit cùng pending" [ref=e187]
+        - cell "Task có thể xử lý từng bit rồi clear từng phần." [ref=e188]
+  - generic [ref=e189]:
+    - strong [ref=e190]: Event không tự mất.
+    - code [ref=e191]: SetEvent()
+    - text: chỉ bật bit. Sau khi xử lý, task phải gọi
+    - code [ref=e192]: ClearEvent()
+    - text: . Nếu không clear, lần
+    - code [ref=e193]: WaitEvent()
+    - text: tiếp theo sẽ return ngay vì bit vẫn còn pending.
+  - heading "2.2 Event khác polling, semaphore, queue như thế nào?" [level=3] [ref=e194]
+  - table [ref=e195]:
+    - rowgroup [ref=e196]:
+      - row "Cơ chế Bản chất Có đếm số lần? Dùng khi nào? Ví dụ" [ref=e197]:
+        - columnheader "Cơ chế" [ref=e198]
+        - columnheader "Bản chất" [ref=e199]
+        - columnheader "Có đếm số lần?" [ref=e200]
+        - columnheader "Dùng khi nào?" [ref=e201]
+        - columnheader "Ví dụ" [ref=e202]
+    - rowgroup [ref=e203]:
+      - 'row "Polling flag Task tự đọc cờ liên tục. Không. Demo rất nhỏ, hoặc vòng lặp idle đơn giản. while (!rx_done) {}" [ref=e204]':
+        - cell "Polling flag" [ref=e205]
+        - cell "Task tự đọc cờ liên tục." [ref=e206]
+        - cell "Không." [ref=e207]
+        - cell "Demo rất nhỏ, hoặc vòng lặp idle đơn giản." [ref=e208]
+        - 'cell "while (!rx_done) {}" [ref=e209]':
+          - code [ref=e210]: "while (!rx_done) {}"
+      - row "Event bit Bit pending gắn với một task. Không, mỗi bit chỉ 0/1. Báo \"điều kiện đã xảy ra\". RX done, timeout, wakeup, new diagnostic request." [ref=e211]:
+        - cell "Event bit" [ref=e212]
+        - cell "Bit pending gắn với một task." [ref=e213]
+        - cell "Không, mỗi bit chỉ 0/1." [ref=e214]
+        - cell "Báo \"điều kiện đã xảy ra\"." [ref=e215]
+        - cell "RX done, timeout, wakeup, new diagnostic request." [ref=e216]
+      - row "Semaphore Token/counter đồng bộ tài nguyên hoặc số lần xảy ra. Có, nếu là counting semaphore. Đếm số buffer, số packet, số resource. 3 buffer RX đang chờ xử lý." [ref=e217]:
+        - cell "Semaphore" [ref=e218]
+        - cell "Token/counter đồng bộ tài nguyên hoặc số lần xảy ra." [ref=e219]
+        - cell "Có, nếu là counting semaphore." [ref=e220]
+        - cell "Đếm số buffer, số packet, số resource." [ref=e221]
+        - cell "3 buffer RX đang chờ xử lý." [ref=e222]
+      - row "Queue Danh sách message/data có thứ tự. Có, từng phần tử. Truyền dữ liệu, không chỉ báo trạng thái. Queue CAN frame hoặc UART byte stream." [ref=e223]:
+        - cell "Queue" [ref=e224]
+        - cell "Danh sách message/data có thứ tự." [ref=e225]
+        - cell "Có, từng phần tử." [ref=e226]
+        - cell "Truyền dữ liệu, không chỉ báo trạng thái." [ref=e227]
+        - cell "Queue CAN frame hoặc UART byte stream." [ref=e228]
+  - generic [ref=e229]:
+    - strong [ref=e230]: "Cách chọn đúng:"
+    - text: Nếu chỉ cần đánh thức task vì "có việc mới", dùng event. Nếu cần truyền payload, event chỉ nên đóng vai trò wakeup; payload nên nằm trong ring buffer hoặc queue riêng. Nếu cần đếm từng lần xảy ra, không dùng event bit đơn thuần.
+  - heading "2.3 Auto-clear hay manual-clear?" [level=3] [ref=e231]
+  - paragraph [ref=e232]:
+    - text: Bản hiện tại dùng
+    - strong [ref=e233]: manual-clear
+    - text: ":"
+    - code [ref=e234]: WaitEvent()
+    - text: không xóa bit, task phải tự gọi
+    - code [ref=e235]: ClearEvent()
+    - text: sau khi xử lý. Đây là cách giúp task kiểm tra được nhiều bit cùng lúc và quyết định clear bit nào.
+  - table [ref=e236]:
+    - rowgroup [ref=e237]:
+      - row "Kiểu Cách hoạt động Ưu điểm Rủi ro" [ref=e238]:
+        - columnheader "Kiểu" [ref=e239]
+        - columnheader "Cách hoạt động" [ref=e240]
+        - columnheader "Ưu điểm" [ref=e241]
+        - columnheader "Rủi ro" [ref=e242]
+    - rowgroup [ref=e243]:
+      - row "Manual-clear SetEvent bật bit, task xử lý xong gọi ClearEvent. Rõ ràng, task kiểm soát thời điểm xóa. Quên clear thì WaitEvent sau return ngay." [ref=e244]:
+        - cell "Manual-clear" [ref=e245]
+        - cell "SetEvent bật bit, task xử lý xong gọi ClearEvent." [ref=e246]:
+          - code [ref=e247]: SetEvent
+          - text: bật bit, task xử lý xong gọi
+          - code [ref=e248]: ClearEvent
+          - text: .
+        - cell "Rõ ràng, task kiểm soát thời điểm xóa." [ref=e249]
+        - cell "Quên clear thì WaitEvent sau return ngay." [ref=e250]:
+          - text: Quên clear thì
+          - code [ref=e251]: WaitEvent
+          - text: sau return ngay.
+      - row "Auto-clear Kernel tự xóa bit khi WaitEvent return. Code task ngắn hơn. Dễ mất thông tin nếu task cần đọc nhiều bit hoặc xử lý theo thứ tự riêng." [ref=e252]:
+        - cell "Auto-clear" [ref=e253]
+        - cell "Kernel tự xóa bit khi WaitEvent return." [ref=e254]:
+          - text: Kernel tự xóa bit khi
+          - code [ref=e255]: WaitEvent
+          - text: return.
+        - cell "Code task ngắn hơn." [ref=e256]
+        - cell "Dễ mất thông tin nếu task cần đọc nhiều bit hoặc xử lý theo thứ tự riêng." [ref=e257]
+  - heading "2.4 Công thức bitmask cần nhớ" [level=3] [ref=e258]
+  - code [ref=e260]: "/* Set một hoặc nhiều bit */ event_set |= mask; /* Kiểm tra có ít nhất một bit khớp */ if ((event_set & wait_mask) != 0u) { ... } /* Clear một hoặc nhiều bit */ event_set &= ~mask; /* Chờ một trong hai event */ WaitEvent(EVENT_RX_DONE | EVENT_TIMEOUT);"
+  - heading "3. Kiến trúc code trong Os_Test" [level=2] [ref=e261]
+  - heading "3.1 Thay đổi trong TCB" [level=3] [ref=e262]
+  - paragraph [ref=e263]:
+    - text: Event được gắn vào từng task qua hai field mới trong
+    - code [ref=e264]: TCB_t
+    - text: tại
+    - code [ref=e265]: OS/inc/os_kernel.h
+    - text: ":"
+  - code [ref=e267]: "typedef struct TCB { uint32_t *sp; /* field đầu tiên cho PendSV/SVC */ ... volatile uint8_t state; volatile EventMaskType event_set; /* Các event bit đã được báo */ volatile EventMaskType wait_mask; /* Các event bit task đang chờ */ } TCB_t;"
+  - table [ref=e268]:
+    - rowgroup [ref=e269]:
+      - row "Field Ai ghi? Ai đọc? Ý nghĩa runtime" [ref=e270]:
+        - columnheader "Field" [ref=e271]
+        - columnheader "Ai ghi?" [ref=e272]
+        - columnheader "Ai đọc?" [ref=e273]
+        - columnheader "Ý nghĩa runtime" [ref=e274]
+    - rowgroup [ref=e275]:
+      - row "event_set SetEvent(), ClearEvent() WaitEvent(), GetEvent() Các bit event đang pending của task." [ref=e276]:
+        - cell "event_set" [ref=e277]:
+          - code [ref=e278]: event_set
+        - cell "SetEvent(), ClearEvent()" [ref=e279]:
+          - code [ref=e280]: SetEvent()
+          - text: ","
+          - code [ref=e281]: ClearEvent()
+        - cell "WaitEvent(), GetEvent()" [ref=e282]:
+          - code [ref=e283]: WaitEvent()
+          - text: ","
+          - code [ref=e284]: GetEvent()
+        - cell "Các bit event đang pending của task." [ref=e285]
+      - row "wait_mask WaitEvent(), SetEvent() SetEvent() Mask mà task đang block chờ." [ref=e286]:
+        - cell "wait_mask" [ref=e287]:
+          - code [ref=e288]: wait_mask
+        - cell "WaitEvent(), SetEvent()" [ref=e289]:
+          - code [ref=e290]: WaitEvent()
+          - text: ","
+          - code [ref=e291]: SetEvent()
+        - cell "SetEvent()" [ref=e292]:
+          - code [ref=e293]: SetEvent()
+        - cell "Mask mà task đang block chờ." [ref=e294]
+      - row "state Scheduler và event API Scheduler Thêm luồng thực tế cho OS_WAITING." [ref=e295]:
+        - cell "state" [ref=e296]:
+          - code [ref=e297]: state
+        - cell "Scheduler và event API" [ref=e298]
+        - cell "Scheduler" [ref=e299]
+        - cell "Thêm luồng thực tế cho OS_WAITING." [ref=e300]:
+          - text: Thêm luồng thực tế cho
+          - code [ref=e301]: OS_WAITING
+          - text: .
+  - heading "3.2 Mapping file" [level=3] [ref=e302]
+  - table [ref=e303]:
+    - rowgroup [ref=e304]:
+      - row "File Vai trò trong bài event" [ref=e305]:
+        - columnheader "File" [ref=e306]
+        - columnheader "Vai trò trong bài event" [ref=e307]
+    - rowgroup [ref=e308]:
+      - row "OS/inc/os_types.h Định nghĩa EventMaskType." [ref=e309]:
+        - cell "OS/inc/os_types.h" [ref=e310]:
+          - code [ref=e311]: OS/inc/os_types.h
+        - cell "Định nghĩa EventMaskType." [ref=e312]:
+          - text: Định nghĩa
+          - code [ref=e313]: EventMaskType
+          - text: .
+      - row "OS/inc/os_kernel.h Thêm field event vào TCB và prototype 4 API." [ref=e314]:
+        - cell "OS/inc/os_kernel.h" [ref=e315]:
+          - code [ref=e316]: OS/inc/os_kernel.h
+        - cell "Thêm field event vào TCB và prototype 4 API." [ref=e317]
+      - row "OS/src/os_kernel.c Hiện thực WaitEvent, SetEvent, ClearEvent, GetEvent." [ref=e318]:
+        - cell "OS/src/os_kernel.c" [ref=e319]:
+          - code [ref=e320]: OS/src/os_kernel.c
+        - cell "Hiện thực WaitEvent, SetEvent, ClearEvent, GetEvent." [ref=e321]:
+          - text: Hiện thực
+          - code [ref=e322]: WaitEvent
+          - text: ","
+          - code [ref=e323]: SetEvent
+          - text: ","
+          - code [ref=e324]: ClearEvent
+          - text: ","
+          - code [ref=e325]: GetEvent
+          - text: .
+      - row "Config/os_app_cfg.h Định nghĩa task ID và event mask demo." [ref=e326]:
+        - cell "Config/os_app_cfg.h" [ref=e327]:
+          - code [ref=e328]: Config/os_app_cfg.h
+        - cell "Định nghĩa task ID và event mask demo." [ref=e329]
+      - 'row "Config/os_app_cfg.c Tạo lại bảng task tối giản: Boot, Consumer, Producer, Idle." [ref=e330]':
+        - cell "Config/os_app_cfg.c" [ref=e331]:
+          - code [ref=e332]: Config/os_app_cfg.c
+        - 'cell "Tạo lại bảng task tối giản: Boot, Consumer, Producer, Idle." [ref=e333]'
+      - row "app/App_Task.c Demo dùng đủ 4 API và in UART log để test." [ref=e334]:
+        - cell "app/App_Task.c" [ref=e335]:
+          - code [ref=e336]: app/App_Task.c
+        - cell "Demo dùng đủ 4 API và in UART log để test." [ref=e337]
+      - row "test_os.py Build, chạy Renode, validate log, GDB smoke." [ref=e338]:
+        - cell "test_os.py" [ref=e339]:
+          - code [ref=e340]: test_os.py
+        - cell "Build, chạy Renode, validate log, GDB smoke." [ref=e341]
+  - 'heading "3.3 Data ownership: ai sở hữu event?" [level=3] [ref=e342]'
+  - paragraph [ref=e343]:
+    - text: Trong thiết kế này, event không phải object độc lập. Event thuộc về task nhận. Vì vậy
+    - code [ref=e344]: Task_EventConsumer
+    - text: sở hữu
+    - code [ref=e345]: event_set
+    - text: của nó, còn
+    - code [ref=e346]: Task_EventProducer
+    - text: chỉ có quyền bật bit thông qua
+    - code [ref=e347]: SetEvent(TASK_EVENT_CONSUMER, mask)
+    - text: .
+  - generic [ref=e348]:
+    - generic [ref=e349]: "Class/Data Model: TCB và Event Fields"
+    - document [ref=e351]:
+      - generic [ref=e353]:
+        - generic [ref=e357]:
+          - generic [ref=e362]: owns runtime TCB
+          - generic [ref=e367]: modifies consumer event_set via SetEvent
+          - generic [ref=e372]: READY tasks are queued
+        - generic [ref=e373]:
+          - generic [ref=e376]:
+            - generic [ref=e378]: TCB_t
+            - generic [ref=e380]: uint32_t sp_ptr
+            - generic [ref=e382]: uint8_t id
+            - generic [ref=e384]: uint8_t state
+            - generic [ref=e386]: uint8_t current_priority
+            - generic [ref=e388]: EventMaskType event_set
+            - generic [ref=e390]: EventMaskType wait_mask
+          - generic [ref=e393]:
+            - generic [ref=e395]: Task_EventConsumer
+            - generic [ref=e397]: WaitEvent
+            - generic [ref=e399]: GetEvent
+            - generic [ref=e401]: ClearEvent
+          - generic [ref=e404]:
+            - generic [ref=e406]: Task_EventProducer
+            - generic [ref=e408]: SetEvent
+          - generic [ref=e411]:
+            - generic [ref=e413]: ReadyQueue
+            - generic [ref=e415]: enqueue_tail
+            - generic [ref=e417]: pop_highest
+            - generic [ref=e419]: peek_highest
+    - generic [ref=e420]: Event bits sống trong TCB của task nhận, không sống trong Producer.
+  - heading "3.4 State machine của task khi có event" [level=3] [ref=e421]
+  - generic [ref=e422]:
+    - generic [ref=e423]: Task State Machine với Event Blocking
+    - document [ref=e425]:
+      - generic [ref=e427]:
+        - generic [ref=e438]:
+          - generic [ref=e443]: ActivateTask or autostart
+          - generic [ref=e448]: scheduler dispatch
+          - generic [ref=e453]: WaitEvent no matching bit
+          - generic [ref=e458]: SetEvent matching mask
+          - generic [ref=e463]: WaitEvent bit already pending
+          - generic [ref=e468]: TerminateTask and no pending activation
+          - generic [ref=e473]: preempted by higher priority task
+          - generic [ref=e478]: SetEvent while already READY
+          - generic [ref=e483]: GetEvent or ClearEvent
+        - generic [ref=e484]:
+          - generic [ref=e491]: DORMANT
+          - generic [ref=e496]: READY
+          - generic [ref=e501]: RUNNING
+          - generic [ref=e506]: WAITING
+    - generic [ref=e507]: Điểm mới của bài này là cạnh RUNNING → WAITING và WAITING → READY.
+  - heading "3.5 Invariant của kernel sau khi thêm event" [level=3] [ref=e508]
+  - table [ref=e509]:
+    - rowgroup [ref=e510]:
+      - row "Invariant Lý do cần giữ Nếu vi phạm sẽ ra sao?" [ref=e511]:
+        - columnheader "Invariant" [ref=e512]
+        - columnheader "Lý do cần giữ" [ref=e513]
+        - columnheader "Nếu vi phạm sẽ ra sao?" [ref=e514]
+    - rowgroup [ref=e515]:
+      - row "Task WAITING không nằm trong ready queue. Scheduler không được chọn task đang ngủ. Task bị chạy dù event chưa đến." [ref=e516]:
+        - cell "Task WAITING không nằm trong ready queue." [ref=e517]:
+          - text: Task
+          - code [ref=e518]: WAITING
+          - text: không nằm trong ready queue.
+        - cell "Scheduler không được chọn task đang ngủ." [ref=e519]
+        - cell "Task bị chạy dù event chưa đến." [ref=e520]
+      - row "Khi task được unblock, phải enqueue đúng priority hiện tại. Scheduler vẫn giữ luật priority. Task bị đói CPU hoặc chạy sai thứ tự." [ref=e521]:
+        - cell "Khi task được unblock, phải enqueue đúng priority hiện tại." [ref=e522]
+        - cell "Scheduler vẫn giữ luật priority." [ref=e523]
+        - cell "Task bị đói CPU hoặc chạy sai thứ tự." [ref=e524]
+      - row "event_set chỉ bị xóa bởi task hiện tại qua ClearEvent. Task nhận kiểm soát lifecycle của event. Producer/ISR có thể làm mất event trước khi task xử lý." [ref=e525]:
+        - cell "event_set chỉ bị xóa bởi task hiện tại qua ClearEvent." [ref=e526]:
+          - code [ref=e527]: event_set
+          - text: chỉ bị xóa bởi task hiện tại qua
+          - code [ref=e528]: ClearEvent
+          - text: .
+        - cell "Task nhận kiểm soát lifecycle của event." [ref=e529]
+        - cell "Producer/ISR có thể làm mất event trước khi task xử lý." [ref=e530]
+      - row "wait_mask được reset khi task được unblock. Task không còn đang ngủ vì mask cũ. Debug state bị sai, unblock sau có thể bị hiểu nhầm." [ref=e531]:
+        - cell "wait_mask được reset khi task được unblock." [ref=e532]:
+          - code [ref=e533]: wait_mask
+          - text: được reset khi task được unblock.
+        - cell "Task không còn đang ngủ vì mask cũ." [ref=e534]
+        - cell "Debug state bị sai, unblock sau có thể bị hiểu nhầm." [ref=e535]
+      - row "Không gọi scheduler khi đang trong ISR nesting. Context switch thật phải defer qua PendSV/exit ISR. Đổi context ở thời điểm không an toàn." [ref=e536]:
+        - cell "Không gọi scheduler khi đang trong ISR nesting." [ref=e537]
+        - cell "Context switch thật phải defer qua PendSV/exit ISR." [ref=e538]
+        - cell "Đổi context ở thời điểm không an toàn." [ref=e539]
+  - heading "4. Phân tích 4 API" [level=2] [ref=e540]
+  - heading "4.1 WaitEvent(mask)" [level=3] [ref=e541]
+  - paragraph [ref=e542]:
+    - code [ref=e543]: WaitEvent()
+    - text: chỉ tác động lên task hiện tại. Nếu event đã có sẵn, hàm return ngay. Nếu chưa có, task bị chuyển sang
+    - code [ref=e544]: OS_WAITING
+    - text: và scheduler chọn task khác.
+  - code [ref=e546]: "void WaitEvent(EventMaskType mask) { if ((current->event_set & mask) != 0u) { return; } current->wait_mask = mask; current->state = OS_WAITING; os_schedule(); }"
+  - generic [ref=e547]:
+    - strong [ref=e548]: "Điểm quan trọng:"
+    - text: task đang
+    - code [ref=e549]: WAITING
+    - text: không nằm trong ready queue. Nó chỉ quay lại ready queue khi
+    - code [ref=e550]: SetEvent()
+    - text: phát một bit khớp với
+    - code [ref=e551]: wait_mask
+    - text: .
+  - heading "4.2 SetEvent(tid, mask)" [level=3] [ref=e552]
+  - paragraph [ref=e553]:
+    - code [ref=e554]: SetEvent()
+    - text: OR bit vào task đích. Nếu task đích đang chờ và có bit khớp, task được chuyển về
+    - code [ref=e555]: READY
+    - text: ", enqueue theo priority, rồi scheduler có thể dispatch."
+  - code [ref=e557]: "task->event_set |= mask; if ((task->state == OS_WAITING) && ((task->event_set & task->wait_mask) != 0u)) { task->wait_mask = 0u; task->state = OS_READY; os_ready_add(task->id, task->current_priority); os_schedule(); }"
+  - heading "4.3 GetEvent(tid, *mask)" [level=3] [ref=e558]
+  - paragraph [ref=e559]:
+    - code [ref=e560]: GetEvent()
+    - text: chỉ copy
+    - code [ref=e561]: event_set
+    - text: ra biến của caller. Nó không clear, không block, không gọi scheduler.
+  - code [ref=e563]: EventMaskType events; GetEvent(TASK_EVENT_CONSUMER, &events);
+  - heading "4.4 ClearEvent(mask)" [level=3] [ref=e564]
+  - paragraph [ref=e565]:
+    - code [ref=e566]: ClearEvent()
+    - text: xóa bit event của task hiện tại bằng phép AND với bit đảo.
+  - code [ref=e568]: current->event_set &= ~mask;
+  - generic [ref=e569]:
+    - strong [ref=e570]: Trong bản nền này
+    - text: ", API đang dùng kiểu"
+    - code [ref=e571]: void
+    - text: để đồng bộ với style kernel hiện tại. Các rule lỗi kiểu gọi từ ISR, task ID sai, access right, extended/basic task sẽ để sang cụm OSEK API sau.
+  - heading "4.5 Thuật toán đầy đủ của WaitEvent theo từng bước" [level=3] [ref=e572]
+  - table [ref=e573]:
+    - rowgroup [ref=e574]:
+      - row "Bước Code/logic Ý nghĩa chuyên sâu" [ref=e575]:
+        - columnheader "Bước" [ref=e576]
+        - columnheader "Code/logic" [ref=e577]
+        - columnheader "Ý nghĩa chuyên sâu" [ref=e578]
+    - rowgroup [ref=e579]:
+      - row "1 if (mask == 0u) return; Mask rỗng không có điều kiện chờ. Bản nền bỏ qua thay vì báo lỗi." [ref=e580]:
+        - cell "1" [ref=e581]
+        - cell "if (mask == 0u) return;" [ref=e582]:
+          - code [ref=e583]: if (mask == 0u) return;
+        - cell "Mask rỗng không có điều kiện chờ. Bản nền bỏ qua thay vì báo lỗi." [ref=e584]
+      - row "2 primask = os_irq_save(); Bảo vệ đoạn check event và chuyển state. Đây là vùng chống lost wakeup." [ref=e585]:
+        - cell "2" [ref=e586]
+        - cell "primask = os_irq_save();" [ref=e587]:
+          - code [ref=e588]: primask = os_irq_save();
+        - cell "Bảo vệ đoạn check event và chuyển state. Đây là vùng chống lost wakeup." [ref=e589]
+      - row "3 current = g_current; WaitEvent luôn áp dụng cho task đang chạy, không nhận task ID." [ref=e590]:
+        - cell "3" [ref=e591]
+        - cell "current = g_current;" [ref=e592]:
+          - code [ref=e593]: current = g_current;
+        - cell "WaitEvent luôn áp dụng cho task đang chạy, không nhận task ID." [ref=e594]:
+          - code [ref=e595]: WaitEvent
+          - text: luôn áp dụng cho task đang chạy, không nhận task ID.
+      - row "4 if ((event_set & mask) != 0u) return; Nếu event đã đến trước khi task chờ, task không được block." [ref=e596]:
+        - cell "4" [ref=e597]
+        - cell "if ((event_set & mask) != 0u) return;" [ref=e598]:
+          - code [ref=e599]: if ((event_set & mask) != 0u) return;
+        - cell "Nếu event đã đến trước khi task chờ, task không được block." [ref=e600]
+      - row "5 wait_mask = mask; Ghi lại điều kiện đánh thức task." [ref=e601]:
+        - cell "5" [ref=e602]
+        - cell "wait_mask = mask;" [ref=e603]:
+          - code [ref=e604]: wait_mask = mask;
+        - cell "Ghi lại điều kiện đánh thức task." [ref=e605]
+      - row "6 state = OS_WAITING; Task rời khỏi nhóm task runnable." [ref=e606]:
+        - cell "6" [ref=e607]
+        - cell "state = OS_WAITING;" [ref=e608]:
+          - code [ref=e609]: state = OS_WAITING;
+        - cell "Task rời khỏi nhóm task runnable." [ref=e610]
+      - row "7 os_irq_restore(primask); os_schedule(); Mở interrupt đúng trạng thái cũ rồi gọi scheduler để chọn task khác." [ref=e611]:
+        - cell "7" [ref=e612]
+        - cell "os_irq_restore(primask); os_schedule();" [ref=e613]:
+          - code [ref=e614]: os_irq_restore(primask); os_schedule();
+        - cell "Mở interrupt đúng trạng thái cũ rồi gọi scheduler để chọn task khác." [ref=e615]
+  - generic [ref=e616]:
+    - generic [ref=e617]: "Activity: WaitEvent()"
+    - document [ref=e619]:
+      - generic [ref=e621]:
+        - generic [ref=e631]:
+          - generic [ref=e635]: "yes"
+          - generic [ref=e639]: "no"
+          - generic [ref=e643]: "no"
+          - generic [ref=e647]: "yes"
+          - generic [ref=e651]: "yes"
+          - generic [ref=e655]: "no"
+        - generic [ref=e656]:
+          - generic [ref=e661]: Task calls WaitEvent(mask)
+          - generic [ref=e666]: mask is zero?
+          - generic [ref=e671]: Return immediately
+          - generic [ref=e676]: Enter critical section
+          - generic [ref=e681]: current valid and not idle?
+          - generic [ref=e686]: Restore interrupt and return
+          - generic [ref=e691]: event bit already pending?
+          - generic [ref=e696]: wait_mask = mask
+          - generic [ref=e701]: state = OS_WAITING
+          - generic [ref=e706]: Restore interrupt
+          - generic [ref=e711]: os_schedule
+          - generic [ref=e716]: PendSV switches to another task
+  - heading "4.6 Thuật toán đầy đủ của SetEvent theo từng bước" [level=3] [ref=e717]
+  - table [ref=e718]:
+    - rowgroup [ref=e719]:
+      - row "Bước Code/logic Ý nghĩa chuyên sâu" [ref=e720]:
+        - columnheader "Bước" [ref=e721]
+        - columnheader "Code/logic" [ref=e722]
+        - columnheader "Ý nghĩa chuyên sâu" [ref=e723]
+    - rowgroup [ref=e724]:
+      - row "1 Kiểm tra mask, tid, idle task. Bỏ qua input vô nghĩa trong bản nền." [ref=e725]:
+        - cell "1" [ref=e726]
+        - cell "Kiểm tra mask, tid, idle task." [ref=e727]:
+          - text: Kiểm tra
+          - code [ref=e728]: mask
+          - text: ","
+          - code [ref=e729]: tid
+          - text: ", idle task."
+        - cell "Bỏ qua input vô nghĩa trong bản nền." [ref=e730]
+      - row "2 Vào critical section. Bảo vệ TCB và ready queue." [ref=e731]:
+        - cell "2" [ref=e732]
+        - cell "Vào critical section." [ref=e733]
+        - cell "Bảo vệ TCB và ready queue." [ref=e734]
+      - 'row "3 task->event_set |= mask; Event là sticky bit: set rồi giữ nguyên cho đến khi clear." [ref=e735]':
+        - cell "3" [ref=e736]
+        - cell "task->event_set |= mask;" [ref=e737]:
+          - code [ref=e738]: task->event_set |= mask;
+        - 'cell "Event là sticky bit: set rồi giữ nguyên cho đến khi clear." [ref=e739]'
+      - row "4 Kiểm tra state == OS_WAITING. Chỉ task đang ngủ mới cần unblock. Task READY/RUNNING chỉ nhận bit pending." [ref=e740]:
+        - cell "4" [ref=e741]
+        - cell "Kiểm tra state == OS_WAITING." [ref=e742]:
+          - text: Kiểm tra
+          - code [ref=e743]: state == OS_WAITING
+          - text: .
+        - cell "Chỉ task đang ngủ mới cần unblock. Task READY/RUNNING chỉ nhận bit pending." [ref=e744]
+      - row "5 Kiểm tra event_set & wait_mask. Chỉ unblock nếu bit mới hoặc bit đã pending khớp điều kiện chờ." [ref=e745]:
+        - cell "5" [ref=e746]
+        - cell "Kiểm tra event_set & wait_mask." [ref=e747]:
+          - text: Kiểm tra
+          - code [ref=e748]: event_set & wait_mask
+          - text: .
+        - cell "Chỉ unblock nếu bit mới hoặc bit đã pending khớp điều kiện chờ." [ref=e749]
+      - row "6 state = OS_READY; os_ready_add(...). Đưa task trở lại thế giới runnable." [ref=e750]:
+        - cell "6" [ref=e751]
+        - cell "state = OS_READY; os_ready_add(...)." [ref=e752]:
+          - code [ref=e753]: state = OS_READY; os_ready_add(...)
+          - text: .
+        - cell "Đưa task trở lại thế giới runnable." [ref=e754]
+      - row "7 Nếu không ở ISR, gọi scheduler. Task được đánh thức có thể priority cao hơn current." [ref=e755]:
+        - cell "7" [ref=e756]
+        - cell "Nếu không ở ISR, gọi scheduler." [ref=e757]
+        - cell "Task được đánh thức có thể priority cao hơn current." [ref=e758]
+  - generic [ref=e759]:
+    - generic [ref=e760]: "Activity: SetEvent()"
+    - document [ref=e762]:
+      - generic [ref=e764]:
+        - generic [ref=e781]:
+          - generic [ref=e785]: "no"
+          - generic [ref=e789]: "yes"
+          - generic [ref=e793]: "no"
+          - generic [ref=e797]: "yes"
+          - generic [ref=e801]: "no"
+          - generic [ref=e805]: "yes"
+          - generic [ref=e809]: "no"
+          - generic [ref=e813]: "yes"
+          - generic [ref=e817]: "yes"
+          - generic [ref=e821]: "no"
+        - generic [ref=e822]:
+          - generic [ref=e827]: Caller calls SetEvent(tid, mask)
+          - generic [ref=e832]: valid tid and mask?
+          - generic [ref=e837]: Return
+          - generic [ref=e842]: Enter critical section
+          - generic [ref=e847]: event_set OR= mask
+          - generic [ref=e852]: target state is WAITING?
+          - generic [ref=e857]: Restore interrupt
+          - generic [ref=e862]: event matches wait mask?
+          - generic [ref=e867]: wait_mask = 0; state = READY; enqueue target
+          - generic [ref=e872]: unblocked and not in ISR?
+          - generic [ref=e877]: os_schedule
+          - generic [ref=e882]: target priority higher?
+          - generic [ref=e887]: PendSV switches to target
+  - heading "4.7 Thuật toán GetEvent và ClearEvent" [level=3] [ref=e888]
+  - table [ref=e889]:
+    - rowgroup [ref=e890]:
+      - row "API Luồng chi tiết Điểm cần dạy kỹ" [ref=e891]:
+        - columnheader "API" [ref=e892]
+        - columnheader "Luồng chi tiết" [ref=e893]
+        - columnheader "Điểm cần dạy kỹ" [ref=e894]
+    - rowgroup [ref=e895]:
+      - row "GetEvent(tid, &mask) Vào critical section, nếu tid hợp lệ thì copy tcb[tid].event_set, nếu sai thì trả 0. Đọc không làm thay đổi trạng thái. Học viên hay nhầm GetEvent giống consume event." [ref=e896]:
+        - cell "GetEvent(tid, &mask)" [ref=e897]:
+          - code [ref=e898]: GetEvent(tid, &mask)
+        - cell "Vào critical section, nếu tid hợp lệ thì copy tcb[tid].event_set, nếu sai thì trả 0." [ref=e899]:
+          - text: Vào critical section, nếu
+          - code [ref=e900]: tid
+          - text: hợp lệ thì copy
+          - code [ref=e901]: tcb[tid].event_set
+          - text: ", nếu sai thì trả"
+          - code [ref=e902]: "0"
+          - text: .
+        - cell "Đọc không làm thay đổi trạng thái. Học viên hay nhầm GetEvent giống consume event." [ref=e903]
+      - row "ClearEvent(mask) Vào critical section, lấy g_current, clear bit bằng event_set &= ~mask. Clear chỉ áp dụng cho task hiện tại trong bản nền. Clear không gọi scheduler." [ref=e904]:
+        - cell "ClearEvent(mask)" [ref=e905]:
+          - code [ref=e906]: ClearEvent(mask)
+        - cell "Vào critical section, lấy g_current, clear bit bằng event_set &= ~mask." [ref=e907]:
+          - text: Vào critical section, lấy
+          - code [ref=e908]: g_current
+          - text: ", clear bit bằng"
+          - code [ref=e909]: event_set &= ~mask
+          - text: .
+        - cell "Clear chỉ áp dụng cho task hiện tại trong bản nền. Clear không gọi scheduler." [ref=e910]
+  - generic [ref=e911]:
+    - generic [ref=e912]: "Activity: GetEvent() và ClearEvent()"
+    - document [ref=e914]:
+      - generic [ref=e916]:
+        - generic [ref=e929]:
+          - generic [ref=e933]: "no"
+          - generic [ref=e937]: "yes"
+          - generic [ref=e941]: "yes"
+          - generic [ref=e945]: "no"
+          - generic [ref=e949]: "yes"
+          - generic [ref=e953]: "no"
+        - generic [ref=e954]:
+          - generic [ref=e959]: GetEvent(tid, ptr)
+          - generic [ref=e964]: ptr valid?
+          - generic [ref=e969]: Return
+          - generic [ref=e974]: Enter critical
+          - generic [ref=e979]: tid valid?
+          - generic [ref=e984]: copy event_set to output pointer
+          - generic [ref=e989]: write zero to output pointer
+          - generic [ref=e994]: Restore and return
+          - generic [ref=e999]: ClearEvent(mask)
+          - generic [ref=e1004]: mask is zero?
+          - generic [ref=e1009]: Return
+          - generic [ref=e1014]: Enter critical
+          - generic [ref=e1019]: clear selected bits in current event_set
+          - generic [ref=e1024]: Restore and return
+  - heading "5. Demo task và bảng cấu hình mới" [level=2] [ref=e1025]
+  - heading "5.1 Task set" [level=3] [ref=e1026]
+  - table [ref=e1027]:
+    - rowgroup [ref=e1028]:
+      - row "Task Priority Autostart Vai trò" [ref=e1029]:
+        - columnheader "Task" [ref=e1030]
+        - columnheader "Priority" [ref=e1031]
+        - columnheader "Autostart" [ref=e1032]
+        - columnheader "Vai trò" [ref=e1033]
+    - rowgroup [ref=e1034]:
+      - row "Task_EventBoot OS_PRIO_CRITICAL Có Khởi tạo UART log và in profile." [ref=e1035]:
+        - cell "Task_EventBoot" [ref=e1036]:
+          - code [ref=e1037]: Task_EventBoot
+        - cell "OS_PRIO_CRITICAL" [ref=e1038]:
+          - code [ref=e1039]: OS_PRIO_CRITICAL
+        - cell "Có" [ref=e1040]
+        - cell "Khởi tạo UART log và in profile." [ref=e1041]
+      - row "Task_EventConsumer OS_PRIO_HIGH Có Chờ EVENT_RX_DONE, xử lý, clear, rồi chờ EVENT_TIMEOUT." [ref=e1042]:
+        - cell "Task_EventConsumer" [ref=e1043]:
+          - code [ref=e1044]: Task_EventConsumer
+        - cell "OS_PRIO_HIGH" [ref=e1045]:
+          - code [ref=e1046]: OS_PRIO_HIGH
+        - cell "Có" [ref=e1047]
+        - cell "Chờ EVENT_RX_DONE, xử lý, clear, rồi chờ EVENT_TIMEOUT." [ref=e1048]:
+          - text: Chờ
+          - code [ref=e1049]: EVENT_RX_DONE
+          - text: ", xử lý, clear, rồi chờ"
+          - code [ref=e1050]: EVENT_TIMEOUT
+          - text: .
+      - row "Task_EventProducer OS_PRIO_MEDIUM Có Set event cho Consumer hai lần." [ref=e1051]:
+        - cell "Task_EventProducer" [ref=e1052]:
+          - code [ref=e1053]: Task_EventProducer
+        - cell "OS_PRIO_MEDIUM" [ref=e1054]:
+          - code [ref=e1055]: OS_PRIO_MEDIUM
+        - cell "Có" [ref=e1056]
+        - cell "Set event cho Consumer hai lần." [ref=e1057]
+      - row "Task_Idle OS_PRIO_IDLE Có Fallback khi không còn task ready." [ref=e1058]:
+        - cell "Task_Idle" [ref=e1059]:
+          - code [ref=e1060]: Task_Idle
+        - cell "OS_PRIO_IDLE" [ref=e1061]:
+          - code [ref=e1062]: OS_PRIO_IDLE
+        - cell "Có" [ref=e1063]
+        - cell "Fallback khi không còn task ready." [ref=e1064]
+  - heading "5.2 Vì sao Consumer ưu tiên cao hơn Producer?" [level=3] [ref=e1065]
+  - paragraph [ref=e1066]:
+    - text: Đây là cách demo rõ nhất cho unblock + preemption. Consumer chạy trước, gọi
+    - code [ref=e1067]: WaitEvent()
+    - text: rồi block. Producer bắt đầu chạy và gọi
+    - code [ref=e1068]: SetEvent()
+    - text: . Vì Consumer có priority cao hơn Producer, scheduler có quyền ngắt Producer để Consumer xử lý event ngay.
+  - heading "5.3 Step-by-step đọc bảng config" [level=3] [ref=e1069]
+  - paragraph [ref=e1070]:
+    - text: Học viên nên đọc cấu hình theo đúng thứ tự sau, vì đây là cách kernel cũng "nhìn" hệ thống lúc
+    - code [ref=e1071]: OS_Init()
+    - text: .
+  - table [ref=e1072]:
+    - rowgroup [ref=e1073]:
+      - row "Bước File/dòng cần đọc Câu hỏi cần trả lời" [ref=e1074]:
+        - columnheader "Bước" [ref=e1075]
+        - columnheader "File/dòng cần đọc" [ref=e1076]
+        - columnheader "Câu hỏi cần trả lời" [ref=e1077]
+    - rowgroup [ref=e1078]:
+      - row "1 Config/os_app_cfg.h Có những task ID nào? Event mask nào được định nghĩa?" [ref=e1079]:
+        - cell "1" [ref=e1080]
+        - cell "Config/os_app_cfg.h" [ref=e1081]:
+          - code [ref=e1082]: Config/os_app_cfg.h
+        - cell "Có những task ID nào? Event mask nào được định nghĩa?" [ref=e1083]
+      - row "2 Config/os_app_cfg.c - Task_EventBoot Task nào chạy đầu tiên và vì sao? Priority của nó là gì?" [ref=e1084]:
+        - cell "2" [ref=e1085]
+        - cell "Config/os_app_cfg.c - Task_EventBoot" [ref=e1086]:
+          - code [ref=e1087]: Config/os_app_cfg.c
+          - text: "-"
+          - code [ref=e1088]: Task_EventBoot
+        - cell "Task nào chạy đầu tiên và vì sao? Priority của nó là gì?" [ref=e1089]
+      - row "3 Config/os_app_cfg.c - Task_EventConsumer Vì sao Consumer có priority cao hơn Producer?" [ref=e1090]:
+        - cell "3" [ref=e1091]
+        - cell "Config/os_app_cfg.c - Task_EventConsumer" [ref=e1092]:
+          - code [ref=e1093]: Config/os_app_cfg.c
+          - text: "-"
+          - code [ref=e1094]: Task_EventConsumer
+        - cell "Vì sao Consumer có priority cao hơn Producer?" [ref=e1095]
+      - row "4 Config/os_app_cfg.c - Task_EventProducer Producer có autostart không? Khi nào nó được chạy?" [ref=e1096]:
+        - cell "4" [ref=e1097]
+        - cell "Config/os_app_cfg.c - Task_EventProducer" [ref=e1098]:
+          - code [ref=e1099]: Config/os_app_cfg.c
+          - text: "-"
+          - code [ref=e1100]: Task_EventProducer
+        - cell "Producer có autostart không? Khi nào nó được chạy?" [ref=e1101]
+      - row "5 Config/os_app_cfg.c - Task_Idle Idle có vai trò gì nếu tất cả task còn lại đã terminate hoặc waiting?" [ref=e1102]:
+        - cell "5" [ref=e1103]
+        - cell "Config/os_app_cfg.c - Task_Idle" [ref=e1104]:
+          - code [ref=e1105]: Config/os_app_cfg.c
+          - text: "-"
+          - code [ref=e1106]: Task_Idle
+        - cell "Idle có vai trò gì nếu tất cả task còn lại đã terminate hoặc waiting?" [ref=e1107]
+      - row "6 OS/src/os_kernel.c - OS_Init() Task autostart được đưa vào ready queue như thế nào?" [ref=e1108]:
+        - cell "6" [ref=e1109]
+        - cell "OS/src/os_kernel.c - OS_Init()" [ref=e1110]:
+          - code [ref=e1111]: OS/src/os_kernel.c
+          - text: "-"
+          - code [ref=e1112]: OS_Init()
+        - cell "Task autostart được đưa vào ready queue như thế nào?" [ref=e1113]
+  - heading "5.4 Step-by-step đọc code task demo" [level=3] [ref=e1114]
+  - table [ref=e1115]:
+    - rowgroup [ref=e1116]:
+      - row "Thứ tự runtime Task Code chính Điều xảy ra trong kernel" [ref=e1117]:
+        - columnheader "Thứ tự runtime" [ref=e1118]
+        - columnheader "Task" [ref=e1119]
+        - columnheader "Code chính" [ref=e1120]
+        - columnheader "Điều xảy ra trong kernel" [ref=e1121]
+    - rowgroup [ref=e1122]:
+      - row "1 Boot Evcu_LogInit(); TerminateTask(); Boot kết thúc, scheduler chọn task READY priority cao nhất tiếp theo." [ref=e1123]:
+        - cell "1" [ref=e1124]
+        - cell "Boot" [ref=e1125]
+        - cell "Evcu_LogInit(); TerminateTask();" [ref=e1126]:
+          - code [ref=e1127]: Evcu_LogInit(); TerminateTask();
+        - cell "Boot kết thúc, scheduler chọn task READY priority cao nhất tiếp theo." [ref=e1128]
+      - row "2 Consumer WaitEvent(EVENT_RX_DONE); Chưa có bit RX, Consumer chuyển RUNNING → WAITING." [ref=e1129]:
+        - cell "2" [ref=e1130]
+        - cell "Consumer" [ref=e1131]
+        - cell "WaitEvent(EVENT_RX_DONE);" [ref=e1132]:
+          - code [ref=e1133]: WaitEvent(EVENT_RX_DONE);
+        - cell "Chưa có bit RX, Consumer chuyển RUNNING → WAITING." [ref=e1134]:
+          - text: Chưa có bit RX, Consumer chuyển
+          - code [ref=e1135]: RUNNING → WAITING
+          - text: .
+      - row "3 Producer SetEvent(CONSUMER, EVENT_RX_DONE); Consumer chuyển WAITING → READY; vì priority cao hơn, Producer bị preempt." [ref=e1136]:
+        - cell "3" [ref=e1137]
+        - cell "Producer" [ref=e1138]
+        - cell "SetEvent(CONSUMER, EVENT_RX_DONE);" [ref=e1139]:
+          - code [ref=e1140]: SetEvent(CONSUMER, EVENT_RX_DONE);
+        - cell "Consumer chuyển WAITING → READY; vì priority cao hơn, Producer bị preempt." [ref=e1141]:
+          - text: Consumer chuyển
+          - code [ref=e1142]: WAITING → READY
+          - text: ; vì priority cao hơn, Producer bị preempt.
+      - row "4 Consumer GetEvent(...); ClearEvent(RX); Đọc được 0x1, rồi clear về 0x0." [ref=e1143]:
+        - cell "4" [ref=e1144]
+        - cell "Consumer" [ref=e1145]
+        - cell "GetEvent(...); ClearEvent(RX);" [ref=e1146]:
+          - code [ref=e1147]: GetEvent(...); ClearEvent(RX);
+        - cell "Đọc được 0x1, rồi clear về 0x0." [ref=e1148]:
+          - text: Đọc được
+          - code [ref=e1149]: "0x1"
+          - text: ", rồi clear về"
+          - code [ref=e1150]: "0x0"
+          - text: .
+      - row "5 Consumer WaitEvent(EVENT_TIMEOUT); Consumer ngủ lần hai." [ref=e1151]:
+        - cell "5" [ref=e1152]
+        - cell "Consumer" [ref=e1153]
+        - cell "WaitEvent(EVENT_TIMEOUT);" [ref=e1154]:
+          - code [ref=e1155]: WaitEvent(EVENT_TIMEOUT);
+        - cell "Consumer ngủ lần hai." [ref=e1156]
+      - row "6 Producer SetEvent(CONSUMER, EVENT_TIMEOUT); Consumer được đánh thức lần hai." [ref=e1157]:
+        - cell "6" [ref=e1158]
+        - cell "Producer" [ref=e1159]
+        - cell "SetEvent(CONSUMER, EVENT_TIMEOUT);" [ref=e1160]:
+          - code [ref=e1161]: SetEvent(CONSUMER, EVENT_TIMEOUT);
+        - cell "Consumer được đánh thức lần hai." [ref=e1162]
+      - row "7 Consumer GetEvent(...); ClearEvent(TIMEOUT); Đọc được 0x2, rồi clear về 0x0." [ref=e1163]:
+        - cell "7" [ref=e1164]
+        - cell "Consumer" [ref=e1165]
+        - cell "GetEvent(...); ClearEvent(TIMEOUT);" [ref=e1166]:
+          - code [ref=e1167]: GetEvent(...); ClearEvent(TIMEOUT);
+        - cell "Đọc được 0x2, rồi clear về 0x0." [ref=e1168]:
+          - text: Đọc được
+          - code [ref=e1169]: "0x2"
+          - text: ", rồi clear về"
+          - code [ref=e1170]: "0x0"
+          - text: .
+      - row "8 Consumer/Producer TerminateTask(); Các task demo kết thúc, Idle giữ CPU." [ref=e1171]:
+        - cell "8" [ref=e1172]
+        - cell "Consumer/Producer" [ref=e1173]
+        - cell "TerminateTask();" [ref=e1174]:
+          - code [ref=e1175]: TerminateTask();
+        - cell "Các task demo kết thúc, Idle giữ CPU." [ref=e1176]
+  - heading "5.5 Timeline trạng thái TCB trong demo" [level=3] [ref=e1177]
+  - table [ref=e1178]:
+    - rowgroup [ref=e1179]:
+      - row "Mốc Consumer state Consumer event_set Consumer wait_mask Task đang chạy" [ref=e1180]:
+        - columnheader "Mốc" [ref=e1181]
+        - columnheader "Consumer state" [ref=e1182]
+        - columnheader "Consumer event_set" [ref=e1183]
+        - columnheader "Consumer wait_mask" [ref=e1184]
+        - columnheader "Task đang chạy" [ref=e1185]
+    - rowgroup [ref=e1186]:
+      - row "Sau OS_Init READY 0x0 0x0 Boot" [ref=e1187]:
+        - cell "Sau OS_Init" [ref=e1188]
+        - cell "READY" [ref=e1189]
+        - cell "0x0" [ref=e1190]:
+          - code [ref=e1191]: "0x0"
+        - cell "0x0" [ref=e1192]:
+          - code [ref=e1193]: "0x0"
+        - cell "Boot" [ref=e1194]
+      - row "Consumer gọi WaitEvent RX WAITING 0x0 0x1 Producer sau khi schedule" [ref=e1195]:
+        - cell "Consumer gọi WaitEvent RX" [ref=e1196]
+        - cell "WAITING" [ref=e1197]
+        - cell "0x0" [ref=e1198]:
+          - code [ref=e1199]: "0x0"
+        - cell "0x1" [ref=e1200]:
+          - code [ref=e1201]: "0x1"
+        - cell "Producer sau khi schedule" [ref=e1202]
+      - row "Producer SetEvent RX READY rồi RUNNING 0x1 0x0 Consumer sau preempt" [ref=e1203]:
+        - cell "Producer SetEvent RX" [ref=e1204]
+        - cell "READY rồi RUNNING" [ref=e1205]
+        - cell "0x1" [ref=e1206]:
+          - code [ref=e1207]: "0x1"
+        - cell "0x0" [ref=e1208]:
+          - code [ref=e1209]: "0x0"
+        - cell "Consumer sau preempt" [ref=e1210]
+      - row "Consumer ClearEvent RX RUNNING 0x0 0x0 Consumer" [ref=e1211]:
+        - cell "Consumer ClearEvent RX" [ref=e1212]
+        - cell "RUNNING" [ref=e1213]
+        - cell "0x0" [ref=e1214]:
+          - code [ref=e1215]: "0x0"
+        - cell "0x0" [ref=e1216]:
+          - code [ref=e1217]: "0x0"
+        - cell "Consumer" [ref=e1218]
+      - row "Consumer gọi WaitEvent TIMEOUT WAITING 0x0 0x2 Producer" [ref=e1219]:
+        - cell "Consumer gọi WaitEvent TIMEOUT" [ref=e1220]
+        - cell "WAITING" [ref=e1221]
+        - cell "0x0" [ref=e1222]:
+          - code [ref=e1223]: "0x0"
+        - cell "0x2" [ref=e1224]:
+          - code [ref=e1225]: "0x2"
+        - cell "Producer" [ref=e1226]
+      - row "Producer SetEvent TIMEOUT READY rồi RUNNING 0x2 0x0 Consumer" [ref=e1227]:
+        - cell "Producer SetEvent TIMEOUT" [ref=e1228]
+        - cell "READY rồi RUNNING" [ref=e1229]
+        - cell "0x2" [ref=e1230]:
+          - code [ref=e1231]: "0x2"
+        - cell "0x0" [ref=e1232]:
+          - code [ref=e1233]: "0x0"
+        - cell "Consumer" [ref=e1234]
+      - row "Consumer ClearEvent TIMEOUT RUNNING 0x0 0x0 Consumer" [ref=e1235]:
+        - cell "Consumer ClearEvent TIMEOUT" [ref=e1236]
+        - cell "RUNNING" [ref=e1237]
+        - cell "0x0" [ref=e1238]:
+          - code [ref=e1239]: "0x0"
+        - cell "0x0" [ref=e1240]:
+          - code [ref=e1241]: "0x0"
+        - cell "Consumer" [ref=e1242]
+  - heading "6. Luồng runtime đầy đủ" [level=2] [ref=e1243]
+  - generic [ref=e1244]:
+    - generic [ref=e1245]: "Sequence: WaitEvent - SetEvent - GetEvent - ClearEvent"
+    - document [ref=e1247]:
+      - generic [ref=e1250]: Scheduler PendSV
+      - generic [ref=e1253]: Task_EventProducer
+      - generic [ref=e1256]: Kernel Event API
+      - generic [ref=e1259]: Task_EventConsumer
+      - generic [ref=e1262]: Task_EventBoot
+      - generic [ref=e1266]: Scheduler PendSV
+      - generic [ref=e1270]: Task_EventProducer
+      - generic [ref=e1274]: Kernel Event API
+      - generic [ref=e1278]: Task_EventConsumer
+      - generic [ref=e1282]: Task_EventBoot
+      - generic [ref=e1283]: TerminateTask()
+      - generic [ref=e1284]: dispatch priority HIGH
+      - generic [ref=e1285]: WaitEvent(EVENT_RX_DONE)
+      - generic [ref=e1286]: event bit is not pending
+      - generic [ref=e1288]: state = WAITING, wait_mask = RX
+      - generic [ref=e1290]: dispatch priority MEDIUM
+      - generic [ref=e1291]: SetEvent(Consumer, EVENT_RX_DONE)
+      - generic [ref=e1292]: set RX bit in event_set
+      - generic [ref=e1294]: state WAITING -> READY
+      - generic [ref=e1296]: preempt Producer
+      - generic [ref=e1297]: GetEvent(Consumer, events pointer)
+      - generic [ref=e1298]: events = 0x00000001
+      - generic [ref=e1299]: ClearEvent(EVENT_RX_DONE)
+      - generic [ref=e1300]: WaitEvent(EVENT_TIMEOUT)
+      - generic [ref=e1301]: resume Producer
+      - generic [ref=e1302]: SetEvent(Consumer, EVENT_TIMEOUT)
+      - generic [ref=e1303]: dispatch Consumer
+      - generic [ref=e1304]: GetEvent/ClearEvent(TIMEOUT)
+    - generic [ref=e1305]: Producer không cần biết Consumer đang chạy hay ngủ. Nó chỉ set bit; kernel quyết định unblock và schedule.
+  - heading "6.1 Sequence đầy đủ có scheduler, g_current/g_next và PendSV" [level=3] [ref=e1306]
+  - paragraph [ref=e1307]:
+    - text: "Sequence dưới đây chi tiết hơn: nó cho thấy API event không tự copy stack hay tự nhảy vào task khác. Event API chỉ đổi state và enqueue. Scheduler chọn"
+    - code [ref=e1308]: g_next
+    - text: ", sau đó"
+    - code [ref=e1309]: os_dispatch()
+    - text: request PendSV. Context switch thật vẫn nằm trong assembly
+    - code [ref=e1310]: PendSV_Handler
+    - text: .
+  - generic [ref=e1311]:
+    - generic [ref=e1312]: "Full Sequence: từ SetEvent đến PendSV context switch"
+    - document [ref=e1314]:
+      - generic [ref=e1317]: Task_EventConsumer
+      - generic [ref=e1320]: PendSV_Handler
+      - generic [ref=e1323]: os_dispatch
+      - generic [ref=e1326]: os_schedule
+      - generic [ref=e1329]: Ready Queue
+      - generic [ref=e1332]: SetEvent
+      - generic [ref=e1335]: Task_EventProducer
+      - generic [ref=e1339]: Task_EventConsumer
+      - generic [ref=e1343]: PendSV_Handler
+      - generic [ref=e1347]: os_dispatch
+      - generic [ref=e1351]: os_schedule
+      - generic [ref=e1355]: Ready Queue
+      - generic [ref=e1359]: SetEvent
+      - generic [ref=e1363]: Task_EventProducer
+      - generic [ref=e1364]: SetEvent(TASK_EVENT_CONSUMER, EVENT_RX_DONE)
+      - generic [ref=e1365]: os_irq_save()
+      - generic [ref=e1367]: set RX bit in consumer event_set
+      - generic [ref=e1369]: check consumer state is WAITING
+      - generic [ref=e1371]: check event matches wait mask
+      - generic [ref=e1373]: os_ready_add(consumer)
+      - generic [ref=e1374]: consumer.state = READY
+      - generic [ref=e1376]: os_irq_restore()
+      - generic [ref=e1378]: os_schedule()
+      - generic [ref=e1379]: current = Producer
+      - generic [ref=e1381]: peek highest ready
+      - generic [ref=e1382]: Consumer
+      - generic [ref=e1383]: os_should_preempt(Producer, Consumer) == true
+      - generic [ref=e1385]: enqueue Producer at front
+      - generic [ref=e1386]: g_next = Consumer
+      - generic [ref=e1388]: os_dispatch()
+      - generic [ref=e1389]: set PENDSVSET
+      - generic [ref=e1390]: save Producer R4-R11 to PSP
+      - generic [ref=e1392]: restore Consumer R4-R11 from PSP
+      - generic [ref=e1394]: exception return to Consumer after WaitEvent()
+    - generic [ref=e1395]:
+      - text: "Điểm then chốt: Consumer chạy tiếp ngay sau dòng"
+      - code [ref=e1396]: WaitEvent(EVENT_RX_DONE)
+      - text: ", không chạy lại từ đầu task."
+  - heading "6.2 Timeline log kỳ vọng" [level=3] [ref=e1397]
+  - table [ref=e1398]:
+    - rowgroup [ref=e1399]:
+      - row "Thứ tự Log Ý nghĩa" [ref=e1400]:
+        - columnheader "Thứ tự" [ref=e1401]
+        - columnheader "Log" [ref=e1402]
+        - columnheader "Ý nghĩa" [ref=e1403]
+    - rowgroup [ref=e1404]:
+      - row "1 [CONSUMER] WaitEvent(EVENT_RX_DONE) Consumer chưa có RX event nên block." [ref=e1405]:
+        - cell "1" [ref=e1406]
+        - cell "[CONSUMER] WaitEvent(EVENT_RX_DONE)" [ref=e1407]:
+          - code [ref=e1408]: "[CONSUMER] WaitEvent(EVENT_RX_DONE)"
+        - cell "Consumer chưa có RX event nên block." [ref=e1409]
+      - row "2 [PRODUCER] SetEvent(EVENT_RX_DONE) Producer phát bit RX cho Consumer." [ref=e1410]:
+        - cell "2" [ref=e1411]
+        - cell "[PRODUCER] SetEvent(EVENT_RX_DONE)" [ref=e1412]:
+          - code [ref=e1413]: "[PRODUCER] SetEvent(EVENT_RX_DONE)"
+        - cell "Producer phát bit RX cho Consumer." [ref=e1414]
+      - row "3 [CONSUMER] GetEvent after RX mask=0x00000001 Consumer được đánh thức và đọc đúng bit RX." [ref=e1415]:
+        - cell "3" [ref=e1416]
+        - cell "[CONSUMER] GetEvent after RX mask=0x00000001" [ref=e1417]:
+          - code [ref=e1418]: "[CONSUMER] GetEvent after RX mask=0x00000001"
+        - cell "Consumer được đánh thức và đọc đúng bit RX." [ref=e1419]
+      - row "4 [CONSUMER] GetEvent after ClearEvent(RX) mask=0x00000000 RX bit đã được clear." [ref=e1420]:
+        - cell "4" [ref=e1421]
+        - cell "[CONSUMER] GetEvent after ClearEvent(RX) mask=0x00000000" [ref=e1422]:
+          - code [ref=e1423]: "[CONSUMER] GetEvent after ClearEvent(RX) mask=0x00000000"
+        - cell "RX bit đã được clear." [ref=e1424]
+      - row "5 [CONSUMER] WaitEvent(EVENT_TIMEOUT) Consumer ngủ lần hai." [ref=e1425]:
+        - cell "5" [ref=e1426]
+        - cell "[CONSUMER] WaitEvent(EVENT_TIMEOUT)" [ref=e1427]:
+          - code [ref=e1428]: "[CONSUMER] WaitEvent(EVENT_TIMEOUT)"
+        - cell "Consumer ngủ lần hai." [ref=e1429]
+      - row "6 [PRODUCER] resumed after consumer blocked again Producer tiếp tục sau khi Consumer block." [ref=e1430]:
+        - cell "6" [ref=e1431]
+        - cell "[PRODUCER] resumed after consumer blocked again" [ref=e1432]:
+          - code [ref=e1433]: "[PRODUCER] resumed after consumer blocked again"
+        - cell "Producer tiếp tục sau khi Consumer block." [ref=e1434]
+      - row "7 [PRODUCER] SetEvent(EVENT_TIMEOUT) Producer phát bit timeout." [ref=e1435]:
+        - cell "7" [ref=e1436]
+        - cell "[PRODUCER] SetEvent(EVENT_TIMEOUT)" [ref=e1437]:
+          - code [ref=e1438]: "[PRODUCER] SetEvent(EVENT_TIMEOUT)"
+        - cell "Producer phát bit timeout." [ref=e1439]
+      - row "8 [CONSUMER] GetEvent after TIMEOUT mask=0x00000002 Consumer đọc đúng bit timeout." [ref=e1440]:
+        - cell "8" [ref=e1441]
+        - cell "[CONSUMER] GetEvent after TIMEOUT mask=0x00000002" [ref=e1442]:
+          - code [ref=e1443]: "[CONSUMER] GetEvent after TIMEOUT mask=0x00000002"
+        - cell "Consumer đọc đúng bit timeout." [ref=e1444]
+      - row "9 [CONSUMER] GetEvent after ClearEvent(TIMEOUT) mask=0x00000000 Timeout bit đã được clear." [ref=e1445]:
+        - cell "9" [ref=e1446]
+        - cell "[CONSUMER] GetEvent after ClearEvent(TIMEOUT) mask=0x00000000" [ref=e1447]:
+          - code [ref=e1448]: "[CONSUMER] GetEvent after ClearEvent(TIMEOUT) mask=0x00000000"
+        - cell "Timeout bit đã được clear." [ref=e1449]
+  - heading "6.3 Activity toàn hệ thống" [level=3] [ref=e1450]
+  - generic [ref=e1451]:
+    - generic [ref=e1452]: "Activity: Demo Event API End-to-End"
+    - document [ref=e1454]:
+      - generic [ref=e1456]:
+        - generic [ref=e1463]:
+          - generic [ref=e1467]: "no"
+          - generic [ref=e1471]: "yes"
+          - generic [ref=e1475]: "no"
+        - generic [ref=e1476]:
+          - generic [ref=e1481]: Reset_Handler to main
+          - generic [ref=e1486]: OS_Init builds TCB and ready queues
+          - generic [ref=e1491]: OS_Start via SVC
+          - generic [ref=e1496]: Boot task logs profile
+          - generic [ref=e1501]: Boot TerminateTask
+          - generic [ref=e1506]: Consumer runs because priority HIGH
+          - generic [ref=e1511]: EVENT_RX_DONE pending?
+          - generic [ref=e1516]: Consumer state = WAITING
+          - generic [ref=e1521]: Producer runs
+          - generic [ref=e1526]: Producer SetEvent RX
+          - generic [ref=e1531]: Consumer READY
+          - generic [ref=e1536]: Consumer priority higher than Producer?
+          - generic [ref=e1541]: PendSV switches to Consumer
+          - generic [ref=e1546]: Producer continues
+          - generic [ref=e1551]: Consumer GetEvent RX
+          - generic [ref=e1556]: Consumer ClearEvent RX
+          - generic [ref=e1561]: Consumer WaitEvent TIMEOUT
+          - generic [ref=e1566]: Producer resumes
+          - generic [ref=e1571]: Producer SetEvent TIMEOUT
+          - generic [ref=e1576]: Consumer GetEvent and ClearEvent TIMEOUT
+          - generic [ref=e1581]: Consumer and Producer terminate
+          - generic [ref=e1586]: Idle task
+  - heading "6.4 Điều gì xảy ra nếu event đã pending trước WaitEvent?" [level=3] [ref=e1587]
+  - paragraph [ref=e1588]:
+    - text: Trường hợp này rất quan trọng khi dạy học viên vì nó chứng minh event là sticky bit. Nếu Producer gọi
+    - code [ref=e1589]: SetEvent()
+    - text: trước khi Consumer gọi
+    - code [ref=e1590]: WaitEvent()
+    - text: ","
+    - code [ref=e1591]: event_set
+    - text: đã có bit. Khi Consumer gọi
+    - code [ref=e1592]: WaitEvent(EVENT_RX_DONE)
+    - text: ", điều kiện"
+    - code [ref=e1593]: (event_set & mask) != 0
+    - text: đúng, nên Consumer không block.
+  - code [ref=e1595]: /* Flow khác nhưng vẫn đúng */ SetEvent(TASK_EVENT_CONSUMER, EVENT_RX_DONE); /* Sau đó Consumer chạy */ WaitEvent(EVENT_RX_DONE); /* return ngay */ GetEvent(TASK_EVENT_CONSUMER, &events); /* events có bit RX */
+  - generic [ref=e1596]:
+    - text: Đây là cơ chế tránh "lost wakeup" ở mức semantic. Event đến trước vẫn được lưu lại trong
+    - code [ref=e1597]: event_set
+    - text: cho đến khi task nhận clear.
+  - heading "7. Race safety và critical section" [level=2] [ref=e1598]
+  - paragraph [ref=e1599]:
+    - text: "Cả bốn API đều chạm vào state dùng chung của kernel:"
+    - code [ref=e1600]: event_set
+    - text: ","
+    - code [ref=e1601]: wait_mask
+    - text: ","
+    - code [ref=e1602]: state
+    - text: ", ready queue. Vì các field này có thể bị truy cập từ task context và sau này từ ISR, mỗi API đều dùng critical section nội bộ."
+  - code [ref=e1604]: uint32_t primask = os_irq_save(); /* đọc/sửa TCB và ready queue */ os_irq_restore(primask);
+  - table [ref=e1605]:
+    - rowgroup [ref=e1606]:
+      - row "Race nếu không khóa Hậu quả Cách bản hiện tại tránh" [ref=e1607]:
+        - columnheader "Race nếu không khóa" [ref=e1608]
+        - columnheader "Hậu quả" [ref=e1609]
+        - columnheader "Cách bản hiện tại tránh" [ref=e1610]
+    - rowgroup [ref=e1611]:
+      - row "WaitEvent() kiểm tra chưa có event, đúng lúc ISR/task khác SetEvent(). Task có thể ngủ dù event đã đến. Kiểm tra event_set và chuyển WAITING trong cùng critical section." [ref=e1612]:
+        - cell "WaitEvent() kiểm tra chưa có event, đúng lúc ISR/task khác SetEvent()." [ref=e1613]:
+          - code [ref=e1614]: WaitEvent()
+          - text: kiểm tra chưa có event, đúng lúc ISR/task khác
+          - code [ref=e1615]: SetEvent()
+          - text: .
+        - cell "Task có thể ngủ dù event đã đến." [ref=e1616]
+        - cell "Kiểm tra event_set và chuyển WAITING trong cùng critical section." [ref=e1617]:
+          - text: Kiểm tra
+          - code [ref=e1618]: event_set
+          - text: và chuyển
+          - code [ref=e1619]: WAITING
+          - text: trong cùng critical section.
+      - row "SetEvent() unblock task trong lúc scheduler đang đọc ready queue. Ready queue sai count/head/tail. Enqueue trong critical section." [ref=e1620]:
+        - cell "SetEvent() unblock task trong lúc scheduler đang đọc ready queue." [ref=e1621]:
+          - code [ref=e1622]: SetEvent()
+          - text: unblock task trong lúc scheduler đang đọc ready queue.
+        - cell "Ready queue sai count/head/tail." [ref=e1623]
+        - cell "Enqueue trong critical section." [ref=e1624]
+      - row "ClearEvent() và SetEvent() cùng sửa một bitmask. Mất event hoặc clear nhầm event mới. Bitmask update được bảo vệ bởi os_irq_save()." [ref=e1625]:
+        - cell "ClearEvent() và SetEvent() cùng sửa một bitmask." [ref=e1626]:
+          - code [ref=e1627]: ClearEvent()
+          - text: và
+          - code [ref=e1628]: SetEvent()
+          - text: cùng sửa một bitmask.
+        - cell "Mất event hoặc clear nhầm event mới." [ref=e1629]
+        - cell "Bitmask update được bảo vệ bởi os_irq_save()." [ref=e1630]:
+          - text: Bitmask update được bảo vệ bởi
+          - code [ref=e1631]: os_irq_save()
+          - text: .
+  - heading "8. Kiểm chứng bằng Renode/GDB" [level=2] [ref=e1632]
+  - heading "8.1 Chạy test tự động" [level=3] [ref=e1633]
+  - code [ref=e1635]: cd /Users/phamvanvu/Projects/AUTOSAR/OSEK-RTOS/Os_Test python3 test_os.py
+  - paragraph [ref=e1636]: "Kết quả pass cần có hai phần:"
+  - code [ref=e1638]: "PASS: Event API OK: Consumer block bang WaitEvent, Producer SetEvent danh thuc, GetEvent doc dung mask 0x1/0x2, ClearEvent xoa ve 0. PASS: GDB attached vao Renode port ..., cai hardware breakpoint Task_EventConsumer/SetEvent va doc symbol g_current/g_next"
+  - heading "8.2 Ý nghĩa GDB smoke" [level=3] [ref=e1639]
+  - paragraph [ref=e1640]:
+    - text: GDB smoke không chỉ kiểm tra Renode chạy được. Nó chứng minh ELF còn đủ debug symbol và debugger có thể đặt hardware breakpoint vào
+    - code [ref=e1641]: Task_EventConsumer
+    - text: và
+    - code [ref=e1642]: SetEvent
+    - text: ". Đây là hai điểm tốt nhất để debug bài event: một điểm ở task chờ, một điểm ở API đánh thức."
+  - heading "9. Lab step-by-step cho học viên" [level=2] [ref=e1643]
+  - heading "9.1 Lab 1 - Chạy và đọc log" [level=3] [ref=e1644]
+  - paragraph [ref=e1645]: Mục tiêu của lab này là học viên nhìn thấy thứ tự execution thực tế, không chỉ đọc code tĩnh.
+  - table [ref=e1646]:
+    - rowgroup [ref=e1647]:
+      - row "Bước Lệnh/thao tác Kết quả cần thấy Ý nghĩa" [ref=e1648]:
+        - columnheader "Bước" [ref=e1649]
+        - columnheader "Lệnh/thao tác" [ref=e1650]
+        - columnheader "Kết quả cần thấy" [ref=e1651]
+        - columnheader "Ý nghĩa" [ref=e1652]
+    - rowgroup [ref=e1653]:
+      - row "1 cd /Users/phamvanvu/Projects/AUTOSAR/OSEK-RTOS/Os_Test Đứng đúng thư mục project. Test script dùng path tương đối trong project." [ref=e1654]:
+        - cell "1" [ref=e1655]
+        - cell "cd /Users/phamvanvu/Projects/AUTOSAR/OSEK-RTOS/Os_Test" [ref=e1656]:
+          - code [ref=e1657]: cd /Users/phamvanvu/Projects/AUTOSAR/OSEK-RTOS/Os_Test
+        - cell "Đứng đúng thư mục project." [ref=e1658]
+        - cell "Test script dùng path tương đối trong project." [ref=e1659]
+      - row "2 make clean && make -j4 all Sinh build/os_test/os_test.elf. Xác nhận code event build được." [ref=e1660]:
+        - cell "2" [ref=e1661]
+        - cell "make clean && make -j4 all" [ref=e1662]:
+          - code [ref=e1663]: make clean && make -j4 all
+        - cell "Sinh build/os_test/os_test.elf." [ref=e1664]:
+          - text: Sinh
+          - code [ref=e1665]: build/os_test/os_test.elf
+          - text: .
+        - cell "Xác nhận code event build được." [ref=e1666]
+      - row "3 python3 test_os.py PASS Event API và PASS GDB smoke. Xác nhận flow runtime đúng trên Renode." [ref=e1667]:
+        - cell "3" [ref=e1668]
+        - cell "python3 test_os.py" [ref=e1669]:
+          - code [ref=e1670]: python3 test_os.py
+        - cell "PASS Event API và PASS GDB smoke." [ref=e1671]
+        - cell "Xác nhận flow runtime đúng trên Renode." [ref=e1672]
+      - row "4 Mở log Renode trong build/os_test/renode_mixed_schedule_table.log nếu script đang dùng tên cũ. Các dòng [CONSUMER], [PRODUCER]. Đọc thứ tự thực tế của task." [ref=e1673]:
+        - cell "4" [ref=e1674]
+        - cell "Mở log Renode trong build/os_test/renode_mixed_schedule_table.log nếu script đang dùng tên cũ." [ref=e1675]:
+          - text: Mở log Renode trong
+          - code [ref=e1676]: build/os_test/renode_mixed_schedule_table.log
+          - text: nếu script đang dùng tên cũ.
+        - cell "Các dòng [CONSUMER], [PRODUCER]." [ref=e1677]:
+          - text: Các dòng
+          - code [ref=e1678]: "[CONSUMER]"
+          - text: ","
+          - code [ref=e1679]: "[PRODUCER]"
+          - text: .
+        - cell "Đọc thứ tự thực tế của task." [ref=e1680]
+  - heading "9.2 Lab 2 - Đổi priority để quan sát khác biệt" [level=3] [ref=e1681]
+  - paragraph [ref=e1682]:
+    - text: Trong
+    - code [ref=e1683]: Config/os_app_cfg.c
+    - text: ", thử đổi"
+    - code [ref=e1684]: Task_EventConsumer
+    - text: từ
+    - code [ref=e1685]: OS_PRIO_HIGH
+    - text: xuống bằng hoặc thấp hơn Producer. Học viên cần dự đoán điều gì xảy ra trước khi chạy.
+  - table [ref=e1686]:
+    - rowgroup [ref=e1687]:
+      - row "Thí nghiệm Dự đoán Giải thích" [ref=e1688]:
+        - columnheader "Thí nghiệm" [ref=e1689]
+        - columnheader "Dự đoán" [ref=e1690]
+        - columnheader "Giải thích" [ref=e1691]
+    - rowgroup [ref=e1692]:
+      - row "Consumer HIGH, Producer MEDIUM Consumer preempt Producer ngay sau SetEvent. Task được unblock có priority cao hơn current." [ref=e1693]:
+        - cell "Consumer HIGH, Producer MEDIUM" [ref=e1694]
+        - cell "Consumer preempt Producer ngay sau SetEvent." [ref=e1695]:
+          - text: Consumer preempt Producer ngay sau
+          - code [ref=e1696]: SetEvent
+          - text: .
+        - cell "Task được unblock có priority cao hơn current." [ref=e1697]
+      - row "Consumer MEDIUM, Producer MEDIUM Producer có thể tiếp tục đến điểm schedule tiếp theo tùy policy và FIFO. Cùng priority không được xem là higher-priority preemption." [ref=e1698]:
+        - cell "Consumer MEDIUM, Producer MEDIUM" [ref=e1699]
+        - cell "Producer có thể tiếp tục đến điểm schedule tiếp theo tùy policy và FIFO." [ref=e1700]
+        - cell "Cùng priority không được xem là higher-priority preemption." [ref=e1701]
+      - row "Consumer LOW, Producer MEDIUM Producer tiếp tục chạy, Consumer chờ đến khi Producer terminate/block. Unblock không đồng nghĩa chạy ngay nếu priority thấp hơn." [ref=e1702]:
+        - cell "Consumer LOW, Producer MEDIUM" [ref=e1703]
+        - cell "Producer tiếp tục chạy, Consumer chờ đến khi Producer terminate/block." [ref=e1704]
+        - cell "Unblock không đồng nghĩa chạy ngay nếu priority thấp hơn." [ref=e1705]
+  - generic [ref=e1706]: Khi làm thí nghiệm này, nhớ khôi phục priority demo ban đầu để test tự động quay lại pass.
+  - heading "9.3 Lab 3 - Quên ClearEvent để thấy lỗi logic" [level=3] [ref=e1707]
+  - paragraph [ref=e1708]:
+    - text: Thử comment dòng
+    - code [ref=e1709]: ClearEvent(EVENT_RX_DONE)
+    - text: . Lúc đó
+    - code [ref=e1710]: event_set
+    - text: vẫn giữ bit RX. Nếu Consumer sau này lại
+    - code [ref=e1711]: WaitEvent(EVENT_RX_DONE)
+    - text: ", nó sẽ không ngủ nữa mà return ngay. Đây là lỗi rất thường gặp trong event kiểu manual-clear."
+  - code [ref=e1713]: /* Sai có chủ đích để học */ GetEvent(TASK_EVENT_CONSUMER, &events); /* ClearEvent(EVENT_RX_DONE); bị bỏ quên */
+  - heading "9.4 Lab 4 - Set hai event cùng lúc" [level=3] [ref=e1714]
+  - paragraph [ref=e1715]: "Thay Producer thành:"
+  - code [ref=e1717]: SetEvent(TASK_EVENT_CONSUMER, EVENT_RX_DONE | EVENT_TIMEOUT);
+  - paragraph [ref=e1718]:
+    - text: Khi Consumer đọc
+    - code [ref=e1719]: GetEvent()
+    - text: ", mask kỳ vọng là"
+    - code [ref=e1720]: "0x00000003"
+    - text: ". Học viên cần sửa Consumer để xử lý từng bit:"
+  - code [ref=e1722]: "if ((events & EVENT_RX_DONE) != 0u) { ClearEvent(EVENT_RX_DONE); } if ((events & EVENT_TIMEOUT) != 0u) { ClearEvent(EVENT_TIMEOUT); }"
+  - heading "10. Ứng dụng thực tế trong hệ automotive" [level=2] [ref=e1723]
+  - 'heading "10.1 UART RX: ISR đánh thức parser task" [level=3] [ref=e1724]'
+  - paragraph [ref=e1725]: Ứng dụng kinh điển nhất là UART RX. ISR không nên parse frame dài. ISR chỉ ghi byte vào ring buffer và set event để task xử lý sau.
+  - generic [ref=e1726]:
+    - generic [ref=e1727]: "Use Case: UART RX ISR → Parser Task"
+    - document [ref=e1729]:
+      - generic [ref=e1732]: Task_UartParser
+      - generic [ref=e1735]: SetEvent()
+      - generic [ref=e1738]: Ring Buffer
+      - generic [ref=e1741]: USART1_IRQHandler
+      - generic [ref=e1745]: Task_UartParser
+      - generic [ref=e1749]: SetEvent()
+      - generic [ref=e1753]: Ring Buffer
+      - generic [ref=e1757]: USART1_IRQHandler
+      - generic [ref=e1758]: push received byte
+      - generic [ref=e1759]: SetEvent(Task_UartParser, EV_UART_RX)
+      - generic [ref=e1760]: unblock when waiting
+      - generic [ref=e1761]: WaitEvent(EV_UART_RX) returns
+      - generic [ref=e1763]: pop bytes and parse frame
+      - generic [ref=e1764]: ClearEvent(EV_UART_RX)
+  - paragraph [ref=e1765]: Thiết kế đúng là event chỉ báo "có dữ liệu", còn dữ liệu nằm trong ring buffer. Nếu ISR nhận 10 byte liên tiếp, event bit vẫn chỉ là 1, nhưng ring buffer giữ đủ 10 byte.
+  - 'heading "10.2 CAN RX: CanIf báo event cho application task" [level=3] [ref=e1766]'
+  - paragraph [ref=e1767]: Trong gateway automotive, CAN driver hoặc CanIf nhận PDU rồi đánh thức task xử lý application. Event giúp tách phần thời gian gấp trong ISR khỏi phần xử lý nghiệp vụ.
+  - table [ref=e1768]:
+    - rowgroup [ref=e1769]:
+      - row "Thành phần Việc nên làm Việc không nên làm" [ref=e1770]:
+        - columnheader "Thành phần" [ref=e1771]
+        - columnheader "Việc nên làm" [ref=e1772]
+        - columnheader "Việc không nên làm" [ref=e1773]
+    - rowgroup [ref=e1774]:
+      - row "CAN RX ISR Đọc mailbox, copy PDU vào buffer, gọi SetEvent(Task_Com, EV_CAN_RX). Không chạy toàn bộ diagnostic/application logic trong ISR." [ref=e1775]:
+        - cell "CAN RX ISR" [ref=e1776]
+        - cell "Đọc mailbox, copy PDU vào buffer, gọi SetEvent(Task_Com, EV_CAN_RX)." [ref=e1777]:
+          - text: Đọc mailbox, copy PDU vào buffer, gọi
+          - code [ref=e1778]: SetEvent(Task_Com, EV_CAN_RX)
+          - text: .
+        - cell "Không chạy toàn bộ diagnostic/application logic trong ISR." [ref=e1779]
+      - row "Task_Com WaitEvent(EV_CAN_RX | EV_COM_TIMEOUT), xử lý PDU, clear event. Không polling mailbox liên tục nếu không có dữ liệu." [ref=e1780]:
+        - cell "Task_Com" [ref=e1781]
+        - cell "WaitEvent(EV_CAN_RX | EV_COM_TIMEOUT), xử lý PDU, clear event." [ref=e1782]:
+          - code [ref=e1783]: WaitEvent(EV_CAN_RX | EV_COM_TIMEOUT)
+          - text: ", xử lý PDU, clear event."
+        - cell "Không polling mailbox liên tục nếu không có dữ liệu." [ref=e1784]
+      - row "Task_Dcm Được báo event khi có diagnostic request hoàn chỉnh. Không phụ thuộc trực tiếp vào interrupt timing." [ref=e1785]:
+        - cell "Task_Dcm" [ref=e1786]
+        - cell "Được báo event khi có diagnostic request hoàn chỉnh." [ref=e1787]
+        - cell "Không phụ thuộc trực tiếp vào interrupt timing." [ref=e1788]
+  - heading "10.3 Timeout và watchdog supervision" [level=3] [ref=e1789]
+  - paragraph [ref=e1790]:
+    - text: Alarm hoặc ScheduleTable có thể gọi
+    - code [ref=e1791]: SetEvent(Task_X, EV_TIMEOUT)
+    - text: ". Task chờ cả data và timeout trong một API:"
+  - code [ref=e1793]: "WaitEvent(EV_DATA_READY | EV_TIMEOUT); GetEvent(TASK_X, &events); if ((events & EV_DATA_READY) != 0u) { ClearEvent(EV_DATA_READY); ProcessData(); } if ((events & EV_TIMEOUT) != 0u) { ClearEvent(EV_TIMEOUT); HandleTimeout(); }"
+  - paragraph [ref=e1794]: "Đây là pattern rất quan trọng: một task có thể chờ nhiều nguyên nhân đánh thức, rồi phân nhánh xử lý theo bit."
+  - heading "10.4 Diagnostic session" [level=3] [ref=e1795]
+  - paragraph [ref=e1796]: Trong diagnostic, event có thể báo các trạng thái như request mới, timeout P2/P2*, security seed ready, hoặc response transmit done. Nhờ event, DCM task không cần chạy liên tục ở mỗi tick.
+  - table [ref=e1797]:
+    - rowgroup [ref=e1798]:
+      - row "Event Nguồn phát Task nhận Hành động" [ref=e1799]:
+        - columnheader "Event" [ref=e1800]
+        - columnheader "Nguồn phát" [ref=e1801]
+        - columnheader "Task nhận" [ref=e1802]
+        - columnheader "Hành động" [ref=e1803]
+    - rowgroup [ref=e1804]:
+      - row "EV_DIAG_REQ CanTp indication Task_Dcm Parse UDS request." [ref=e1805]:
+        - cell "EV_DIAG_REQ" [ref=e1806]:
+          - code [ref=e1807]: EV_DIAG_REQ
+        - cell "CanTp indication" [ref=e1808]
+        - cell "Task_Dcm" [ref=e1809]
+        - cell "Parse UDS request." [ref=e1810]
+      - row "EV_DIAG_TIMEOUT Alarm/counter Task_Dcm Abort pending request hoặc gửi negative response." [ref=e1811]:
+        - cell "EV_DIAG_TIMEOUT" [ref=e1812]:
+          - code [ref=e1813]: EV_DIAG_TIMEOUT
+        - cell "Alarm/counter" [ref=e1814]
+        - cell "Task_Dcm" [ref=e1815]
+        - cell "Abort pending request hoặc gửi negative response." [ref=e1816]
+      - row "EV_TX_CONFIRM CanIf TxConfirmation Task_Dcm Chuyển state machine sang idle hoặc next block." [ref=e1817]:
+        - cell "EV_TX_CONFIRM" [ref=e1818]:
+          - code [ref=e1819]: EV_TX_CONFIRM
+        - cell "CanIf TxConfirmation" [ref=e1820]
+        - cell "Task_Dcm" [ref=e1821]
+        - cell "Chuyển state machine sang idle hoặc next block." [ref=e1822]
+  - heading "11. Debug chuyên sâu bằng GDB" [level=2] [ref=e1823]
+  - heading "11.1 Breakpoint nên đặt" [level=3] [ref=e1824]
+  - table [ref=e1825]:
+    - rowgroup [ref=e1826]:
+      - row "Breakpoint Mục tiêu quan sát Lệnh gợi ý" [ref=e1827]:
+        - columnheader "Breakpoint" [ref=e1828]
+        - columnheader "Mục tiêu quan sát" [ref=e1829]
+        - columnheader "Lệnh gợi ý" [ref=e1830]
+    - rowgroup [ref=e1831]:
+      - row "Task_EventConsumer Task bắt đầu, chuẩn bị gọi WaitEvent. hbreak Task_EventConsumer" [ref=e1832]:
+        - cell "Task_EventConsumer" [ref=e1833]:
+          - code [ref=e1834]: Task_EventConsumer
+        - cell "Task bắt đầu, chuẩn bị gọi WaitEvent." [ref=e1835]:
+          - text: Task bắt đầu, chuẩn bị gọi
+          - code [ref=e1836]: WaitEvent
+          - text: .
+        - cell "hbreak Task_EventConsumer" [ref=e1837]:
+          - code [ref=e1838]: hbreak Task_EventConsumer
+      - row "WaitEvent Xem g_current, event_set, wait_mask trước khi block. hbreak WaitEvent" [ref=e1839]:
+        - cell "WaitEvent" [ref=e1840]:
+          - code [ref=e1841]: WaitEvent
+        - cell "Xem g_current, event_set, wait_mask trước khi block." [ref=e1842]:
+          - text: Xem
+          - code [ref=e1843]: g_current
+          - text: ","
+          - code [ref=e1844]: event_set
+          - text: ","
+          - code [ref=e1845]: wait_mask
+          - text: trước khi block.
+        - cell "hbreak WaitEvent" [ref=e1846]:
+          - code [ref=e1847]: hbreak WaitEvent
+      - row "SetEvent Xem target task được unblock. hbreak SetEvent" [ref=e1848]:
+        - cell "SetEvent" [ref=e1849]:
+          - code [ref=e1850]: SetEvent
+        - cell "Xem target task được unblock." [ref=e1851]
+        - cell "hbreak SetEvent" [ref=e1852]:
+          - code [ref=e1853]: hbreak SetEvent
+      - row "os_schedule Xem scheduler chọn g_next. hbreak os_schedule" [ref=e1854]:
+        - cell "os_schedule" [ref=e1855]:
+          - code [ref=e1856]: os_schedule
+        - cell "Xem scheduler chọn g_next." [ref=e1857]:
+          - text: Xem scheduler chọn
+          - code [ref=e1858]: g_next
+          - text: .
+        - cell "hbreak os_schedule" [ref=e1859]:
+          - code [ref=e1860]: hbreak os_schedule
+      - row "PendSV_Handler Xem context switch thật. hbreak PendSV_Handler" [ref=e1861]:
+        - cell "PendSV_Handler" [ref=e1862]:
+          - code [ref=e1863]: PendSV_Handler
+        - cell "Xem context switch thật." [ref=e1864]
+        - cell "hbreak PendSV_Handler" [ref=e1865]:
+          - code [ref=e1866]: hbreak PendSV_Handler
+  - heading "11.2 Lệnh GDB nên dùng khi dạy" [level=3] [ref=e1867]
+  - code [ref=e1869]: p/x g_current p/x g_next p ((TCB_t*)g_current)->id p ((TCB_t*)g_current)->state p/x ((TCB_t*)g_current)->event_set p/x ((TCB_t*)g_current)->wait_mask info registers psp msp lr pc bt
+  - paragraph [ref=e1870]:
+    - text: Khi dừng ở
+    - code [ref=e1871]: SetEvent
+    - text: ", không chỉ nhìn biến local. Hãy in TCB của Consumer để thấy event bit thay đổi:"
+  - code [ref=e1873]: p/x tcb[TASK_EVENT_CONSUMER].event_set p/x tcb[TASK_EVENT_CONSUMER].wait_mask p tcb[TASK_EVENT_CONSUMER].state
+  - generic [ref=e1874]:
+    - text: Nếu
+    - code [ref=e1875]: tcb
+    - text: là static trong
+    - code [ref=e1876]: os_kernel.c
+    - text: ", GDB vẫn có thể thấy symbol khi build có debug info. Nếu không thấy, có thể dùng breakpoint trong cùng file hoặc tạo helper debug public sau này."
+  - heading "11.3 Checklist debug khi flow sai" [level=3] [ref=e1877]
+  - table [ref=e1878]:
+    - rowgroup [ref=e1879]:
+      - row "Triệu chứng Khả năng lỗi Cách kiểm tra" [ref=e1880]:
+        - columnheader "Triệu chứng" [ref=e1881]
+        - columnheader "Khả năng lỗi" [ref=e1882]
+        - columnheader "Cách kiểm tra" [ref=e1883]
+    - rowgroup [ref=e1884]:
+      - row "Consumer không chạy lại sau SetEvent. Không enqueue khi unblock, hoặc priority không đủ để preempt. Dừng ở SetEvent, kiểm tra state, ready queue, g_next." [ref=e1885]:
+        - cell "Consumer không chạy lại sau SetEvent." [ref=e1886]:
+          - text: Consumer không chạy lại sau
+          - code [ref=e1887]: SetEvent
+          - text: .
+        - cell "Không enqueue khi unblock, hoặc priority không đủ để preempt." [ref=e1888]
+        - cell "Dừng ở SetEvent, kiểm tra state, ready queue, g_next." [ref=e1889]:
+          - text: Dừng ở
+          - code [ref=e1890]: SetEvent
+          - text: ", kiểm tra"
+          - code [ref=e1891]: state
+          - text: ", ready queue,"
+          - code [ref=e1892]: g_next
+          - text: .
+      - row "WaitEvent không block. Event bit đã pending do chưa clear. In event_set trước WaitEvent." [ref=e1893]:
+        - cell "WaitEvent không block." [ref=e1894]:
+          - code [ref=e1895]: WaitEvent
+          - text: không block.
+        - cell "Event bit đã pending do chưa clear." [ref=e1896]
+        - cell "In event_set trước WaitEvent." [ref=e1897]:
+          - text: In
+          - code [ref=e1898]: event_set
+          - text: trước
+          - code [ref=e1899]: WaitEvent
+          - text: .
+      - row "Task chạy lại từ đầu thay vì sau WaitEvent. Stack/context bị init lại sai. Kiểm tra context_needs_init và PendSV save/restore." [ref=e1900]:
+        - cell "Task chạy lại từ đầu thay vì sau WaitEvent." [ref=e1901]:
+          - text: Task chạy lại từ đầu thay vì sau
+          - code [ref=e1902]: WaitEvent
+          - text: .
+        - cell "Stack/context bị init lại sai." [ref=e1903]
+        - cell "Kiểm tra context_needs_init và PendSV save/restore." [ref=e1904]:
+          - text: Kiểm tra
+          - code [ref=e1905]: context_needs_init
+          - text: và PendSV save/restore.
+      - row "Log thứ tự bị đảo. Priority hoặc scheduler mode thay đổi. Kiểm tra OS_SCHED_MODE_DEFAULT và base_priority." [ref=e1906]:
+        - cell "Log thứ tự bị đảo." [ref=e1907]
+        - cell "Priority hoặc scheduler mode thay đổi." [ref=e1908]
+        - cell "Kiểm tra OS_SCHED_MODE_DEFAULT và base_priority." [ref=e1909]:
+          - text: Kiểm tra
+          - code [ref=e1910]: OS_SCHED_MODE_DEFAULT
+          - text: và
+          - code [ref=e1911]: base_priority
+          - text: .
+      - row "HardFault sau unblock. Stack frame hoặc PSP hỏng. Breakpoint PendSV_Handler, kiểm tra PSP và TCB sp." [ref=e1912]:
+        - cell "HardFault sau unblock." [ref=e1913]
+        - cell "Stack frame hoặc PSP hỏng." [ref=e1914]
+        - cell "Breakpoint PendSV_Handler, kiểm tra PSP và TCB sp." [ref=e1915]:
+          - text: Breakpoint
+          - code [ref=e1916]: PendSV_Handler
+          - text: ", kiểm tra PSP và TCB"
+          - code [ref=e1917]: sp
+          - text: .
+  - heading "12. Hướng mở rộng lên OSEK/AUTOSAR" [level=2] [ref=e1918]
+  - paragraph [ref=e1919]: Bài này cố ý là primitive nền, chưa phải OSEK chuẩn đầy đủ. Khi học OSEK sau, các khái niệm sẽ được siết chặt thêm.
+  - table [ref=e1920]:
+    - rowgroup [ref=e1921]:
+      - row "Bản nền hiện tại OSEK/AUTOSAR sau này Ý nghĩa mở rộng" [ref=e1922]:
+        - columnheader "Bản nền hiện tại" [ref=e1923]
+        - columnheader "OSEK/AUTOSAR sau này" [ref=e1924]
+        - columnheader "Ý nghĩa mở rộng" [ref=e1925]
+    - rowgroup [ref=e1926]:
+      - row "API trả void. API trả StatusType. Cần báo E_OS_ID, E_OS_ACCESS, E_OS_CALLEVEL, v.v." [ref=e1927]:
+        - cell "API trả void." [ref=e1928]:
+          - text: API trả
+          - code [ref=e1929]: void
+          - text: .
+        - cell "API trả StatusType." [ref=e1930]:
+          - text: API trả
+          - code [ref=e1931]: StatusType
+          - text: .
+        - cell "Cần báo E_OS_ID, E_OS_ACCESS, E_OS_CALLEVEL, v.v." [ref=e1932]:
+          - text: Cần báo
+          - code [ref=e1933]: E_OS_ID
+          - text: ","
+          - code [ref=e1934]: E_OS_ACCESS
+          - text: ","
+          - code [ref=e1935]: E_OS_CALLEVEL
+          - text: ", v.v."
+      - row "Mọi task có thể dùng event field. Phân biệt basic task và extended task. Chỉ extended task mới wait event." [ref=e1936]:
+        - cell "Mọi task có thể dùng event field." [ref=e1937]
+        - cell "Phân biệt basic task và extended task." [ref=e1938]
+        - cell "Chỉ extended task mới wait event." [ref=e1939]
+      - row "Không kiểm tra calling context đầy đủ. Quy định task context, ISR context rõ ràng. WaitEvent không được gọi từ ISR." [ref=e1940]:
+        - cell "Không kiểm tra calling context đầy đủ." [ref=e1941]
+        - cell "Quy định task context, ISR context rõ ràng." [ref=e1942]
+        - cell "WaitEvent không được gọi từ ISR." [ref=e1943]:
+          - code [ref=e1944]: WaitEvent
+          - text: không được gọi từ ISR.
+      - row "Không có service ID/error hook. Có ErrorHook, service ID, parameter capture. Debug lỗi API chuẩn hơn." [ref=e1945]:
+        - cell "Không có service ID/error hook." [ref=e1946]
+        - cell "Có ErrorHook, service ID, parameter capture." [ref=e1947]
+        - cell "Debug lỗi API chuẩn hơn." [ref=e1948]
+      - row "ScheduleTable chỉ ActivateTask. ScheduleTable có thể SetEvent. Time-triggered event wakeup cho task." [ref=e1949]:
+        - cell "ScheduleTable chỉ ActivateTask." [ref=e1950]
+        - cell "ScheduleTable có thể SetEvent." [ref=e1951]
+        - cell "Time-triggered event wakeup cho task." [ref=e1952]
+  - heading "12.1 Khi nào nên refactor tiếp?" [level=3] [ref=e1953]
+  - list [ref=e1954]:
+    - listitem [ref=e1955]: Khi cần negative test cho task ID sai, mask sai, caller sai context.
+    - listitem [ref=e1956]: Khi cần mô phỏng OSEK extended task đúng nghĩa.
+    - listitem [ref=e1957]:
+      - text: Khi ScheduleTable cần action
+      - code [ref=e1958]: SetEvent
+      - text: thay vì chỉ
+      - code [ref=e1959]: ActivateTask
+      - text: .
+    - listitem [ref=e1960]: Khi ISR category 2 cần gọi service OS có kiểm soát.
+    - listitem [ref=e1961]: Khi cần ErrorHook để dạy lỗi runtime.
+  - heading "13. Câu hỏi kiểm tra hiểu bản chất" [level=2] [ref=e1962]
+  - list [ref=e1963]:
+    - listitem [ref=e1964]:
+      - text: Vì sao
+      - code [ref=e1965]: WaitEvent()
+      - text: phải check
+      - code [ref=e1966]: event_set
+      - text: trước khi chuyển task sang
+      - code [ref=e1967]: WAITING
+      - text: "?"
+    - listitem [ref=e1968]:
+      - text: Vì sao
+      - code [ref=e1969]: SetEvent()
+      - text: không luôn gọi scheduler, đặc biệt khi đang trong ISR?
+    - listitem [ref=e1970]: Nếu Producer set event cho Consumer khi Consumer đang READY, chuyện gì xảy ra?
+    - listitem [ref=e1971]:
+      - text: Nếu Consumer quên
+      - code [ref=e1972]: ClearEvent()
+      - text: ", lần"
+      - code [ref=e1973]: WaitEvent()
+      - text: sau có block không?
+    - listitem [ref=e1974]: Event bit có dùng để đếm 5 CAN frame nhận liên tiếp được không? Nếu không, cần thêm cấu trúc gì?
+    - listitem [ref=e1975]: Vì sao task được unblock không đồng nghĩa chắc chắn chạy ngay?
+    - listitem [ref=e1976]:
+      - text: Sau
+      - code [ref=e1977]: SetEvent()
+      - text: ", context switch thật xảy ra trong function C hay trong"
+      - code [ref=e1978]: PendSV_Handler
+      - text: "?"
+    - listitem [ref=e1979]:
+      - text: Vì sao
+      - code [ref=e1980]: GetEvent()
+      - text: không được tự clear bit?
+    - listitem [ref=e1981]:
+      - text: Race "lost wakeup" là gì trong cặp
+      - code [ref=e1982]: WaitEvent
+      - text: /
+      - code [ref=e1983]: SetEvent
+      - text: "?"
+    - listitem [ref=e1984]: Nếu muốn ScheduleTable đánh thức task bằng event, cần thêm gì vào cấu trúc expiry point?
+  - heading "14. Điểm dễ nhầm và kết luận" [level=2] [ref=e1985]
+  - list [ref=e1986]:
+    - listitem [ref=e1987]:
+      - code [ref=e1988]: SetEvent()
+      - text: không trực tiếp gọi function của task đích. Nó chỉ set bit và có thể đưa task về ready queue.
+    - listitem [ref=e1989]:
+      - code [ref=e1990]: WaitEvent()
+      - text: không clear event. Nếu event đã pending, hàm return ngay.
+    - listitem [ref=e1991]:
+      - code [ref=e1992]: GetEvent()
+      - text: chỉ đọc, không thay đổi state.
+    - listitem [ref=e1993]:
+      - code [ref=e1994]: ClearEvent()
+      - text: nên được gọi sau khi task đã xử lý bit tương ứng.
+    - listitem [ref=e1995]: Event bitmask không đếm số lần xảy ra. Set cùng một bit nhiều lần vẫn chỉ là bit 1.
+    - listitem [ref=e1996]:
+      - text: Task đang
+      - code [ref=e1997]: WAITING
+      - text: không được scheduler chọn cho đến khi có event khớp.
+  - generic [ref=e1998]:
+    - strong [ref=e1999]: "Kết luận kỹ thuật:"
+    - text: "Sau bài này, kernel không còn chỉ là scheduler chạy task theo ready queue. Nó đã có primitive blocking đầu tiên: task có thể tự rời CPU khi chưa có việc và quay lại khi được báo event. Đây là nền quan trọng trước khi học OSEK event service đầy đủ."
+  - generic [ref=e2000]: Os_Test Event API Execution Flow - HALA Academy

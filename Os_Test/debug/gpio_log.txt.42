@@ -1,0 +1,15 @@
+21:34:22.1541 [INFO] sysbus: Loading block of 11840 bytes length at 0x8000000.
+21:34:22.1685 [INFO] sysbus: Loading block of 5936 bytes length at 0x8002E40.
+21:34:22.1982 [INFO] stm32: CPUs: ["stm32.cpu"] were added to a new GDB server created on port :3333
+21:34:22.1983 [INFO] stm32: GDB server with all CPUs started on port :3333
+21:34:22.8327 [INFO] cpu: Guessing VectorTableOffset value to be 0x8000000.
+21:34:22.8393 [INFO] cpu: Setting initial values: PC = 0x800153D, SP = 0x20005000.
+21:34:22.8405 [INFO] stm32: Machine started.
+21:34:53.8040 [WARNING] gpioPortC: Unhandled write to offset 0x4. Unhandled bits: [22] when writing value 0x44244444. Tags: CNF13 (0x0).
+21:34:53.8043 [WARNING] gpioPortA: Unhandled write to offset 0x4. Unhandled bits: [6-7] when writing value 0x444444B4. Tags: CNF9 (0x2).
+21:34:53.8076 [INFO] usart1: [host: 31,68s (+31,68s)|virt: 0,45ms (+0,45ms)] [T=0] [BOOT] PROFILE=MIXED_SCHEDULE_TABLE MODE=MIXED
+21:34:53.8076 [INFO] usart1: [host: 31,67s (+31,67s)|virt: 0,45ms (+0,45ms)] [T=0] [BOOT] PROFILE=MIXED_SCHEDULE_TABLE MODE=MIXED
+21:34:53.8078 [INFO] usart1: [host: 31,69s (+0,41ms)|virt:     0,45ms (+0s)] [T=0] [BOOT] Khoi tao phan cung thanh cong.
+21:34:53.8079 [INFO] usart1: [host: 31,67s (+0,31ms)|virt:     0,45ms (+0s)] [T=0] [BOOT] Khoi tao phan cung thanh cong.
+21:39:04.9649 [INFO] stm32: Machine paused.
+21:39:04.9825 [INFO] stm32: Disposed.

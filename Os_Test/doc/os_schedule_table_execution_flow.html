@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>GIÁO TRÌNH CHUYÊN SÂU OSEK/AUTOSAR ScheduleTable</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({startOnLoad:true, theme:'base', themeVariables:{primaryColor:'#e8f0fe',primaryBorderColor:'#0066cc',primaryTextColor:'#000',lineColor:'#004499',secondaryColor:'#fff8e8',tertiaryColor:'#f0f7ff'}});</script>
+    <style>
+        /* ===== PAGE & PRINT RULES ===== */
+        @page {
+            size: A4;
+            margin: 2cm 1.8cm 2cm 1.8cm;
+        }
+        @media print {
+            body { padding: 0; margin: 0; }
+        }
+
+        /* ===== BASE TYPOGRAPHY ===== */
+        body { font-family: 'Times New Roman', Georgia, serif; font-size: 11pt; line-height: 1.7; color: #000; background: #fff; max-width: 210mm; margin: 0 auto; padding: 1cm 2cm; }
+        p { orphans: 3; widows: 3; }
+
+        /* ===== COVER ===== */
+        .cover { page-break-after: always; text-align: center; padding-top: 6cm; }
+        .cover .course-name { font-size: 14pt; color: #0066cc; letter-spacing: 2px; }
+        .cover .lesson-title { font-size: 22pt; font-weight: bold; color: #000; margin: 1cm 0; padding: 0.5cm 0; border-top: 2px solid #0066cc; border-bottom: 2px solid #0066cc; }
+        .cover .author { font-size: 11pt; margin-top: 4cm; color: #333; }
+        .cover .institution { font-size: 12pt; color: #0066cc; font-weight: bold; margin-top: 0.5cm; }
+
+        /* ===== HEADINGS ===== */
+        h1 { font-size: 16pt; color: #0066cc; border-bottom: 1px solid #0066cc; padding-bottom: 5px; margin-top: 1.5cm; page-break-after: avoid; }
+        h2 { font-size: 13pt; color: #004499; margin-top: 0.8cm; page-break-before: always; page-break-after: avoid; }
+        h2:first-of-type { page-break-before: avoid; }
+        h3 { font-size: 12pt; color: #003366; page-break-after: avoid; }
+
+        /* ===== TABLE ===== */
+        table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 10pt; border: 2px solid #004499; page-break-inside: avoid; break-inside: avoid; }
+        th, td { border: 1px solid #999; padding: 8px 10px; text-align: left; }
+        th { background-color: #0066cc; color: #fff; font-weight: bold; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        tr:nth-child(even) { background-color: #f5f5f5; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+        /* ===== CODE ===== */
+        pre { background-color: #fff; border: 1px solid #0066cc; border-left: 4px solid #0066cc; padding: 12px 15px; margin: 12px 0; font-family: 'Consolas', monospace; font-size: 9pt; color: #333; overflow-x: auto; page-break-inside: avoid; break-inside: avoid; }
+        code { font-family: 'Consolas', monospace; font-size: 9pt; background-color: #f0f7ff; padding: 1px 4px; }
+        pre code { background: none; padding: 0; }
+
+        /* ===== CALLOUT BOXES ===== */
+        .note { background-color: #f0f7ff; border-left: 3px solid #0066cc; padding: 10px 15px; margin: 12px 0; font-size: 10pt; page-break-inside: avoid; break-inside: avoid; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        .callout { background-color: #f8fbff; border: 1px solid #bcd8ff; padding: 12px 15px; margin: 12px 0; page-break-inside: avoid; break-inside: avoid; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        .warning { background-color: #fff8e8; border-left: 4px solid #d28b00; padding: 10px 15px; margin: 12px 0; page-break-inside: avoid; break-inside: avoid; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        .formula { background-color: #fcfcfc; border: 1px dashed #0066cc; padding: 10px 15px; margin: 12px 0; font-family: 'Consolas', monospace; font-size: 9pt; page-break-inside: avoid; break-inside: avoid; }
+
+        /* ===== MISC ===== */
+        .small { font-size: 9.5pt; color: #444; }
+        .tight th, .tight td { padding: 6px 8px; }
+        img { max-width: 100%; height: auto; }
+
+        /* ===== DIAGRAMS ===== */
+        .diagram-box { text-align: center; margin: 20px 0; padding: 15px; border: 1px solid #aebed3; background: #fff; page-break-inside: avoid; break-inside: avoid; }
+        .diagram-box .caption { font-size: 10pt; color: #666; font-style: italic; margin-top: 8px; }
+        .diagram-box .sheet-head { font-size: 12pt; font-weight: bold; color: #004499; margin-bottom: 8px; }
+        .mermaid { font-size: 12px; }
+
+        /* ===== FOOTER ===== */
+        .footer { margin-top: 2cm; text-align: center; font-size: 9pt; color: #666; border-top: 1px solid #ddd; padding-top: 10px; }
+
+        /* ===== GLOBAL PAGE-BREAK SAFETY ===== */
+        blockquote { page-break-inside: avoid; break-inside: avoid; }
+        ul, ol { page-break-inside: avoid; break-inside: avoid; }
+        hr { page-break-after: avoid; }
+    </style>
+</head>
+<body>
+
+<div class="cover">
+    <div class="course-name">SYSTEM ARCHITECT AUTOMOTIVE</div>
+    <div class="lesson-title">GIÁO TRÌNH CHUYÊN SÂU OSEK/AUTOSAR ScheduleTable<br/><span style="font-size: 16pt;">Luồng cấu hình và thực thi ScheduleTable trong mini RTOS</span></div>
+    <div class="author">Biên soạn: <strong>Phạm Văn Vũ</strong></div>
+    <div class="institution">HALA Academy</div>
+</div>
+
+<h1>GIÁO TRÌNH CHUYÊN SÂU OSEK/AUTOSAR ScheduleTable</h1>
+<h2>Từ bảng cấu hình tĩnh đến <code>ActivateTask()</code> tại Expiry Point — xuyên suốt SysTick ISR</h2>
+<blockquote>
+<p>Tài liệu này bám sát đúng code trong repository <strong>Os_Test</strong>. Mục tiêu không chỉ là mô tả "ScheduleTable là gì", mà là chỉ rõ <strong>dữ liệu cấu hình nằm ở đâu, ai đọc bảng nào, tick được đếm ra sao, và cuối cùng task nào được kích hoạt tại thời điểm nào</strong>.</p>
+</blockquote>
+<div class="callout">
+    <strong>Một câu chốt bản chất của ScheduleTable:</strong> Application không tự gọi <code>ActivateTask()</code> theo lịch trình. Thay vào đó, ScheduleTable module đếm tick từ SysTick ISR, và khi offset trong chu kỳ trùng với một expiry point đã cấu hình sẵn, nó tự động gọi <code>ActivateTask()</code>. Scheduler core vẫn là nơi quyết định task nào thật sự chạy.
+</div>
+<hr />
+
+<h2>Mục lục</h2>
+<ol>
+<li><a href="#1-muc-tieu">Mục tiêu học tập và bức tranh toàn cục</a></li>
+<li><a href="#2-schedule-table-co-ban">ScheduleTable là gì ở góc nhìn OSEK/AUTOSAR</a></li>
+<li><a href="#3-kien-truc">Kiến trúc phần mềm và vị trí ScheduleTable trong OS</a></li>
+<li><a href="#4-map-code">Mapping trực tiếp vào code và các bảng cấu hình</a></li>
+<li><a href="#5-runtime-flow">Luồng thực thi đầy đủ từ OS_Init đến Task chạy</a></li>
+<li><a href="#6-tick-detail">Phân tích chi tiết xử lý tick: từ SysTick ISR đến ActivateTask</a></li>
+<li><a href="#7-timeline">Timeline thực tế — Theo dõi ScheduleTable xuyên suốt</a></li>
+<li><a href="#8-diagrams">Sơ đồ UML chi tiết</a></li>
+<li><a href="#9-so-sanh">So sánh Alarm và ScheduleTable</a></li>
+<li><a href="#10-lab">Kiểm chứng bằng log và lab mô phỏng</a></li>
+<li><a href="#11-ket-luan">Các điểm dễ nhầm và kết luận kỹ thuật</a></li>
+</ol>
+<hr />
+
+<!-- ============================================================ -->
+<h2 id="1-muc-tieu">1. Mục tiêu học tập và bức tranh toàn cục</h2>
+<p>Sau khi học xong tài liệu này, người học cần trả lời được các câu hỏi sau mà không còn mơ hồ:</p>
+<ul>
+<li>Tại sao OSEK/AUTOSAR cần ScheduleTable khi đã có Alarm?</li>
+<li>Bảng cấu hình tĩnh gồm những trường nào và kernel đọc chúng ở đâu?</li>
+<li>Sự khác nhau giữa <strong>start_delay</strong> (thời gian chờ ban đầu) và <strong>duration</strong> (độ dài chu kỳ) của ScheduleTable?</li>
+<li>Expiry point là gì? Offset trong expiry point có nghĩa gì?</li>
+<li>ScheduleTable có tự dispatch task không, hay chỉ bơm activation vào ready queue?</li>
+<li>Khi ScheduleTable kích hoạt task mới, quyết định preempt phụ thuộc vào ai?</li>
+</ul>
+<div class="note">
+    <strong>Chuỗi đi đúng của ScheduleTable:</strong><br />
+    <code>Bảng cấu hình tĩnh (os_app_cfg.c) → OS_Init() đọc và nạp → SysTick ISR gọi os_on_tick() → os_sched_table_on_tick() → countdown start_delay → đếm elapsed_ticks → fire expiry point → ActivateTask() → Ready Queue → Scheduler → Dispatch → Task chạy</code>
+</div>
+<hr />
+
+<!-- ============================================================ -->
+<h2 id="2-schedule-table-co-ban">2. ScheduleTable là gì ở góc nhìn OSEK/AUTOSAR</h2>
+<h3>2.1 Bản chất của ScheduleTable</h3>
+<p>ScheduleTable là cơ chế <strong>time-triggered scheduling</strong> trong OSEK/AUTOSAR OS. Nó cho phép hệ thống kích hoạt một chuỗi các task theo <strong>lịch trình cố định</strong>, lặp lại theo chu kỳ, mà không cần application code chủ động quản lý thời gian.</p>
+<table class="tight">
+<thead>
+<tr><th>Đặc tính</th><th>Mô tả</th><th>Ý nghĩa trong demo</th></tr>
+</thead>
+<tbody>
+<tr><td>Kiểu lập lịch</td><td>Time-triggered (dựa trên thời gian)</td><td>Các task được kích hoạt tại offset cố định trong chu kỳ.</td></tr>
+<tr><td>Đơn vị thời gian</td><td>Tick (OS counter)</td><td>1 tick = 1 ms (OS_TICK_HZ = 1000).</td></tr>
+<tr><td>Repeating</td><td>Có thể lặp vô hạn hoặc one-shot</td><td>Demo đặt <code>repeating = 1</code> → lặp mỗi 40 ms.</td></tr>
+<tr><td>Expiry Points</td><td>Các mốc thời gian trong chu kỳ cần thực thi action</td><td>Offset 0 → Low task, Offset 10 → High task.</td></tr>
+<tr><td>Action hỗ trợ</td><td>ActivateTask (bản hiện tại)</td><td>Mỗi expiry point gọi <code>ActivateTask(task_id)</code>.</td></tr>
+</tbody>
+</table>
+
+<h3>2.2 Tại sao cần ScheduleTable khi đã có Alarm?</h3>
+<table class="tight">
+<thead><tr><th>Tiêu chí</th><th>Alarm</th><th>ScheduleTable</th></tr></thead>
+<tbody>
+<tr><td>Số action</td><td>Một alarm → một target task</td><td>Một table → nhiều expiry points → nhiều tasks</td></tr>
+<tr><td>Đồng bộ offset</td><td>Mỗi alarm đếm độc lập, offset dễ trôi</td><td>Tất cả expiry points đồng bộ trong cùng một chu kỳ</td></tr>
+<tr><td>Cấu hình</td><td>Đơn giản: delay + cycle + target</td><td>Phức tạp hơn: duration + N expiry points + repeating</td></tr>
+<tr><td>Use case</td><td>Periodic task đơn, watchdog, timeout</td><td>Chuỗi task phải chạy theo trình tự thời gian cố định</td></tr>
+<tr><td>AUTOSAR</td><td>OSEK legacy, vẫn hỗ trợ</td><td>AUTOSAR OS mở rộng, khuyến nghị cho time-triggered</td></tr>
+</tbody>
+</table>
+
+<div class="warning">
+    <strong>Điểm cốt lõi:</strong> Alarm phù hợp cho tác vụ đơn lẻ (1 alarm = 1 task). Nhưng khi cần một <em>chuỗi</em> nhiều task chạy theo thứ tự thời gian <strong>đồng bộ trong cùng chu kỳ</strong> (ví dụ: đọc sensor → xử lý → gửi CAN), ScheduleTable là giải pháp chuẩn vì tất cả offset đều tính từ cùng một gốc thời gian, không bị trôi riêng lẻ.
+</div>
+
+<h3>2.3 Các trạng thái runtime của ScheduleTable</h3>
+<table class="tight">
+<thead><tr><th>Trạng thái</th><th>Mô tả</th><th>Chuyển tiếp</th></tr></thead>
+<tbody>
+<tr><td><code>STOPPED</code></td><td>Table ngưng hoạt động, không đếm tick</td><td>→ <code>RUNNING</code> khi gọi <code>StartScheduleTableRel()</code></td></tr>
+<tr><td><code>RUNNING</code> (delay phase)</td><td>Table đang đếm ngược start_delay_ticks</td><td>→ <code>RUNNING</code> (cycle phase) khi countdown = 0</td></tr>
+<tr><td><code>RUNNING</code> (cycle phase)</td><td>Table đếm elapsed_ticks, fire expiry points</td><td>→ Reset offset 0 (nếu repeating) hoặc → <code>STOPPED</code> (one-shot)</td></tr>
+</tbody>
+</table>
+<hr />
+
+<!-- ============================================================ -->
+<h2 id="3-kien-truc">3. Kiến trúc phần mềm và vị trí ScheduleTable trong OS</h2>
+<h3>3.1 Ba tầng chính của OS</h3>
+<p>ScheduleTable nằm giữa <strong>tầng cấu hình tĩnh</strong> và <strong>tầng kernel core</strong>. Nó không tự dispatch task, mà chỉ bơm activation vào ready queue thông qua API <code>ActivateTask()</code>.</p>
+<table>
+<thead><tr><th>Tầng</th><th>Module / File</th><th>Nhiệm vụ chính</th></tr></thead>
+<tbody>
+<tr><td><strong>Cấu hình tĩnh</strong></td><td><code>Config/os_app_cfg.c</code><br/><code>Config/os_app_cfg.h</code><br/><code>Config/os_config.h</code></td><td>Bảng task, alarm, ScheduleTable, expiry points. Kernel chỉ đọc, không sửa.</td></tr>
+<tr><td><strong>Kernel Core</strong></td><td><code>OS/src/os_kernel.c</code><br/><code>OS/inc/os_kernel.h</code></td><td>Ready queue, scheduler, dispatcher, ActivateTask, TerminateTask, OS_Init, os_on_tick.</td></tr>
+<tr><td><strong>ScheduleTable Module</strong></td><td><code>OS/src/os_sched_table.c</code><br/><code>OS/inc/os_sched_table.h</code></td><td>Quản lý runtime state, đếm delay/offset, fire expiry points, gọi ActivateTask.</td></tr>
+<tr><td><strong>Port Layer</strong></td><td><code>OS/src/os_port.c</code><br/><code>OS/src/os_port_asm.s</code></td><td>SysTick ISR, PendSV context switch, SVC bootstrap, stack frame init.</td></tr>
+<tr><td><strong>Application</strong></td><td><code>app/App_Task.c</code></td><td>Task entry functions: Task_ScheduleTable_Low, Task_ScheduleTable_High, v.v.</td></tr>
+</tbody>
+</table>
+
+<h3>3.2 Nguyên tắc phân tách trách nhiệm</h3>
+<div class="callout">
+    <strong>ScheduleTable module chỉ làm duy nhất một việc:</strong> Đếm tick, kiểm tra expiry point, và gọi <code>ActivateTask()</code>. Nó <strong>KHÔNG</strong> quyết định task nào chạy, <strong>KHÔNG</strong> trigger PendSV, và <strong>KHÔNG</strong> thao tác ready queue trực tiếp.<br/><br/>
+    <strong>Scheduler core</strong> (trong <code>os_kernel.c</code>) là nơi duy nhất quyết định dispatch dựa trên ready queue, priority, và policy preemption (Full/Non/Mixed).
+</div>
+<hr />
+
+<!-- ============================================================ -->
+<h2 id="4-map-code">4. Mapping trực tiếp vào code và các bảng cấu hình</h2>
+
+<h3>4.1 Kiểu dữ liệu — Cấu hình tĩnh (compile-time)</h3>
+<p>Toàn bộ kiểu dữ liệu ScheduleTable nằm trong <code>OS/inc/os_types.h</code>:</p>
+<pre><code>// Một expiry point trong ScheduleTable
+typedef struct {
+    uint32_t  offset_ticks;   // Offset tính từ đầu chu kỳ
+    uint8_t   task_id;        // Task sẽ được ActivateTask() tại offset này
+} OsScheduleTableExpiryPointCfg_t;
+
+// Cấu hình tĩnh của ScheduleTable
+typedef struct {
+    uint8_t                               id;
+    const char                           *name;
+    uint8_t                               autostart;       // 1 = OS_Init() tự start
+    uint8_t                               repeating;       // 1 = tự lặp khi hết chu kỳ
+    uint32_t                              start_delay_ms;   // Chờ bao lâu trước chu kỳ đầu
+    uint32_t                              duration_ms;      // Độ dài một chu kỳ
+    const OsScheduleTableExpiryPointCfg_t *expiry_points;  // Mảng expiry points
+    uint8_t                               num_expiry_points;
+} OsScheduleTableConfig_t;</code></pre>
+
+<h3>4.2 Kiểu dữ liệu — Runtime state (biến đổi khi chạy)</h3>
+<pre><code>// Trạng thái runtime của ScheduleTable (trong os_sched_table.c)
+typedef struct {
+    uint8_t   active;              // 0 = stopped, 1 = running
+    uint8_t   repeating;           // Copy từ config khi start
+    uint8_t   current_expiry_idx;  // Expiry point kế tiếp chưa xử lý
+    uint32_t  start_delay_ticks;   // Countdown trước khi vào chu kỳ
+    uint32_t  elapsed_ticks;       // Offset hiện tại trong chu kỳ
+    uint32_t  duration_ticks;      // Độ dài chu kỳ tính bằng tick
+} OsScheduleTable_t;</code></pre>
+
+<h3>4.3 Bảng Expiry Points — <code>g_schedule_table_main_points[]</code></h3>
+<table class="tight">
+<thead><tr><th>Index</th><th>offset_ticks</th><th>task_id</th><th>Ý nghĩa</th></tr></thead>
+<tbody>
+<tr><td>0</td><td><strong>0</strong></td><td><code>TASK_SCHTBL_LOW</code> (4)</td><td>Kích hoạt task priority LOW ngay đầu chu kỳ</td></tr>
+<tr><td>1</td><td><strong>10</strong></td><td><code>TASK_SCHTBL_HIGH</code> (5)</td><td>Kích hoạt task priority HIGH sau 10 tick</td></tr>
+</tbody>
+</table>
+
+<pre><code>// Config/os_app_cfg.c
+static const OsScheduleTableExpiryPointCfg_t g_schedule_table_main_points[] = {
+    { .offset_ticks = 0u,  .task_id = TASK_SCHTBL_LOW  },  // Offset 0
+    { .offset_ticks = 10u, .task_id = TASK_SCHTBL_HIGH }   // Offset 10
+};</code></pre>
+
+<h3>4.4 Bảng ScheduleTable — <code>g_os_schedule_table_cfg[]</code></h3>
+<table class="tight">
+<thead><tr><th>Trường</th><th>Giá trị</th><th>Ý nghĩa</th></tr></thead>
+<tbody>
+<tr><td><code>id</code></td><td><code>SCHEDULE_TABLE_MAIN</code> (0)</td><td>ID duy nhất của table</td></tr>
+<tr><td><code>name</code></td><td><code>"ScheduleTable_Main"</code></td><td>Tên cho trace/debug</td></tr>
+<tr><td><code>autostart</code></td><td><code>1</code></td><td>OS_Init() tự gọi StartScheduleTableRel()</td></tr>
+<tr><td><code>repeating</code></td><td><code>1</code></td><td>Table tự lặp vô hạn khi hết chu kỳ</td></tr>
+<tr><td><code>start_delay_ms</code></td><td><code>220</code></td><td>Chờ 220 tick trước khi bắt đầu chu kỳ đầu</td></tr>
+<tr><td><code>duration_ms</code></td><td><code>40</code></td><td>Mỗi chu kỳ dài 40 tick</td></tr>
+<tr><td><code>expiry_points</code></td><td>→ <code>g_schedule_table_main_points</code></td><td>Mảng 2 expiry points ở trên</td></tr>
+<tr><td><code>num_expiry_points</code></td><td><code>2</code></td><td>Tính tự động bằng sizeof</td></tr>
+</tbody>
+</table>
+
+<h3>4.5 Bảng Task liên quan đến ScheduleTable</h3>
+<table class="tight">
+<thead><tr><th>Task ID</th><th>Tên</th><th>Priority</th><th>Autostart</th><th>Sched Class</th><th>Vai trò</th></tr></thead>
+<tbody>
+<tr><td><code>TASK_SCHTBL_LOW</code> (4)</td><td><code>Task_ScheduleTable_Low</code></td><td><code>OS_PRIO_LOW</code> (1)</td><td>0</td><td>PREEMPTIVE</td><td>Kích hoạt bởi ScheduleTable tại offset 0</td></tr>
+<tr><td><code>TASK_SCHTBL_HIGH</code> (5)</td><td><code>Task_ScheduleTable_High</code></td><td><code>OS_PRIO_HIGH</code> (3)</td><td>0</td><td>PREEMPTIVE</td><td>Kích hoạt bởi ScheduleTable tại offset 10</td></tr>
+</tbody>
+</table>
+
+<div class="note">
+    <strong>Lưu ý quan trọng:</strong> Cả hai task đều có <code>autostart = 0</code>. Chúng <strong>không</strong> được đưa vào ready queue lúc boot. Chỉ khi ScheduleTable fire expiry point, <code>ActivateTask()</code> mới đưa chúng vào ready queue.
+</div>
+
+<h3>4.6 Tổng hợp ánh xạ xuyên suốt</h3>
+<div class="formula">
+Config tĩnh (os_app_cfg.c)<br/>
+├── g_os_schedule_table_cfg[0]       : ScheduleTable_Main<br/>
+│   ├── autostart = 1                → OS_Init() gọi StartScheduleTableRel(0, 220)<br/>
+│   ├── start_delay_ms = 220         → Countdown 220 tick trước khi vào chu kỳ<br/>
+│   ├── duration_ms = 40             → Mỗi chu kỳ dài 40 tick<br/>
+│   ├── repeating = 1                → Tự reset khi hết chu kỳ<br/>
+│   └── expiry_points[]<br/>
+│       ├── [0] offset=0,  task_id=4 → ActivateTask(TASK_SCHTBL_LOW)<br/>
+│       └── [1] offset=10, task_id=5 → ActivateTask(TASK_SCHTBL_HIGH)<br/>
+│<br/>
+Runtime (os_sched_table.c)<br/>
+├── g_sched_table_rt[0]<br/>
+│   ├── active = 1<br/>
+│   ├── start_delay_ticks = 220      → Giảm dần mỗi tick<br/>
+│   ├── elapsed_ticks = 0..39        → Tăng dần trong chu kỳ<br/>
+│   ├── duration_ticks = 40<br/>
+│   └── current_expiry_idx = 0..2    → Con trỏ expiry point kế tiếp
+</div>
+<hr />
+
+<!-- ============================================================ -->
+<h2 id="5-runtime-flow">5. Luồng thực thi đầy đủ từ OS_Init đến Task chạy</h2>
+
+<h3>5.1 Giai đoạn 1: Khởi tạo — OS_Init()</h3>
+<pre><code>// os_kernel.c — OS_Init() (dòng 684-764)
+void OS_Init(void)
+{
+    // 1. Reset trạng thái toàn bộ kernel
+    g_current = NULL;
+    g_next = NULL;
+    g_tick_count = 0u;
+
+    // 2. Cấu hình port Cortex-M3 (SysTick, priority exception)
+    os_port_init();
+
+    // 3. Reset ready queue, alarm, ScheduleTable
+    os_ready_queue_reset();
+    os_alarm_reset_all();
+    os_sched_table_reset_all();         // ← Reset runtime state ScheduleTable
+
+    // 4. Dựng TCB cho toàn bộ task từ bảng config
+    for (tid = 0; tid < OS_MAX_TASKS; ++tid)
+        os_task_setup_from_cfg(tid);
+
+    // 5. Nạp task autostart vào ready queue
+    // Task_Init (CRITICAL) và Task_Idle được đưa vào queue
+
+    // 6. Chọn task đầu tiên (Task_Init) cho bootstrap
+    g_current = &tcb[first_id];
+
+    // 7. Nạp các nguồn activation tĩnh
+    os_alarm_autostart_all();
+    os_sched_table_autostart_all();     // ← Autostart ScheduleTable!
+}</code></pre>
+
+<h3>5.2 Giai đoạn 2: Autostart ScheduleTable</h3>
+<pre><code>// os_sched_table.c — autostart (dòng 200-210)
+void os_sched_table_autostart_all(void)
+{
+    for (sid = 0; sid < OS_MAX_SCHEDULE_TABLES; ++sid) {
+        if (cfg->autostart != 0u) {
+            StartScheduleTableRel(sid, cfg->start_delay_ms);
+            // → StartScheduleTableRel(0, 220)
+        }
+    }
+}</code></pre>
+
+<h3>5.3 Giai đoạn 3: Start runtime của ScheduleTable</h3>
+<pre><code>// os_sched_table.c — StartScheduleTableRel() (dòng 130-156)
+void StartScheduleTableRel(uint8_t sid, uint32_t start_delay_ms)
+{
+    // Validate: expiry points != NULL, duration > 0
+    OsScheduleTable_t *rt = &g_sched_table_rt[sid];
+
+    rt->active = 1u;                    // Đánh dấu đang chạy
+    rt->repeating = cfg->repeating;     // Copy repeating từ config
+    rt->current_expiry_idx = 0u;        // Con trỏ bắt đầu từ expiry 0
+    rt->elapsed_ticks = 0u;             // Offset = 0
+    rt->duration_ticks = ms_to_ticks(cfg->duration_ms);   // = 40
+    rt->start_delay_ticks = ms_to_ticks(start_delay_ms);  // = 220
+}</code></pre>
+
+<div class="formula">
+Sau StartScheduleTableRel(0, 220):<br/>
+g_sched_table_rt[0] = {<br/>
+&nbsp;&nbsp;active = 1,<br/>
+&nbsp;&nbsp;repeating = 1,<br/>
+&nbsp;&nbsp;current_expiry_idx = 0,<br/>
+&nbsp;&nbsp;start_delay_ticks = 220,  ← Countdown!<br/>
+&nbsp;&nbsp;elapsed_ticks = 0,<br/>
+&nbsp;&nbsp;duration_ticks = 40<br/>
+}
+</div>
+
+<h3>5.4 Giai đoạn 4: OS_Start() → SVC → Task_Init bootstrap</h3>
+<pre><code>// main.c
+OS_Start();
+// → __ASM volatile("svc 0")
+// → SVC_Handler (assembly) nhảy vào Task_Init
+// → Task_Init: init GPIO, UART, in boot banner, rồi TerminateTask()
+// → Task_Idle bắt đầu chạy WFI loop</code></pre>
+
+<h3>5.5 Giai đoạn 5: SysTick ISR xử lý tick</h3>
+<pre><code>// os_kernel.c — os_on_tick() (dòng 631-674)
+void os_on_tick(void)
+{
+    os_isr_enter();                          // Tăng interrupt nesting
+    g_tick_count++;                          // Đếm tick toàn cục
+
+    // Bước 1: Xử lý alarm
+    for (i = 0; i < OS_MAX_ALARMS; ++i) { /* ... */ }
+
+    // Bước 2: Xử lý ScheduleTable
+    os_sched_table_on_tick();                // ← ScheduleTable tick handler!
+
+    os_isr_exit();                           // Giảm nesting, gọi os_schedule()
+}</code></pre>
+
+<div class="warning">
+    <strong>Thứ tự xử lý trong os_on_tick():</strong> Alarm được xử lý <strong>trước</strong>, ScheduleTable <strong>sau</strong>. Cả hai đều gọi <code>ActivateTask()</code> nhưng scheduler chỉ chạy <strong>một lần duy nhất</strong> ở cuối ISR (<code>os_isr_exit()</code>) khi interrupt nesting giảm về 0.
+</div>
+<hr />
+
+<!-- ============================================================ -->
+<h2 id="6-tick-detail">6. Phân tích chi tiết xử lý tick: từ SysTick ISR đến ActivateTask</h2>
+
+<h3>6.1 os_sched_table_on_tick() — Tim đập của ScheduleTable</h3>
+<pre><code>// os_sched_table.c — tick handler (dòng 216-255)
+void os_sched_table_on_tick(void)
+{
+    for (sid = 0; sid < OS_MAX_SCHEDULE_TABLES; ++sid) {
+        OsScheduleTable_t *rt = &g_sched_table_rt[sid];
+
+        if (rt->active == 0u) continue;          // Bỏ qua table không active
+
+        // ========= GIAI ĐOẠN 1: Countdown start delay =========
+        if (rt->start_delay_ticks > 0u) {
+            rt->start_delay_ticks--;              // Giảm 1 mỗi tick
+            if (rt->start_delay_ticks == 0u) {
+                // Delay xong! Reset offset và fire expiry points tại offset 0
+                rt->elapsed_ticks = 0u;
+                rt->current_expiry_idx = 0u;
+                os_sched_table_fire_due_points(sid);
+                os_sched_table_finish_cycle(sid);
+            }
+            continue;                             // Chưa vào chu kỳ, skip
+        }
+
+        // ========= GIAI ĐOẠN 2: Đếm offset trong chu kỳ =========
+        rt->elapsed_ticks++;                      // Tăng offset
+        os_sched_table_fire_due_points(sid);      // Kiểm tra expiry points
+        os_sched_table_finish_cycle(sid);          // Kiểm tra hết chu kỳ chưa
+    }
+}</code></pre>
+
+<h3>6.2 os_sched_table_fire_due_points() — Gọi ActivateTask tại expiry point</h3>
+<pre><code>// os_sched_table.c — fire due points (dòng 74-92)
+static void os_sched_table_fire_due_points(uint8_t sid)
+{
+    const OsScheduleTableConfig_t *cfg = &g_os_schedule_table_cfg[sid];
+    OsScheduleTable_t *rt = &g_sched_table_rt[sid];
+
+    while (rt->current_expiry_idx < cfg->num_expiry_points) {
+        const OsScheduleTableExpiryPointCfg_t *point =
+            &cfg->expiry_points[rt->current_expiry_idx];
+
+        if (point->offset_ticks > rt->elapsed_ticks)
+            break;                    // Chưa đến offset này, dừng
+
+        ActivateTask(point->task_id); // ← KÍCH HOẠT TASK!
+        rt->current_expiry_idx++;     // Chuyển sang expiry point tiếp
+    }
+}</code></pre>
+
+<div class="note">
+    <strong>Tại sao dùng <code>&lt;=</code> thay vì <code>==</code>?</strong><br/>
+    Dùng so sánh <code>offset_ticks &gt; elapsed_ticks</code> (tức fire khi <code>&lt;=</code>) để nếu một tick bị trễ hoặc xử lý chậm, expiry point vẫn không bị bỏ sót. Đây là kỹ thuật phòng thủ phổ biến trong embedded RTOS.
+</div>
+
+<h3>6.3 os_sched_table_finish_cycle() — Kết thúc chu kỳ</h3>
+<pre><code>// os_sched_table.c — finish cycle (dòng 100-122)
+static void os_sched_table_finish_cycle(uint8_t sid)
+{
+    OsScheduleTable_t *rt = &g_sched_table_rt[sid];
+
+    if (rt->elapsed_ticks < rt->duration_ticks)
+        return;                             // Chưa hết chu kỳ
+
+    if (rt->repeating != 0u) {
+        // REPEATING: Reset offset về 0, fire ngay expiry points offset 0
+        rt->elapsed_ticks = 0u;
+        rt->current_expiry_idx = 0u;
+        os_sched_table_fire_due_points(sid);
+    } else {
+        // ONE-SHOT: Dừng hẳn table
+        rt->active = 0u;
+        rt->current_expiry_idx = 0u;
+        rt->elapsed_ticks = 0u;
+        rt->start_delay_ticks = 0u;
+    }
+}</code></pre>
+
+<h3>6.4 ActivateTask() — Cầu nối giữa ScheduleTable và Scheduler</h3>
+<pre><code>// os_kernel.c — ActivateTask() (dòng 508-555)
+void ActivateTask(uint8_t tid)
+{
+    TCB_t *task = &tcb[tid];
+
+    if (task->activation_count >= task->max_activations) return;
+    task->activation_count++;
+
+    if (task->state == OS_DORMANT) {
+        task->context_needs_init = 1u;    // Dựng lại stack frame
+        task->state = OS_READY;
+        os_ready_enqueue_tail(task->current_priority, task->id);
+        // → Task nằm trong ready queue, chờ scheduler pick
+    }
+
+    // Nếu không trong ISR → gọi os_schedule() ngay
+    // Nếu đang trong ISR → os_isr_exit() sẽ gọi os_schedule() sau
+}</code></pre>
+
+<div class="callout">
+    <strong>Luồng đi hoàn chỉnh trong 1 tick:</strong><br/>
+    <code>SysTick_Handler() → os_on_tick() → os_sched_table_on_tick() → fire_due_points() → ActivateTask(task_id) → enqueue vào ready queue → os_isr_exit() → os_schedule() → os_should_preempt() → os_dispatch() → PendSV context switch → Task chạy</code>
+</div>
+<hr />
+
+<!-- ============================================================ -->
+<h2 id="7-timeline">7. Timeline thực tế — Theo dõi ScheduleTable xuyên suốt</h2>
+<p>Dưới đây là timeline chi tiết của ScheduleTable_Main với <code>start_delay=220</code>, <code>duration=40</code>, <code>repeating=1</code>:</p>
+
+<table>
+<thead><tr><th>Tick</th><th>start_delay</th><th>elapsed</th><th>Sự kiện</th><th>Task được kích hoạt</th></tr></thead>
+<tbody>
+<tr><td>0</td><td>220</td><td>—</td><td>OS_Init() → StartScheduleTableRel(0, 220)</td><td>—</td></tr>
+<tr><td>1</td><td>219</td><td>—</td><td>Countdown giảm</td><td>—</td></tr>
+<tr><td>...</td><td>...</td><td>—</td><td>(219 tick countdown)</td><td>—</td></tr>
+<tr><td>20</td><td>200</td><td>—</td><td>Alarm kích hoạt Task_Mixed_PreLow</td><td>—</td></tr>
+<tr><td>40</td><td>180</td><td>—</td><td>Alarm kích hoạt Task_Mixed_High (preempt)</td><td>—</td></tr>
+<tr><td>120</td><td>100</td><td>—</td><td>Alarm kích hoạt Task_Mixed_NonPreLow</td><td>—</td></tr>
+<tr><td>140</td><td>80</td><td>—</td><td>Alarm kích hoạt Task_Mixed_High (queued)</td><td>—</td></tr>
+<tr style="background-color:#d4edda;"><td><strong>220</strong></td><td><strong>0</strong></td><td><strong>0</strong></td><td><strong>Countdown xong! Fire offset 0</strong></td><td><strong>TASK_SCHTBL_LOW</strong></td></tr>
+<tr><td>221..229</td><td>—</td><td>1..9</td><td>elapsed tăng, chưa đến offset 10</td><td>—</td></tr>
+<tr style="background-color:#d4edda;"><td><strong>230</strong></td><td>—</td><td><strong>10</strong></td><td><strong>Fire offset 10</strong></td><td><strong>TASK_SCHTBL_HIGH</strong></td></tr>
+<tr><td>231..259</td><td>—</td><td>11..39</td><td>elapsed tăng, không còn expiry point</td><td>—</td></tr>
+<tr style="background-color:#cce5ff;"><td><strong>260</strong></td><td>—</td><td><strong>0</strong> (reset)</td><td><strong>elapsed = duration → repeating reset! Fire offset 0</strong></td><td><strong>TASK_SCHTBL_LOW</strong></td></tr>
+<tr style="background-color:#d4edda;"><td><strong>270</strong></td><td>—</td><td><strong>10</strong></td><td><strong>Fire offset 10</strong></td><td><strong>TASK_SCHTBL_HIGH</strong></td></tr>
+<tr style="background-color:#cce5ff;"><td><strong>300</strong></td><td>—</td><td><strong>0</strong> (reset)</td><td><strong>Chu kỳ 3 bắt đầu!</strong></td><td><strong>TASK_SCHTBL_LOW</strong></td></tr>
+<tr><td>...</td><td>—</td><td>...</td><td>Lặp lại vô hạn mỗi 40 tick</td><td>...</td></tr>
+</tbody>
+</table>
+
+<div class="formula">
+Công thức tính tick kích hoạt:<br/><br/>
+Tick(expiry_point, cycle_n) = start_delay + (cycle_n × duration) + offset_ticks<br/><br/>
+Ví dụ TASK_SCHTBL_HIGH ở chu kỳ thứ 2:<br/>
+= 220 + (1 × 40) + 10 = 270 ✓<br/><br/>
+Ví dụ TASK_SCHTBL_LOW ở chu kỳ thứ 3:<br/>
+= 220 + (2 × 40) + 0 = 300 ✓
+</div>
+<hr />
+
+<!-- ============================================================ -->
+<h2 id="8-diagrams">8. Sơ đồ UML chi tiết</h2>
+
+<div class="diagram-box">
+    <div class="sheet-head">Hình 1. Component Diagram — Kiến trúc ScheduleTable trong OS</div>
+    <div class="mermaid">
+graph TB
+    subgraph Config["📋 Cấu hình tĩnh (Config/)"]
+        CFG_TABLE["OsScheduleTableConfig_t<br/><code>g_os_schedule_table_cfg[]</code><br/><i>id, autostart, repeating,<br/>start_delay_ms, duration_ms</i>"]
+        CFG_EP["OsScheduleTableExpiryPointCfg_t<br/><code>g_schedule_table_main_points[]</code><br/><i>offset_ticks, task_id</i>"]
+        CFG_TASK["OsTaskConfig_t<br/><code>g_os_task_cfg[]</code><br/><i>id, priority, entry, sched_class</i>"]
+    end
+
+    subgraph Kernel["⚙️ Kernel Core (os_kernel.c)"]
+        INIT["OS_Init()<br/><i>Nạp config, setup TCB,<br/>autostart alarm + table</i>"]
+        TICK["os_on_tick()<br/><i>ISR xử lý alarm + table</i>"]
+        ACTIVATE["ActivateTask()<br/><i>Enqueue task vào ready queue</i>"]
+        SCHED["os_schedule()<br/><i>Chọn task priority cao nhất</i>"]
+        DISPATCH["os_dispatch()<br/><i>Trigger PendSV context switch</i>"]
+    end
+
+    subgraph SchedTable["📐 ScheduleTable Module (os_sched_table.c)"]
+        ST_RESET["os_sched_table_reset_all()"]
+        ST_AUTO["os_sched_table_autostart_all()"]
+        ST_TICK["os_sched_table_on_tick()"]
+        ST_FIRE["os_sched_table_fire_due_points()"]
+        ST_FINISH["os_sched_table_finish_cycle()"]
+        ST_START["StartScheduleTableRel()"]
+        ST_RT["g_sched_table_rt[]<br/><i>Runtime state</i>"]
+    end
+
+    subgraph Port["🔧 Port Layer"]
+        SYSTICK["SysTick_Handler()<br/><i>Gọi os_on_tick()</i>"]
+        PENDSV["PendSV_Handler()<br/><i>Context switch</i>"]
+    end
+
+    subgraph App["🔵 Application"]
+        TASK_LOW["Task_ScheduleTable_Low()"]
+        TASK_HIGH["Task_ScheduleTable_High()"]
+    end
+
+    CFG_TABLE --> INIT
+    CFG_EP --> ST_FIRE
+    CFG_TASK --> INIT
+
+    INIT --> ST_RESET
+    INIT --> ST_AUTO
+    ST_AUTO --> ST_START
+    ST_START --> ST_RT
+
+    SYSTICK --> TICK
+    TICK --> ST_TICK
+    ST_TICK --> ST_FIRE
+    ST_FIRE --> ACTIVATE
+    ST_TICK --> ST_FINISH
+    ACTIVATE --> SCHED
+    SCHED --> DISPATCH
+    DISPATCH --> PENDSV
+    PENDSV --> TASK_LOW
+    PENDSV --> TASK_HIGH
+
+    style Config fill:#fff3cd,stroke:#cc9900
+    style Kernel fill:#e8fee8,stroke:#009900
+    style SchedTable fill:#e8f0fe,stroke:#0066cc
+    style Port fill:#fee8e8,stroke:#cc0000
+    style App fill:#d4edda,stroke:#28a745
+    </div>
+    <div class="caption">Luồng đi: Config → OS_Init → SysTick → ScheduleTable → ActivateTask → Scheduler → PendSV → Task</div>
+</div>
+
+<div class="diagram-box">
+    <div class="sheet-head">Hình 2. Sequence Diagram — Luồng ScheduleTable hoàn chỉnh</div>
+    <div class="mermaid">
+sequenceDiagram
+    participant CFG as Config Tables
+    participant INIT as OS_Init
+    participant ST as ScheduleTable Module
+    participant SYSTICK as SysTick ISR
+    participant KERNEL as Kernel Core
+    participant QUEUE as Ready Queue
+    participant SCHED as Scheduler
+    participant APP as Task Entry
+
+    rect rgb(255, 243, 205)
+    Note right of CFG: GIAI ĐOẠN 1: Khởi tạo (boot)
+    CFG->>INIT: g_os_schedule_table_cfg[]
+    INIT->>ST: os_sched_table_reset_all()
+    INIT->>ST: os_sched_table_autostart_all()
+    ST->>ST: StartScheduleTableRel(0, 220)
+    Note over ST: rt.active=1, delay=220, duration=40
+    end
+
+    rect rgb(255, 240, 240)
+    Note right of SYSTICK: GIAI ĐOẠN 2: Countdown (tick 1..219)
+    loop Mỗi tick từ 1 đến 219
+        SYSTICK->>KERNEL: os_on_tick()
+        KERNEL->>ST: os_sched_table_on_tick()
+        ST->>ST: start_delay_ticks-- (220→1)
+    end
+    end
+
+    rect rgb(208, 236, 209)
+    Note right of SYSTICK: GIAI ĐOẠN 3: Fire expiry tại tick 220
+    SYSTICK->>KERNEL: os_on_tick() [tick=220]
+    KERNEL->>ST: os_sched_table_on_tick()
+    ST->>ST: start_delay_ticks-- → 0!
+    ST->>ST: fire_due_points() offset=0
+    ST->>KERNEL: ActivateTask(TASK_SCHTBL_LOW)
+    KERNEL->>QUEUE: enqueue(LOW, priority=1)
+    KERNEL->>SCHED: os_schedule()
+    SCHED->>APP: → Task_ScheduleTable_Low chạy
+    end
+
+    rect rgb(204, 229, 255)
+    Note right of SYSTICK: GIAI ĐOẠN 4: Fire expiry tại tick 230
+    SYSTICK->>KERNEL: os_on_tick() [tick=230]
+    KERNEL->>ST: os_sched_table_on_tick()
+    ST->>ST: elapsed_ticks=10, fire offset=10
+    ST->>KERNEL: ActivateTask(TASK_SCHTBL_HIGH)
+    KERNEL->>QUEUE: enqueue(HIGH, priority=3)
+    KERNEL->>SCHED: os_schedule()
+    SCHED->>APP: → Task_ScheduleTable_High chạy
+    end
+
+    rect rgb(255, 243, 205)
+    Note right of ST: GIAI ĐOẠN 5: Repeating tại tick 260
+    SYSTICK->>KERNEL: os_on_tick() [tick=260]
+    KERNEL->>ST: os_sched_table_on_tick()
+    ST->>ST: elapsed=40 = duration → RESET!
+    ST->>ST: elapsed=0, idx=0, fire offset=0
+    ST->>KERNEL: ActivateTask(TASK_SCHTBL_LOW)
+    Note over ST: Chu kỳ mới bắt đầu...
+    end
+    </div>
+    <div class="caption">5 giai đoạn: Khởi tạo → Countdown → Fire offset 0 → Fire offset 10 → Repeating reset</div>
+</div>
+
+<div class="diagram-box">
+    <div class="sheet-head">Hình 3. Activity Diagram — Xử lý ScheduleTable trong mỗi tick</div>
+    <div class="mermaid">
+flowchart TD
+    START(["SysTick_Handler()"]) --> ONTICK["os_on_tick()"]
+    ONTICK --> ALARM["Xử lý alarm (bước 1)"]
+    ALARM --> ST_TICK["os_sched_table_on_tick()"]
+
+    ST_TICK --> LOOP{"Còn table chưa xét?"}
+    LOOP -->|Không| ISR_EXIT["os_isr_exit()"]
+    LOOP -->|Có| CHECK_ACTIVE{"rt.active == 1?"}
+    CHECK_ACTIVE -->|Không| NEXT_TABLE["Xét table tiếp"]
+    NEXT_TABLE --> LOOP
+
+    CHECK_ACTIVE -->|Có| CHECK_DELAY{"start_delay > 0?"}
+    CHECK_DELAY -->|Có| DEC_DELAY["start_delay_ticks--"]
+    DEC_DELAY --> CHECK_ZERO{"delay == 0?"}
+    CHECK_ZERO -->|Không| NEXT_TABLE
+    CHECK_ZERO -->|Có| FIRE_INIT["elapsed=0, idx=0<br/>fire_due_points()"]
+    FIRE_INIT --> FINISH_INIT["finish_cycle()"]
+    FINISH_INIT --> NEXT_TABLE
+
+    CHECK_DELAY -->|Không| INC_ELAPSED["elapsed_ticks++"]
+    INC_ELAPSED --> FIRE["fire_due_points()"]
+    FIRE --> CHECK_EP{"offset <= elapsed?"}
+    CHECK_EP -->|Có| ACTIVATE["ActivateTask(task_id)<br/>idx++"]
+    ACTIVATE --> CHECK_EP
+    CHECK_EP -->|Không| FINISH["finish_cycle()"]
+    FINISH --> CHECK_DUR{"elapsed >= duration?"}
+    CHECK_DUR -->|Không| NEXT_TABLE
+    CHECK_DUR -->|Có| CHECK_REP{"repeating?"}
+    CHECK_REP -->|Có| RESET["elapsed=0, idx=0<br/>fire offset=0 ngay"]
+    CHECK_REP -->|Không| STOP["active=0 (STOPPED)"]
+    RESET --> NEXT_TABLE
+    STOP --> NEXT_TABLE
+
+    ISR_EXIT --> SCHEDULE["os_schedule()"]
+    SCHEDULE --> DISPATCH{"Cần context switch?"}
+    DISPATCH -->|Có| PENDSV["PendSV → Task chạy"]
+    DISPATCH -->|Không| DONE(["Return"])
+
+    style START fill:#e8f0fe,stroke:#0066cc
+    style ACTIVATE fill:#d4edda,stroke:#28a745
+    style RESET fill:#cce5ff,stroke:#0066cc
+    style STOP fill:#f8d7da,stroke:#dc3545
+    style PENDSV fill:#d4edda,stroke:#28a745
+    </div>
+    <div class="caption">Logic hoàn chỉnh xử lý ScheduleTable trong ISR: countdown → đếm offset → fire expiry → reset chu kỳ</div>
+</div>
+
+<div class="diagram-box">
+    <div class="sheet-head">Hình 4. Class Diagram — Cấu trúc dữ liệu ScheduleTable</div>
+    <div class="mermaid">
+classDiagram
+    class OsScheduleTableConfig_t {
+        +uint8_t id
+        +const char* name
+        +uint8_t autostart
+        +uint8_t repeating
+        +uint32_t start_delay_ms
+        +uint32_t duration_ms
+        +OsScheduleTableExpiryPointCfg_t* expiry_points
+        +uint8_t num_expiry_points
+    }
+    class OsScheduleTableExpiryPointCfg_t {
+        +uint32_t offset_ticks
+        +uint8_t task_id
+    }
+    class OsScheduleTable_t {
+        +uint8_t active
+        +uint8_t repeating
+        +uint8_t current_expiry_idx
+        +uint32_t start_delay_ticks
+        +uint32_t elapsed_ticks
+        +uint32_t duration_ticks
+    }
+    class OsTaskConfig_t {
+        +uint8_t id
+        +const char* name
+        +void (*entry)(void *arg)
+        +uint8_t base_priority
+        +uint8_t max_activations
+        +uint8_t autostart
+        +OsTaskSchedClass_e sched_class
+    }
+    class TCB_t {
+        +uint32_t* sp
+        +uint8_t id
+        +uint8_t current_priority
+        +volatile uint8_t activation_count
+        +volatile uint8_t state
+    }
+
+    OsScheduleTableConfig_t "1" --> "*" OsScheduleTableExpiryPointCfg_t : chứa N expiry points
+    OsScheduleTableConfig_t "1" ..> "1" OsScheduleTable_t : OS_Init tạo runtime
+    OsScheduleTableExpiryPointCfg_t --> OsTaskConfig_t : task_id tham chiếu
+    OsTaskConfig_t "1" ..> "1" TCB_t : os_task_setup_from_cfg()
+    </div>
+    <div class="caption">Quan hệ giữa cấu hình tĩnh (config) và runtime state: Config → Runtime → TCB</div>
+</div>
+
+<div class="diagram-box">
+    <div class="sheet-head">Hình 5. State Diagram — Vòng đời ScheduleTable</div>
+    <div class="mermaid">
+stateDiagram-v2
+    [*] --> STOPPED : os_sched_table_reset_all()
+
+    STOPPED --> DELAY_PHASE : StartScheduleTableRel(sid, delay)
+    note right of DELAY_PHASE : start_delay_ticks > 0<br/>Mỗi tick giảm 1
+
+    state DELAY_PHASE {
+        [*] --> Counting
+        Counting --> Counting : tick → delay--
+        Counting --> [*] : delay == 0
+    }
+
+    DELAY_PHASE --> CYCLE_PHASE : delay == 0, fire offset 0
+
+    state CYCLE_PHASE {
+        [*] --> Running
+        Running --> Running : tick → elapsed++, check expiry
+        Running --> [*] : elapsed >= duration
+    }
+
+    CYCLE_PHASE --> CYCLE_PHASE : repeating → reset offset 0
+    CYCLE_PHASE --> STOPPED : one-shot → active = 0
+    STOPPED --> STOPPED : StopScheduleTable()
+    </div>
+    <div class="caption">3 trạng thái chính: STOPPED → DELAY_PHASE → CYCLE_PHASE (lặp nếu repeating)</div>
+</div>
+
+<div class="diagram-box">
+    <div class="sheet-head">Hình 6. Timeline Diagram — Hai chu kỳ đầu của ScheduleTable_Main</div>
+    <div class="mermaid">
+gantt
+    title ScheduleTable_Main Timeline (tick)
+    dateFormat X
+    axisFormat %s
+
+    section Countdown
+    start_delay 220 ticks        :done, delay, 0, 220
+
+    section Chu kỳ 1 (tick 220-259)
+    TASK_SCHTBL_LOW offset=0     :crit, ep1a, 220, 221
+    Chờ offset 10                :active, wait1, 221, 230
+    TASK_SCHTBL_HIGH offset=10   :crit, ep1b, 230, 231
+    Còn lại chu kỳ               :active, rest1, 231, 260
+
+    section Chu kỳ 2 (tick 260-299)
+    TASK_SCHTBL_LOW offset=0     :crit, ep2a, 260, 261
+    Chờ offset 10                :active, wait2, 261, 270
+    TASK_SCHTBL_HIGH offset=10   :crit, ep2b, 270, 271
+    Còn lại chu kỳ               :active, rest2, 271, 300
+    </div>
+    <div class="caption">220 tick countdown → Chu kỳ dài 40 tick lặp lại → Expiry points tại offset 0 và 10</div>
+</div>
+<hr />
+
+<!-- ============================================================ -->
+<h2 id="9-so-sanh">9. So sánh Alarm và ScheduleTable</h2>
+<table>
+<thead><tr><th>Đặc điểm</th><th>Alarm</th><th>ScheduleTable</th></tr></thead>
+<tbody>
+<tr><td>Cấu hình</td><td><code>OsAlarmConfig_t</code>: delay + cycle + target_task</td><td><code>OsScheduleTableConfig_t</code>: delay + duration + N expiry points</td></tr>
+<tr><td>Số task per object</td><td>1 alarm → 1 task</td><td>1 table → N tasks (N expiry points)</td></tr>
+<tr><td>Đồng bộ thời gian</td><td>Mỗi alarm đếm <code>remain_ticks</code> riêng biệt</td><td>Tất cả expiry points dùng chung <code>elapsed_ticks</code></td></tr>
+<tr><td>Runtime state</td><td><code>OsAlarm_t</code>: active, remain, cycle, target</td><td><code>OsScheduleTable_t</code>: active, delay, elapsed, duration, idx</td></tr>
+<tr><td>Repeating</td><td><code>cycle_ticks > 0</code> → reload remain</td><td><code>repeating = 1</code> → reset elapsed + idx</td></tr>
+<tr><td>One-shot</td><td><code>cycle_ticks == 0</code> → <code>active = 0</code></td><td><code>repeating = 0</code> → <code>active = 0</code></td></tr>
+<tr><td>Xử lý trong tick</td><td>Trong <code>os_on_tick()</code> vòng lặp alarm</td><td>Trong <code>os_sched_table_on_tick()</code> gọi sau alarm</td></tr>
+<tr><td>API start</td><td><code>SetRelAlarm(aid, delay, cycle, target)</code></td><td><code>StartScheduleTableRel(sid, delay)</code></td></tr>
+<tr><td>API stop</td><td><code>CancelAlarm(aid)</code></td><td><code>StopScheduleTable(sid)</code></td></tr>
+<tr><td>Demo timeline</td><td>tick 20, 40, 120, 140 (4 one-shot alarms)</td><td>tick 220, 230, 260, 270, ... (repeating)</td></tr>
+</tbody>
+</table>
+
+<div class="diagram-box">
+    <div class="sheet-head">Hình 7. So sánh trực quan Alarm vs ScheduleTable</div>
+    <div class="mermaid">
+flowchart LR
+    subgraph ALARM["⏰ ALARM (1:1)"]
+        direction TB
+        A1["Alarm_PreLow<br/>delay=20, target=TASK_MIXED_PRE_LOW"] --> A2["tick 20 → ActivateTask()"]
+        A3["Alarm_PreHigh<br/>delay=40, target=TASK_MIXED_HIGH"] --> A4["tick 40 → ActivateTask()"]
+    end
+
+    subgraph SCHTBL["📐 SCHEDULE TABLE (1:N)"]
+        direction TB
+        S1["ScheduleTable_Main<br/>delay=220, duration=40"] --> S2["offset 0 → ActivateTask(LOW)"]
+        S1 --> S3["offset 10 → ActivateTask(HIGH)"]
+        S2 --> S4["tick 220, 260, 300, ..."]
+        S3 --> S5["tick 230, 270, 310, ..."]
+    end
+
+    style ALARM fill:#fff0f0,stroke:#cc0000
+    style SCHTBL fill:#f0fff0,stroke:#009900
+    </div>
+    <div class="caption">Alarm: mỗi alarm chỉ kích hoạt 1 task. ScheduleTable: 1 table kích hoạt nhiều task theo offset đồng bộ.</div>
+</div>
+<hr />
+
+<!-- ============================================================ -->
+<h2 id="10-lab">10. Kiểm chứng bằng log và lab mô phỏng</h2>
+<h3>10.1 Chạy mô phỏng trên Renode</h3>
+<pre><code># Biên dịch
+make clean && make -j4 all
+
+# Chạy test tự động (build → Renode → validate log → GDB smoke)
+python3 test_os.py</code></pre>
+
+<h3>10.2 Kết quả log thực tế (UART output)</h3>
+<pre><code>[T=0]   [BOOT] PROFILE=MIXED_SCHEDULE_TABLE MODE=MIXED
+[T=0]   [BOOT] Khoi tao phan cung thanh cong.
+
+--- Mixed Scheduling (alarm-driven) ---
+[T=20]  [MIXED_PRE_LOW] START preemptible window
+[T=40]  [MIXED_HIGH] RUN while preemptible low is paused
+[T=80]  [MIXED_PRE_LOW] END after high preempted it
+[T=120] [MIXED_NONPRE_LOW] START nonpreemptible window
+[T=180] [MIXED_NONPRE_LOW] END before queued high
+[T=180] [MIXED_HIGH] RUN after nonpreemptible low finished
+
+--- ScheduleTable (time-triggered) ---
+[T=220] [SCHTBL_LOW] RUN offset=0 priority=LOW       ← Chu kỳ 1, offset 0
+[T=230] [SCHTBL_HIGH] RUN offset=10 priority=HIGH     ← Chu kỳ 1, offset 10
+[T=260] [SCHTBL_LOW] RUN offset=0 priority=LOW       ← Chu kỳ 2, offset 0
+[T=270] [SCHTBL_HIGH] RUN offset=10 priority=HIGH     ← Chu kỳ 2, offset 10
+[T=300] [SCHTBL_LOW] RUN offset=0 priority=LOW       ← Chu kỳ 3, offset 0
+[T=310] [SCHTBL_HIGH] RUN offset=10 priority=HIGH     ← Chu kỳ 3, offset 10</code></pre>
+
+<div class="note">
+    <strong>Xác nhận thành công:</strong>
+    <ul>
+        <li>ScheduleTable bắt đầu đúng tick 220 (sau countdown 220 tick)</li>
+        <li>Offset 0 (LOW) luôn fire trước offset 10 (HIGH) trong mỗi chu kỳ</li>
+        <li>Repeating hoạt động: 220→260→300 cách nhau đúng 40 tick (duration)</li>
+        <li>Mixed scheduling và ScheduleTable chạy song song không xung đột</li>
+    </ul>
+</div>
+
+<h3>10.3 Các test assertion quan trọng trong <code>test_os.py</code></h3>
+<table class="tight">
+<thead><tr><th>Assertion</th><th>Tick kỳ vọng</th><th>Mục đích</th></tr></thead>
+<tbody>
+<tr><td><code>SCHTBL_LOW</code> occurrence #1</td><td>220</td><td>Xác nhận start_delay đúng 220 tick</td></tr>
+<tr><td><code>SCHTBL_HIGH</code> occurrence #1</td><td>230</td><td>Xác nhận offset 10 trong chu kỳ 1</td></tr>
+<tr><td><code>SCHTBL_LOW</code> occurrence #2</td><td>260</td><td>Xác nhận repeating: 220 + 40 = 260</td></tr>
+<tr><td><code>SCHTBL_HIGH</code> occurrence #2</td><td>270</td><td>Xác nhận offset 10 trong chu kỳ 2: 260 + 10 = 270</td></tr>
+<tr><td>Thứ tự: LOW trước HIGH</td><td>—</td><td>Offset 0 luôn fire trước offset 10</td></tr>
+</tbody>
+</table>
+
+<h3>10.4 Điểm quan sát khi debug</h3>
+<table class="tight">
+<thead><tr><th>Vị trí đặt breakpoint</th><th>Biến cần watch</th><th>Mục đích</th></tr></thead>
+<tbody>
+<tr><td><code>os_sched_table_on_tick()</code></td><td><code>rt->start_delay_ticks</code>, <code>rt->elapsed_ticks</code></td><td>Theo dõi countdown và offset trong chu kỳ</td></tr>
+<tr><td><code>os_sched_table_fire_due_points()</code></td><td><code>point->offset_ticks</code>, <code>point->task_id</code></td><td>Xác nhận đúng expiry point được fire</td></tr>
+<tr><td><code>ActivateTask()</code></td><td><code>tid</code>, <code>task->activation_count</code></td><td>Xác nhận task đúng được kích hoạt</td></tr>
+<tr><td><code>os_schedule()</code></td><td><code>g_current->name</code>, <code>g_next->name</code></td><td>Xác nhận scheduler chọn đúng task</td></tr>
+<tr><td><code>os_sched_table_finish_cycle()</code></td><td><code>rt->elapsed_ticks</code>, <code>rt->repeating</code></td><td>Xác nhận chu kỳ reset đúng</td></tr>
+</tbody>
+</table>
+<hr />
+
+<!-- ============================================================ -->
+<h2 id="11-ket-luan">11. Các điểm dễ nhầm và kết luận kỹ thuật</h2>
+<h3>11.1 Sáu điểm dễ nhầm nhất</h3>
+<ul>
+<li><strong>ScheduleTable KHÔNG tự dispatch task.</strong> Nó chỉ gọi <code>ActivateTask()</code> để đưa task vào ready queue. Scheduler core là nơi duy nhất quyết định context switch, dựa trên priority và policy (Full/Non/Mixed Preemptive).</li>
+<li><strong>start_delay ≠ offset.</strong> <code>start_delay_ms</code> là thời gian chờ <em>trước</em> khi bắt đầu chu kỳ đầu tiên. <code>offset_ticks</code> trong expiry point là vị trí <em>trong chu kỳ</em>. Hai khái niệm hoàn toàn khác nhau.</li>
+<li><strong>start_delay = 0 không fire ngay.</strong> Code quy đổi delay 0 ms thành 1 tick (<code>ms_to_ticks(1)</code>) để tránh gọi <code>ActivateTask()</code> ngay trong OS_Init(). Tick đầu tiên mới fire.</li>
+<li><strong>Expiry point offset 0 fire ngay khi countdown = 0.</strong> Không cần chờ thêm 1 tick nữa. Logic fire chạy ngay trong cùng tick mà <code>start_delay_ticks</code> chạm 0.</li>
+<li><strong>Repeating fire offset 0 ngay tại boundary.</strong> Khi <code>elapsed_ticks == duration_ticks</code>, <code>finish_cycle()</code> reset elapsed về 0 và gọi <code>fire_due_points()</code> luôn. Expiry point tại offset 0 của chu kỳ mới fire ngay trong cùng tick kết thúc chu kỳ cũ.</li>
+<li><strong>Alarm và ScheduleTable cùng chạy trong os_on_tick() nhưng KHÔNG xung đột.</strong> Alarm xử lý trước, ScheduleTable sau. Tất cả các <code>ActivateTask()</code> đều enqueue vào ready queue. Scheduler chỉ chạy <em>một lần</em> ở cuối ISR, chọn task priority cao nhất từ queue.</li>
+</ul>
+
+<h3>11.2 Kết luận cuối cùng</h3>
+<p>Điều quan trọng nhất để hiểu ScheduleTable trong OSEK/AUTOSAR OS là: <strong>ScheduleTable là một "bộ hẹn giờ thông minh" với nhiều mốc thời gian, không phải là một scheduler riêng biệt</strong>. Cụ thể:</p>
+<ul>
+<li><strong>Cấu hình tĩnh</strong> (<code>os_app_cfg.c</code>) định nghĩa table với các expiry points chứa offset + task_id.</li>
+<li><strong>OS_Init()</strong> đọc bảng config, tạo runtime state, và autostart table nếu cần.</li>
+<li><strong>SysTick ISR</strong> gọi <code>os_sched_table_on_tick()</code> mỗi 1 ms để giảm countdown hoặc tăng offset.</li>
+<li><strong>ScheduleTable module</strong> kiểm tra expiry point và gọi <code>ActivateTask()</code> khi đến offset.</li>
+<li><strong>Scheduler core</strong> chọn task có priority cao nhất từ ready queue để dispatch.</li>
+<li><strong>PendSV</strong> thực hiện context switch thật sự ở mức assembly.</li>
+</ul>
+<p>Nắm được chuỗi này thì việc mở rộng ScheduleTable với các tính năng AUTOSAR nâng cao như <code>SetEvent()</code>, <code>synchronization</code>, <code>next table chaining</code>, hay <code>implicit/explicit sync</code> sẽ trở nên tự nhiên hơn rất nhiều.</p>
+
+<div class="footer">HALA Academy | Biên soạn: Phạm Văn Vũ</div>
+</body>
+</html>

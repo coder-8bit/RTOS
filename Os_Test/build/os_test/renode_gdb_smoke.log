@@ -1,0 +1,40 @@
+20:17:01.8503 [INFO] sysbus: Loading block of 15620 bytes length at 0x8000000.
+20:17:01.8582 [INFO] sysbus: Loading block of 4224 bytes length at 0x8003D04.
+20:17:01.8813 [INFO] stm32: CPUs: ["stm32.cpu"] were added to a new GDB server created on port :52072
+20:17:01.8813 [INFO] stm32: GDB server with all CPUs started on port :52072
+20:17:01.8941 [INFO] cpu: Guessing VectorTableOffset value to be 0x8000000.
+20:17:01.9007 [INFO] cpu: Setting initial values: PC = 0x8002355, SP = 0x20005000.
+20:17:01.9028 [INFO] stm32: Machine started.
+20:17:02.1054 [WARNING] gpioPortA: Unhandled write to offset 0x4. Unhandled bits: [6-7] when writing value 0x444444B4. Tags: CNF9 (0x2).
+20:17:02.1084 [INFO] usart1: [host: 0,28s (+0,28s)|virt: 0,42ms (+0,42ms)] 
+20:17:02.1086 [INFO] usart1: [host: 0,28s (+0,28s)|virt: 0,42ms (+0,42ms)] 
+20:17:02.1086 [INFO] usart1: [host: 0,28s (+0,58ms)|virt:     0,42ms (+0s)] [T=0] [BOOT] PROFILE=EVENT_API_DEMO
+20:17:02.1086 [INFO] usart1: [host: 0,28s (+0,48ms)|virt:     0,42ms (+0s)] [T=0] [BOOT] PROFILE=EVENT_API_DEMO
+20:17:02.1090 [INFO] usart1: [host: 0,28s (+0,42ms)|virt:     0,42ms (+0s)] [T=0] [BOOT] APIs=WaitEvent SetEvent ClearEvent GetEvent
+20:17:02.1094 [INFO] usart1: [host: 0,28s (+0,42ms)|virt:     0,42ms (+0s)] [T=0] [BOOT] APIs=WaitEvent SetEvent ClearEvent GetEvent
+20:17:02.1095 [INFO] usart1: [host: 0,28s (+0,41ms)|virt:     0,42ms (+0s)] [T=0] [BOOT] Task_EventConsumer waits before producer runs
+20:17:02.1095 [INFO] usart1: [host:  0,28s (+0,4ms)|virt:     0,42ms (+0s)] [T=0] [BOOT] Task_EventConsumer waits before producer runs
+20:17:02.1102 [INFO] usart1: [host: 0,29s (+0,82ms)|virt: 0,46ms (+39,77µs)] [T=0] [CONSUMER] WaitEvent(EVENT_RX_DONE)
+20:17:02.1102 [INFO] usart1: [host: 0,28s (+0,84ms)|virt: 0,46ms (+39,77µs)] [T=0] [CONSUMER] WaitEvent(EVENT_RX_DONE)
+20:17:02.1106 [INFO] usart1: [host: 0,29s (+0,38ms)|virt: 0,47ms (+11,46µs)] [T=0] [PRODUCER] SetEvent(EVENT_RX_DONE)
+20:17:02.1106 [INFO] usart1: [host: 0,28s (+0,37ms)|virt: 0,47ms (+11,46µs)] [T=0] [PRODUCER] SetEvent(EVENT_RX_DONE)
+20:17:02.1113 [INFO] usart1: [host: 0,29s (+0,65ms)|virt: 0,49ms (+12,24µs)] [T=0] [CONSUMER] GetEvent after RX mask=0x00000001
+20:17:02.1113 [INFO] usart1: [host: 0,28s (+0,65ms)|virt: 0,49ms (+12,24µs)] [T=0] [CONSUMER] GetEvent after RX mask=0x00000001
+20:17:02.1118 [INFO] usart1: [host: 0,29s (+0,57ms)|virt:  0,5ms (+14,17µs)] [T=0] [CONSUMER] GetEvent after ClearEvent(RX) mask=0x00000000
+20:17:02.1118 [INFO] usart1: [host: 0,28s (+0,57ms)|virt:  0,5ms (+14,17µs)] [T=0] [CONSUMER] GetEvent after ClearEvent(RX) mask=0x00000000
+20:17:02.1121 [INFO] usart1: [host:  0,29s (+0,3ms)|virt:       0,5ms (+0s)] [T=0] [CONSUMER] WaitEvent(EVENT_TIMEOUT)
+20:17:02.1121 [INFO] usart1: [host: 0,28s (+0,29ms)|virt:       0,5ms (+0s)] [T=0] [CONSUMER] WaitEvent(EVENT_TIMEOUT)
+20:17:02.1125 [INFO] usart1: [host: 0,29s (+0,41ms)|virt: 0,53ms (+25,05µs)] [T=0] [PRODUCER] resumed after consumer blocked again
+20:17:02.1125 [INFO] usart1: [host: 0,28s (+0,41ms)|virt: 0,53ms (+25,05µs)] [T=0] [PRODUCER] resumed after consumer blocked again
+20:17:02.1128 [INFO] usart1: [host: 0,29s (+0,28ms)|virt:      0,53ms (+0s)] [T=0] [PRODUCER] SetEvent(EVENT_TIMEOUT)
+20:17:02.1128 [INFO] usart1: [host: 0,28s (+0,27ms)|virt:      0,53ms (+0s)] [T=0] [PRODUCER] SetEvent(EVENT_TIMEOUT)
+20:17:02.1132 [INFO] usart1: [host: 0,29s (+0,39ms)|virt: 0,55ms (+24,53µs)] [T=0] [CONSUMER] GetEvent after TIMEOUT mask=0x00000002
+20:17:02.1132 [INFO] usart1: [host: 0,28s (+0,39ms)|virt: 0,55ms (+24,53µs)] [T=0] [CONSUMER] GetEvent after TIMEOUT mask=0x00000002
+20:17:02.1137 [INFO] usart1: [host: 0,29s (+0,42ms)|virt:      0,55ms (+0s)] [T=0] [CONSUMER] GetEvent after ClearEvent(TIMEOUT) mask=0x00000000
+20:17:02.1137 [INFO] usart1: [host: 0,28s (+0,42ms)|virt:      0,55ms (+0s)] [T=0] [CONSUMER] GetEvent after ClearEvent(TIMEOUT) mask=0x00000000
+20:17:02.1139 [INFO] usart1: [host: 0,29s (+0,33ms)|virt:      0,55ms (+0s)] [T=0] [CONSUMER] Event demo complete
+20:17:02.1140 [INFO] usart1: [host: 0,28s (+0,33ms)|virt:      0,55ms (+0s)] [T=0] [CONSUMER] Event demo complete
+20:17:02.1142 [INFO] usart1: [host: 0,29s (+0,28ms)|virt: 0,59ms (+40,39µs)] [T=0] [PRODUCER] producer complete
+20:17:02.1142 [INFO] usart1: [host: 0,28s (+0,28ms)|virt: 0,59ms (+40,39µs)] [T=0] [PRODUCER] producer complete
+20:17:02.6335 [INFO] stm32: Machine paused.
+20:17:02.6657 [INFO] stm32: Disposed.

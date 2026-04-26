@@ -35,7 +35,9 @@
 #define OS_IDLE_USE_WFI 1u
 #endif
 
-#define OS_SCHED_MODE_DEFAULT OS_SCHEDMODE_NON_PREEMPTIVE
+#ifndef OS_SCHED_MODE_DEFAULT
+#define OS_SCHED_MODE_DEFAULT OS_SCHEDMODE_MIXED
+#endif
 
 /* ------------------------------------------------------------
  * Kích thước các bảng đối tượng được suy ra trực tiếp từ enum app config.

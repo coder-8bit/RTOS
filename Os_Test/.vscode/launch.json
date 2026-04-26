@@ -2,14 +2,14 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Python Debugger: test_os.py",
+      "name": "Python Debugger: test_os.py (Mixed + ScheduleTable)",
       "type": "debugpy",
       "request": "launch",
       "program": "${workspaceFolder}/test_os.py",
       "console": "integratedTerminal"
     },
     {
-      "name": "Hardware Debug Full Preemptive",
+      "name": "Hardware Debug Mixed + ScheduleTable",
       "type": "cortex-debug",
       "request": "launch",
       "servertype": "openocd",
@@ -20,6 +20,7 @@
       "configFiles": ["interface/stlink.cfg", "target/stm32f1x.cfg"],
       "svdFile": "${workspaceFolder}/debug/STM32F103.svd",
       "runToEntryPoint": "main",
+      "preLaunchTask": "Make build (Mixed + ScheduleTable)",
       "postLaunchCommands": [
         "monitor reset halt",
         "monitor mmw 0x40021018 0x00000001 0x00000001",
@@ -40,90 +41,13 @@
         "monitor reg msp [expr [mrw 0x08000000]]",
         "monitor reg pc  [expr [mrw 0x08000004]]",
         "monitor arm semihosting enable"
-      ],
-      "liveWatch": {
-        "enabled": false
-      },
-      "preLaunchTask": "Make build (Hardware Full Preemptive)"
-    },
-    {
-      "name": "Renode Debug Full Preemptive",
-      "type": "cortex-debug",
-      "request": "launch",
-      "servertype": "external",
-      "cwd": "${workspaceFolder}",
-      "executable": "${workspaceFolder}/build/os_test/os_test.elf",
-      "device": "STM32F103C8T6",
-      "gdbPath": "/Users/phamvanvu/Projects/Embedded/ARM-Toolchain/arm-toolchain/bin/arm-none-eabi-gdb",
-      "gdbTarget": "localhost:3333",
-      "runToEntryPoint": "main",
-      "liveWatch": {
-        "enabled": false
-      },
-      "preLaunchTask": "Renode prepare os_test Full Preemptive",
-      "postDebugTask": "Renode cleanup"
-    },
-    {
-      "name": "Renode Attach Full Preemptive",
-      "type": "cortex-debug",
-      "request": "attach",
-      "servertype": "external",
-      "cwd": "${workspaceFolder}",
-      "executable": "${workspaceFolder}/build/os_test/os_test.elf",
-      "device": "STM32F103C8T6",
-      "gdbPath": "/Users/phamvanvu/Projects/Embedded/ARM-Toolchain/arm-toolchain/bin/arm-none-eabi-gdb",
-      "gdbTarget": "localhost:3333",
-      "runToEntryPoint": "main",
-      "postAttachCommands": [
-        "monitor machine Reset",
-        "monitor pause",
-        "monitor sysbus LoadELF \"${workspaceFolder}/build/os_test/os_test.elf\"",
-        "monitor start"
       ],
       "liveWatch": {
         "enabled": false
       }
     },
     {
-      "name": "Hardware Debug Non Preemptive",
-      "type": "cortex-debug",
-      "request": "launch",
-      "servertype": "openocd",
-      "gdbPath": "/Users/phamvanvu/Projects/Embedded/ARM-Toolchain/arm-toolchain/bin/arm-none-eabi-gdb",
-      "cwd": "${workspaceFolder}",
-      "executable": "${workspaceFolder}/build/os_test/os_test.elf",
-      "device": "STM32F103C8T6",
-      "configFiles": ["interface/stlink.cfg", "target/stm32f1x.cfg"],
-      "svdFile": "${workspaceFolder}/debug/STM32F103.svd",
-      "runToEntryPoint": "main",
-      "postLaunchCommands": [
-        "monitor reset halt",
-        "monitor mmw 0x40021018 0x00000001 0x00000001",
-        "monitor mmw 0x40010004 0x00000000 0x00000700",
-        "load",
-        "monitor mww 0xE000ED08 0x08000000",
-        "monitor reg msp [expr [mrw 0x08000000]]",
-        "monitor reg pc  [expr [mrw 0x08000004]]",
-        "monitor arm semihosting enable",
-        "monitor mdw 0xE000ED08 1"
-      ],
-      "postRestartCommands": [
-        "monitor reset halt",
-        "monitor mmw 0x40021018 0x00000001 0x00000001",
-        "monitor mmw 0x40010004 0x00000000 0x00000700",
-        "load",
-        "monitor mww 0xE000ED08 0x08000000",
-        "monitor reg msp [expr [mrw 0x08000000]]",
-        "monitor reg pc  [expr [mrw 0x08000004]]",
-        "monitor arm semihosting enable"
-      ],
-      "liveWatch": {
-        "enabled": false
-      },
-      "preLaunchTask": "Make build (Hardware Non Preemptive)"
-    },
-    {
-      "name": "Renode Debug Non Preemptive",
+      "name": "Renode Debug Mixed + ScheduleTable",
       "type": "cortex-debug",
       "request": "launch",
       "servertype": "external",
@@ -133,14 +57,14 @@
       "gdbPath": "/Users/phamvanvu/Projects/Embedded/ARM-Toolchain/arm-toolchain/bin/arm-none-eabi-gdb",
       "gdbTarget": "localhost:3333",
       "runToEntryPoint": "main",
+      "preLaunchTask": "Renode prepare Mixed + ScheduleTable",
+      "postDebugTask": "Renode cleanup",
       "liveWatch": {
         "enabled": false
-      },
-      "preLaunchTask": "Renode prepare os_test Non Preemptive",
-      "postDebugTask": "Renode cleanup"
+      }
     },
     {
-      "name": "Renode Attach Non Preemptive",
+      "name": "Renode Attach Mixed + ScheduleTable",
       "type": "cortex-debug",
       "request": "attach",
       "servertype": "external",
@@ -150,12 +74,6 @@
       "gdbPath": "/Users/phamvanvu/Projects/Embedded/ARM-Toolchain/arm-toolchain/bin/arm-none-eabi-gdb",
       "gdbTarget": "localhost:3333",
       "runToEntryPoint": "main",
-      "postAttachCommands": [
-        "monitor machine Reset",
-        "monitor pause",
-        "monitor sysbus LoadELF \"${workspaceFolder}/build/os_test/os_test.elf\"",
-        "monitor start"
-      ],
       "liveWatch": {
         "enabled": false
       }

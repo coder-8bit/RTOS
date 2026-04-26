@@ -53,6 +53,8 @@ typedef struct TCB {
     volatile uint8_t  activation_count;   /* Số activation hiện đang tích lũy */
     volatile uint8_t  context_needs_init; /* 1 nếu lần chạy tới phải dựng lại stack */
     volatile uint8_t  state;              /* Trạng thái runtime hiện tại */
+    volatile EventMaskType event_set;     /* Các event bit đã được báo cho task */
+    volatile EventMaskType wait_mask;     /* Các event bit task đang chờ */
 } TCB_t;
 
 /* =========================================================
@@ -103,6 +105,12 @@ void ActivateTask(uint8_t tid);
  * - sau đó gọi scheduler để chọn task tiếp theo
  */
 void TerminateTask(void);
+
+/* Primitive event tối giản: mỗi task sở hữu một event_set 32-bit. */
+void WaitEvent(EventMaskType mask);
+void SetEvent(uint8_t tid, EventMaskType mask);
+void ClearEvent(EventMaskType mask);
+void GetEvent(uint8_t tid, EventMaskType *mask);
 
 /* Đặt alarm tương đối, delay/cycle truyền từ góc nhìn application theo ms. */
 void SetRelAlarm(uint8_t aid, uint32_t delay_ms, uint32_t cycle_ms, uint8_t target_tid);
